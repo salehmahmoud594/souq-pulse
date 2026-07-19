@@ -40,3 +40,10 @@ yarn-error.log*
 
 # Build assets maps (optional, if compiling)
 *.map
+
+# Temporary Debug Files
+debug_db.php
+debug_response.json
+debug_db_report.json
+debug_db_report.json
+

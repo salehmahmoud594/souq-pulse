@@ -238,7 +238,9 @@ class SouqPulse_DB {
             "SELECT p.product_id, post.post_title as name, SUM(p.product_net_revenue) as revenue 
              FROM {$wpdb->prefix}wc_order_product_lookup p 
              LEFT JOIN {$wpdb->posts} post ON p.product_id = post.ID 
+             JOIN {$wpdb->prefix}wc_order_stats s ON p.order_id = s.order_id
              WHERE p.date_created >= %s AND p.date_created <= %s 
+               AND s.status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
              GROUP BY p.product_id, post.post_title 
              ORDER BY revenue DESC 
              LIMIT 5",
@@ -414,19 +416,38 @@ class SouqPulse_DB {
             'out_of_stock' => $stock_stats ? (int) $stock_stats->out_of_stock_count : 0,
         );
 
-        // 9. استعلام المؤشرات الجغرافية للمحافظات المصرية
-        $geo_query = $wpdb->prepare(
-            "SELECT c.state, COUNT(o.order_id) as order_count, SUM(o.total_sales) as total_sales
-             FROM {$wpdb->prefix}wc_order_stats o
-             JOIN {$wpdb->prefix}wc_customer_lookup c ON o.customer_id = c.customer_id
-             WHERE o.status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
-               AND c.country = 'EG'
-               AND o.date_created >= %s AND o.date_created <= %s
-             GROUP BY c.state
-             ORDER BY total_sales DESC",
-            $start_date,
-            $end_date
-        );
+        // 9. استعلام المؤشرات الجغرافية للمحافظات المصرية (من عنوان الطلب المباشر مع Fallback لبروفايل العميل)
+        $address_table = $wpdb->prefix . 'wc_order_addresses';
+        $has_address_table = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $address_table ) );
+
+        if ( $has_address_table ) {
+            $geo_query = $wpdb->prepare(
+                "SELECT a.state, COUNT(o.order_id) as order_count, SUM(o.total_sales) as total_sales
+                 FROM {$wpdb->prefix}wc_order_stats o
+                 JOIN {$address_table} a ON o.order_id = a.order_id
+                 WHERE o.status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
+                   AND a.address_type = 'billing'
+                   AND a.country = 'EG'
+                   AND o.date_created >= %s AND o.date_created <= %s
+                 GROUP BY a.state
+                 ORDER BY total_sales DESC",
+                $start_date,
+                $end_date
+            );
+        } else {
+            $geo_query = $wpdb->prepare(
+                "SELECT c.state, COUNT(o.order_id) as order_count, SUM(o.total_sales) as total_sales
+                 FROM {$wpdb->prefix}wc_order_stats o
+                 JOIN {$wpdb->prefix}wc_customer_lookup c ON o.customer_id = c.customer_id
+                 WHERE o.status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
+                   AND c.country = 'EG'
+                   AND o.date_created >= %s AND o.date_created <= %s
+                 GROUP BY c.state
+                 ORDER BY total_sales DESC",
+                $start_date,
+                $end_date
+            );
+        }
         $geo_rows = $wpdb->get_results( $geo_query );
 
         $eg_states = array(
