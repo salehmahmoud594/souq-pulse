@@ -1,14 +1,17 @@
 <?php
 /**
- * Plugin Name: SouqPulse (Souq Pulse)
- * Description: لوحة تحليلات متكاملة لمتجر WooCommerce مدمجة مع إحصائيات الزوار من WP Statistics بواجهة عربية كاملة RTL.
+ * Plugin Name: SouqPulse (نبض السوق)
+ * Plugin URI: https://github.com/salehmahmoud594/souq-pulse
+ * Description: An integrated and smart analytics dashboard for WooCommerce, merging real-time visitor traffic from WP Statistics with advanced KPIs in a fully localized Arabic RTL interface.
  * Version: 1.0.0
- * Author: WordPress Developer
+ * Author: Saleh Mahmoud
+ * Author URI: https://github.com/salehmahmoud594
  * Text Domain: souq-pulse
  * Domain Path: /languages
- * Requires at least: 5.6
+ * Requires at least: 5.8
  * Requires PHP: 7.4
  * WC requires at least: 5.0
+ * WC prefers at least: 6.0
  */
 
 // منع الوصول المباشر
