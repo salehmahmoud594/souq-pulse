@@ -7,11 +7,27 @@
     'use strict';
 
     $(document).ready(function() {
+        // إرسال نبضة نشاط أولية فور التحميل
+        sendHeartbeat();
+
+        // إرسال نبضة نشاط دورية كل 25 ثانية
+        setInterval(sendHeartbeat, 25000);
+
         // التحقق من أننا في صفحة إتمام الطلب لتنشيط التتبع الفرعي
         if ( $('form.checkout').length > 0 ) {
             bindCheckoutEvents();
         }
     });
+
+    /**
+     * إرسال نبضة نشاط لتسجيل أن المستخدم نشط حالياً
+     */
+    function sendHeartbeat() {
+        $.post(souqpulseTrackerData.ajax_url, {
+            action: 'souqpulse_heartbeat',
+            security: souqpulseTrackerData.nonce
+        });
+    }
 
     /**
      * ربط أحداث تغيير الشحن وطرق الدفع في صفحة Checkout

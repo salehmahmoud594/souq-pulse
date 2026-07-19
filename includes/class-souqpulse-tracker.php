@@ -33,6 +33,10 @@ class SouqPulse_Tracker {
         // نقاط استقبال أحداث AJAX للفرونت إند (معلومات الشحن والدفع)
         add_action( 'wp_ajax_nopriv_souqpulse_track_event', array( $this, 'ajax_track_event' ) );
         add_action( 'wp_ajax_souqpulse_track_event', array( $this, 'ajax_track_event' ) );
+
+        // نقاط استقبال نبضات النشاط Heartbeat للزوار المتصلين
+        add_action( 'wp_ajax_nopriv_souqpulse_heartbeat', array( $this, 'ajax_heartbeat' ) );
+        add_action( 'wp_ajax_souqpulse_heartbeat', array( $this, 'ajax_heartbeat' ) );
     }
 
     /**
@@ -162,5 +166,64 @@ class SouqPulse_Tracker {
         }
 
         wp_send_json_error( array( 'message' => __( 'حدث غير مدعوم التتبع.', 'souq-pulse' ) ), 400 );
+    }
+
+    /**
+     * معالج استقبال نبضة النشاط من الفرونت إند
+     */
+    public function ajax_heartbeat() {
+        check_ajax_referer( 'souqpulse_tracker_nonce', 'security' );
+        self::record_heartbeat();
+        wp_send_json_success();
+    }
+
+    /**
+     * تسجيل نشاط الجلسة الحالية وتحديث التوقيت الزمني
+     */
+    public static function record_heartbeat() {
+        $session_id = self::get_current_session_id();
+        if ( empty( $session_id ) ) {
+            return;
+        }
+
+        // جلب قائمة الجلسات النشطة المخزنة مؤقتاً
+        $active_sessions = get_option( 'souqpulse_active_sessions', array() );
+        if ( ! is_array( $active_sessions ) ) {
+            $active_sessions = array();
+        }
+
+        // تحديث أو تسجيل الجلسة الحالية بالوقت الحالي
+        $active_sessions[ $session_id ] = time();
+
+        // تنظيف الجلسات التي مر عليها أكثر من 5 دقائق (300 ثانية)
+        $time_limit = time() - 300;
+        foreach ( $active_sessions as $id => $timestamp ) {
+            if ( $timestamp < $time_limit ) {
+                unset( $active_sessions[ $id ] );
+            }
+        }
+
+        // حفظ القائمة بدون التفعيل التلقائي (autoload = false) لتحسين الأداء
+        update_option( 'souqpulse_active_sessions', $active_sessions, 'no' );
+    }
+
+    /**
+     * حساب الجلسات النشطة خلال آخر 5 دقائق
+     */
+    public static function get_active_sessions_count() {
+        $active_sessions = get_option( 'souqpulse_active_sessions', array() );
+        if ( ! is_array( $active_sessions ) ) {
+            return 0;
+        }
+
+        // تنظيف الجلسات منتهية الصلاحية للتأكيد
+        $time_limit = time() - 300;
+        $count = 0;
+        foreach ( $active_sessions as $id => $timestamp ) {
+            if ( $timestamp >= $time_limit ) {
+                $count++;
+            }
+        }
+        return $count;
     }
 }

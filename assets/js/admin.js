@@ -21,6 +21,9 @@
 
         // ربط أحداث تغيير المدخلات
         bindEvents();
+
+        // تحديث عداد الزوار النشطين الآن كل 20 ثانية عبر الـ AJAX الخفيف
+        setInterval(fetchRealtimeCount, 20000);
     });
 
     /**
@@ -98,10 +101,12 @@
         $('#kpi-orders .kpi-value').text(current.orders.toLocaleString());
         $('#kpi-aov .kpi-value').text(formatCurrency(current.aov));
         
-        // تحديث إحصائيات الزوار من WP Statistics
+        // تحديث إحصائيات الزوار من WP Statistics والوقت الفعلي
         $('#kpi-sessions .kpi-value').text(current.sessions.toLocaleString());
         $('#kpi-bounce-rate .kpi-value').text(current.bounce_rate.toFixed(2) + '%');
         $('#sessions-duration-meta').text('متوسط مدة الزيارة: ' + formatDuration(current.avg_duration));
+        $('.realtime-value').text(data.realtime_active_users || 0);
+        updateRealtimeSparkline(data.realtime_active_users || 0);
 
         // تحديث معدل التحويل الحقيقي للمتجر
         $('#kpi-conversion .kpi-value').text(current.conversion_rate.toFixed(2) + '%');
@@ -394,10 +399,41 @@
      * دالة لتحديث باقي البيانات التجريبية للمراحل القادمة
      */
     function updateRemainingMockData(realOrdersCount, realSessionsCount) {
-        $('.realtime-value').text('18');
         $('#inv-total-units').text('850');
         $('#inv-low-stock').text('4');
         $('#inv-out-of-stock').text('2');
+    }
+
+    /**
+     * جلب عدد الزوار النشطين الآن فقط لتحديث كارت الوقت الفعلي دورياً
+     */
+    function fetchRealtimeCount() {
+        var postData = {
+            action: 'souqpulse_get_realtime_count',
+            security: souqpulseAdminData.nonce
+        };
+
+        $.post(souqpulseAdminData.ajax_url, postData, function(response) {
+            if (response.success) {
+                $('.realtime-value').text(response.data.count);
+                updateRealtimeSparkline(response.data.count);
+            }
+        });
+    }
+
+    /**
+     * تحديث خط الزوار النشطين لتبدو الواجهة متفاعلة وحية
+     */
+    function updateRealtimeSparkline(currentCount) {
+        if (!sparklineChart || !sparklineChart.w) return;
+        var currentData = sparklineChart.w.config.series[0].data;
+        currentData.shift(); // إزالة أقدم نقطة
+        currentData.push(currentCount); // إضافة القيمة الجديدة
+        
+        sparklineChart.updateSeries([{
+            name: 'النشطون',
+            data: currentData
+        }]);
     }
 
     /**
