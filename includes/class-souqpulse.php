@@ -44,15 +44,17 @@ class SouqPulse {
     private function load_dependencies() {
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-db.php';
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-admin.php';
+        require_once SOUQPULSE_PATH . 'includes/class-souqpulse-ajax.php';
     }
 
     /**
      * تهيئة المكونات وتفعيل الخطافات
      */
     private function init_components() {
-        // تهيئة وحدة التحكم الإدارية
+        // تهيئة وحدة التحكم الإدارية والـ AJAX
         if ( is_admin() ) {
             new SouqPulse_Admin();
+            new SouqPulse_AJAX();
         }
     }
 }
