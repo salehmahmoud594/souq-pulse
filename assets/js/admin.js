@@ -41,6 +41,7 @@
     function showLoadingSkeletons() {
         $('.kpi-value').addClass('souqpulse-skeleton skeleton-value').text('');
         $('.kpi-change').css('opacity', '0.5');
+        $('.souqpulse-chart-placeholder, #souqpulse-sales-timeline-chart, #souqpulse-funnel-chart, #souqpulse-geo-chart').addClass('souqpulse-skeleton');
         $('.souqpulse-table tbody').html(
             '<tr><td colspan="3" class="text-center"><div class="souqpulse-skeleton skeleton-text" style="width:60%; margin:0 auto;"></div></td></tr>' +
             '<tr><td colspan="3" class="text-center"><div class="souqpulse-skeleton skeleton-text" style="width:50%; margin:0 auto;"></div></td></tr>'
@@ -53,6 +54,7 @@
     function hideLoadingSkeletons() {
         $('.kpi-value').removeClass('souqpulse-skeleton skeleton-value');
         $('.kpi-change').css('opacity', '1');
+        $('.souqpulse-chart-placeholder, #souqpulse-sales-timeline-chart, #souqpulse-funnel-chart, #souqpulse-geo-chart').removeClass('souqpulse-skeleton');
     }
 
     /**
@@ -118,12 +120,12 @@
 
         // تحديث التغييرات ونسب المقارنة
         if (compareEnabled) {
-            updateKPIChange('#kpi-sales', current.sales, previous.sales);
-            updateKPIChange('#kpi-orders', current.orders, previous.orders);
-            updateKPIChange('#kpi-aov', current.aov, previous.aov);
-            updateKPIChange('#kpi-sessions', current.sessions, previous.sessions);
-            updateKPIChange('#kpi-bounce-rate', previous.bounce_rate, current.bounce_rate);
-            updateKPIChange('#kpi-conversion', current.conversion_rate, previous.conversion_rate);
+            updateKPIChange('#kpi-sales', current.sales, previous.sales, false);
+            updateKPIChange('#kpi-orders', current.orders, previous.orders, false);
+            updateKPIChange('#kpi-aov', current.aov, previous.aov, false);
+            updateKPIChange('#kpi-sessions', current.sessions, previous.sessions, false);
+            updateKPIChange('#kpi-bounce-rate', current.bounce_rate, previous.bounce_rate, true); // الارتداد الأقل أفضل
+            updateKPIChange('#kpi-conversion', current.conversion_rate, previous.conversion_rate, false);
         } else {
             $('.kpi-change').css('display', 'none');
         }
@@ -289,9 +291,9 @@
     }
 
     /**
-     * تحديث نسبة المقارنة للفترة السابقة
+     * تحديث نسبة المقارنة للفترة السابقة مع مراعاة المقارنات المعاكسة
      */
-    function updateKPIChange(selector, current, previous) {
+    function updateKPIChange(selector, current, previous, lowerIsBetter) {
         var $changeEl = $(selector + ' .kpi-change');
         $changeEl.css('display', 'inline-flex');
 
@@ -307,12 +309,12 @@
         var arrow = '';
         var statusClass = 'neutral';
 
-        if (percent > 0) {
+        if (percent > 0.01) {
             arrow = '↑ ';
-            statusClass = 'positive';
-        } else if (percent < 0) {
+            statusClass = lowerIsBetter ? 'negative' : 'positive';
+        } else if (percent < -0.01) {
             arrow = '↓ ';
-            statusClass = 'negative';
+            statusClass = lowerIsBetter ? 'positive' : 'negative';
             percent = Math.abs(percent);
         }
 
