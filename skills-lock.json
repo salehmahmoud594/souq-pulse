@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "woo-guard": {
+      "source": "amElnagdy/guard-skills",
+      "sourceType": "github",
+      "skillPath": "skills/woo-guard/SKILL.md",
+      "computedHash": "77b3a00a59779d496eb0e0cd63efba2008693b4c985c11aa169e0628060846c1"
+    },
+    "wp-guard": {
+      "source": "amElnagdy/guard-skills",
+      "sourceType": "github",
+      "skillPath": "skills/wp-guard/SKILL.md",
+      "computedHash": "e60fd3c456568e467f5217e45c1e0ed35d95cbaab331e4b86547fe01a4bf85c2"
+    }
+  }
+}
