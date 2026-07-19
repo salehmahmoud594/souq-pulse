@@ -235,8 +235,57 @@
             });
         }
 
-        // 5. دمج وتحديث كروت المراحل اللاحقة بقيم تجريبية مؤقتاً لتفادي الفراغات
-        updateRemainingMockData(current.orders, current.sessions);
+        // 4.6. تحديث بيانات كارت حالة المخزون (Inventory)
+        if (data.inventory) {
+            $('#inv-total-units').text(data.inventory.total_units.toLocaleString());
+            $('#inv-low-stock').text(data.inventory.low_stock.toLocaleString());
+            $('#inv-out-of-stock').text(data.inventory.out_of_stock.toLocaleString());
+        }
+
+        // 4.7. تحديث مخطط توزيع المحافظات المصرية (Donut Chart)
+        if (data.geo && data.geo.length > 0) {
+            var geoLabels = [];
+            var geoSeries = [];
+
+            // عرض أعلى 4 محافظات ودمج البقية في "محافظات أخرى" لمنع تشتت الرسم
+            var maxStates = 4;
+            var topGeo = data.geo.slice(0, maxStates);
+            var otherSalesSum = 0;
+
+            topGeo.forEach(function(item) {
+                geoLabels.push(item.name);
+                geoSeries.push(parseFloat(item.sales));
+            });
+
+            if (data.geo.length > maxStates) {
+                var remaining = data.geo.slice(maxStates);
+                remaining.forEach(function(item) {
+                    otherSalesSum += parseFloat(item.sales);
+                });
+                if (otherSalesSum > 0) {
+                    geoLabels.push('محافظات أخرى');
+                    geoSeries.push(otherSalesSum);
+                }
+            }
+
+            geoChart.updateSeries(geoSeries);
+            geoChart.updateOptions({
+                labels: geoLabels,
+                tooltip: {
+                    y: {
+                        formatter: function(val) {
+                            return formatCurrency(val);
+                        }
+                    }
+                }
+            });
+        } else {
+            // رسم فارغ في حال انعدام البيانات
+            geoChart.updateSeries([]);
+            geoChart.updateOptions({
+                labels: []
+            });
+        }
     }
 
     /**
@@ -395,14 +444,7 @@
         sparklineChart.render();
     }
 
-    /**
-     * دالة لتحديث باقي البيانات التجريبية للمراحل القادمة
-     */
-    function updateRemainingMockData(realOrdersCount, realSessionsCount) {
-        $('#inv-total-units').text('850');
-        $('#inv-low-stock').text('4');
-        $('#inv-out-of-stock').text('2');
-    }
+    // تمت إزالة دالة البيانات التجريبية نظراً لأن كل كروت التقارير أصبحت حقيقية 100%
 
     /**
      * جلب عدد الزوار النشطين الآن فقط لتحديث كارت الوقت الفعلي دورياً

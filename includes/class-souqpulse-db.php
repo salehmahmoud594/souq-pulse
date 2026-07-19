@@ -99,6 +99,12 @@ class SouqPulse_DB {
                 'repeat_customers'  => 0,
                 'onetime_customers' => 0,
             ),
+            'inventory'        => array(
+                'total_units'  => 0,
+                'low_stock'    => 0,
+                'out_of_stock' => 0,
+            ),
+            'geo'              => array(),
         );
 
         // 1. استعلام الملخص للفترة الحالية
@@ -388,6 +394,111 @@ class SouqPulse_DB {
         }
 
         $results['funnel'] = $funnel_data;
+
+        // 8. استعلام بيانات المخزون (تحليلات المخزون)
+        $low_stock_threshold = (int) get_option( 'woocommerce_notify_low_stock_amount', 2 );
+        $lookup_table = $wpdb->prefix . 'wc_product_meta_lookup';
+        
+        $stock_stats = $wpdb->get_row( $wpdb->prepare(
+            "SELECT 
+                SUM(CASE WHEN stock_status = 'outofstock' THEN 1 ELSE 0 END) as out_of_stock_count,
+                SUM(CASE WHEN stock_status = 'instock' AND stock_quantity IS NOT NULL AND stock_quantity <= %d THEN 1 ELSE 0 END) as low_stock_count,
+                SUM(CASE WHEN stock_quantity IS NOT NULL AND stock_quantity > 0 THEN stock_quantity ELSE 0 END) as total_units
+             FROM {$lookup_table}",
+            $low_stock_threshold
+        ) );
+
+        $results['inventory'] = array(
+            'total_units'  => $stock_stats ? (int) $stock_stats->total_units : 0,
+            'low_stock'    => $stock_stats ? (int) $stock_stats->low_stock_count : 0,
+            'out_of_stock' => $stock_stats ? (int) $stock_stats->out_of_stock_count : 0,
+        );
+
+        // 9. استعلام المؤشرات الجغرافية للمحافظات المصرية
+        $geo_query = $wpdb->prepare(
+            "SELECT c.state, COUNT(o.order_id) as order_count, SUM(o.total_sales) as total_sales
+             FROM {$wpdb->prefix}wc_order_stats o
+             JOIN {$wpdb->prefix}wc_customer_lookup c ON o.customer_id = c.customer_id
+             WHERE o.status IN ('completed', 'processing', 'on-hold')
+               AND c.country = 'EG'
+               AND o.date_created >= %s AND o.date_created <= %s
+             GROUP BY c.state
+             ORDER BY total_sales DESC",
+            $start_date,
+            $end_date
+        );
+        $geo_rows = $wpdb->get_results( $geo_query );
+
+        $eg_states = array(
+            'C'   => __( 'القاهرة', 'souq-pulse' ),
+            'KH'  => __( 'القاهرة', 'souq-pulse' ),
+            'ALX' => __( 'الإسكندرية', 'souq-pulse' ),
+            'GZ'  => __( 'الجيزة', 'souq-pulse' ),
+            'QAL' => __( 'القليوبية', 'souq-pulse' ),
+            'DK'  => __( 'الدقهلية', 'souq-pulse' ),
+            'BH'  => __( 'البحيرة', 'souq-pulse' ),
+            'FYM' => __( 'الفيوم', 'souq-pulse' ),
+            'GH'  => __( 'الغربية', 'souq-pulse' ),
+            'KB'  => __( 'المنوفية', 'souq-pulse' ),
+            'IS'  => __( 'الإسماعيلية', 'souq-pulse' ),
+            'SUZ' => __( 'السويس', 'souq-pulse' ),
+            'PTS' => __( 'بورسعيد', 'souq-pulse' ),
+            'ASW' => __( 'أسوان', 'souq-pulse' ),
+            'AST' => __( 'أسيوط', 'souq-pulse' ),
+            'BNS' => __( 'بني سويف', 'souq-pulse' ),
+            'DA'  => __( 'دمياط', 'souq-pulse' ),
+            'KSH' => __( 'كفر الشيخ', 'souq-pulse' ),
+            'LX'  => __( 'الأقصر', 'souq-pulse' ),
+            'MN'  => __( 'المنيا', 'souq-pulse' ),
+            'MS'  => __( 'مطروح', 'souq-pulse' ),
+            'NS'  => __( 'شمال سيناء', 'souq-pulse' ),
+            'SHG' => __( 'سوهاج', 'souq-pulse' ),
+            'SHR' => __( 'الشرقية', 'souq-pulse' ),
+            'SS'  => __( 'جنوب سيناء', 'souq-pulse' ),
+            'WAD' => __( 'الوادي الجديد', 'souq-pulse' ),
+            'BA'  => __( 'البحر الأحمر', 'souq-pulse' ),
+            'QNA' => __( 'قنا', 'souq-pulse' ),
+        );
+
+        $geo_data = array();
+        $other_sales = 0;
+        $other_orders = 0;
+
+        foreach ( $geo_rows as $row ) {
+            $state_code = strtoupper( $row->state );
+            if ( isset( $eg_states[ $state_code ] ) ) {
+                $state_name = $eg_states[ $state_code ];
+                if ( isset( $geo_data[ $state_name ] ) ) {
+                    $geo_data[ $state_name ]['sales']  += (float) $row->total_sales;
+                    $geo_data[ $state_name ]['orders'] += (int) $row->order_count;
+                } else {
+                    $geo_data[ $state_name ] = array(
+                        'name'   => $state_name,
+                        'sales'  => (float) $row->total_sales,
+                        'orders' => (int) $row->order_count,
+                    );
+                }
+            } else {
+                $other_sales  += (float) $row->total_sales;
+                $other_orders += (int) $row->order_count;
+            }
+        }
+
+        if ( $other_sales > 0 ) {
+            $geo_data[ __( 'محافظات أخرى', 'souq-pulse' ) ] = array(
+                'name'   => __( 'محافظات أخرى', 'souq-pulse' ),
+                'sales'  => $other_sales,
+                'orders' => $other_orders,
+            );
+        }
+
+        // تحويلها لمصفوفة مفهرسة وترتيبها حسب المبيعات تنازلياً
+        $geo_list = array_values( $geo_data );
+        usort( $geo_list, function( $a, $b ) {
+            return $b['sales'] <=> $a['sales'];
+        } );
+
+        $results['geo'] = $geo_list;
 
         // حفظ النتائج في كاش المؤقتات لمدة 15 دقيقة
         set_transient( $cache_key, $results, 15 * MINUTE_IN_SECONDS );
