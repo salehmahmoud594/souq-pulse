@@ -79,8 +79,20 @@ class SouqPulse_Admin {
                         <select id="souqpulse-date-range" class="souqpulse-select">
                             <option value="7days"><?php esc_html_e( 'آخر 7 أيام', 'souq-pulse' ); ?></option>
                             <option value="30days" selected><?php esc_html_e( 'آخر 30 يوم', 'souq-pulse' ); ?></option>
-                            <option value="custom"><?php esc_html_e( 'نطاق مخصص', 'souq-pulse' ); ?></option>
+                            <option value="90days"><?php esc_html_e( 'آخر 90 يوم', 'souq-pulse' ); ?></option>
+                            <option value="6months"><?php esc_html_e( 'آخر 6 شهور', 'souq-pulse' ); ?></option>
+                            <option value="12months"><?php esc_html_e( 'آخر 12 شهر', 'souq-pulse' ); ?></option>
+                            <option value="alltime"><?php esc_html_e( 'كل الوقت', 'souq-pulse' ); ?></option>
+                            <option value="custom"><?php esc_html_e( 'فترة مخصصة', 'souq-pulse' ); ?></option>
                         </select>
+
+                        <!-- حقول مخصصة للنطاق الزمني تظهر عند الحاجة -->
+                        <div id="souqpulse-custom-dates" class="custom-dates-inputs" style="display:none; align-items:center; gap:8px;">
+                            <input type="date" id="souqpulse-start-date" class="souqpulse-input-date" placeholder="<?php esc_attr_e( 'من تاريخ', 'souq-pulse' ); ?>">
+                            <span><?php esc_html_e( 'إلى', 'souq-pulse' ); ?></span>
+                            <input type="date" id="souqpulse-end-date" class="souqpulse-input-date" placeholder="<?php esc_attr_e( 'إلى تاريخ', 'souq-pulse' ); ?>">
+                        </div>
+
                         <div class="comparison-toggle">
                             <label class="switch">
                                 <input type="checkbox" id="souqpulse-compare-toggle" checked>

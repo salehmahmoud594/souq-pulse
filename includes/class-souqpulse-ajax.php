@@ -43,6 +43,15 @@ class SouqPulse_AJAX {
             $start_date = date( 'Y-m-d H:i:s', strtotime( '-6 days 00:00:00', $end_time ) );
         } elseif ( '30days' === $range ) {
             $start_date = date( 'Y-m-d H:i:s', strtotime( '-29 days 00:00:00', $end_time ) );
+        } elseif ( '90days' === $range ) {
+            $start_date = date( 'Y-m-d H:i:s', strtotime( '-89 days 00:00:00', $end_time ) );
+        } elseif ( '6months' === $range ) {
+            $start_date = date( 'Y-m-d H:i:s', strtotime( '-179 days 00:00:00', $end_time ) );
+        } elseif ( '12months' === $range ) {
+            $start_date = date( 'Y-m-d H:i:s', strtotime( '-364 days 00:00:00', $end_time ) );
+        } elseif ( 'alltime' === $range ) {
+            $start_date = '2000-01-01 00:00:00';
+            $compare = false; // لا توجد فترة سابقة لمقارنتها بكل الوقت
         } elseif ( 'custom' === $range ) {
             $raw_start  = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['start_date'] ) ) : '';
             $raw_end    = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( $_POST['end_date'] ) ) : '';

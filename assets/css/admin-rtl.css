@@ -304,6 +304,29 @@ input:checked + .slider:before {
     font-weight: 700;
 }
 
+/* تنسيقات حقول إدخال التاريخ المخصص */
+.custom-dates-inputs {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin: 0 10px;
+}
+
+.souqpulse-input-date {
+    padding: 6px 12px;
+    border: 1px solid var(--souqpulse-border);
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--souqpulse-dark);
+    background-color: #fff;
+    outline: none;
+    font-family: inherit;
+}
+
+.souqpulse-input-date:focus {
+    border-color: var(--souqpulse-primary);
+}
+
 /* شبكة الرسومات البيانية */
 .souqpulse-charts-grid,
 .souqpulse-details-grid {

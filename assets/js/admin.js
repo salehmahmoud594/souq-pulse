@@ -29,9 +29,45 @@
     /**
      * ربط أحداث النطاق الزمني والمقارنة
      */
+    /**
+     * ربط أحداث النطاق الزمني والمقارنة
+     */
     function bindEvents() {
-        $('#souqpulse-date-range, #souqpulse-compare-toggle').on('change', function() {
+        $('#souqpulse-date-range').on('change', function() {
+            var range = $(this).val();
+            
+            // إظهار وإخفاء حقول التاريخ المخصص
+            if (range === 'custom') {
+                $('#souqpulse-custom-dates').css('display', 'inline-flex');
+            } else {
+                $('#souqpulse-custom-dates').css('display', 'none');
+            }
+
+            // تعطيل المقارنة عند اختيار "كل الوقت"
+            if (range === 'alltime') {
+                $('#souqpulse-compare-toggle').prop('checked', false).prop('disabled', true);
+                $('.comparison-toggle').css('opacity', '0.5');
+            } else {
+                $('#souqpulse-compare-toggle').prop('disabled', false);
+                $('.comparison-toggle').css('opacity', '1');
+            }
+
+            if (range !== 'custom') {
+                fetchDashboardData();
+            }
+        });
+
+        $('#souqpulse-compare-toggle').on('change', function() {
             fetchDashboardData();
+        });
+
+        // جلب البيانات عند إدخال كلا التاريخين المخصصين
+        $('#souqpulse-start-date, #souqpulse-end-date').on('change', function() {
+            var start = $('#souqpulse-start-date').val();
+            var end = $('#souqpulse-end-date').val();
+            if (start && end) {
+                fetchDashboardData();
+            }
         });
     }
 
@@ -65,13 +101,17 @@
 
         var range = $('#souqpulse-date-range').val();
         var compare = $('#souqpulse-compare-toggle').is(':checked');
+        var startDate = $('#souqpulse-start-date').val();
+        var endDate = $('#souqpulse-end-date').val();
 
         // تجهيز بيانات الطلب
         var postData = {
             action: 'souqpulse_get_dashboard_data',
             security: souqpulseAdminData.nonce,
             range: range,
-            compare: compare ? 'true' : 'false'
+            compare: compare ? 'true' : 'false',
+            start_date: startDate,
+            end_date: endDate
         };
 
         // إرسال طلب AJAX
