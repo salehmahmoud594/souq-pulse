@@ -26,6 +26,141 @@ define( 'SOUQPULSE_URL', plugin_dir_url( __FILE__ ) );
 define( 'SOUQPULSE_BASENAME', plugin_basename( __FILE__ ) );
 
 /**
+ * تصفية محدد اللغة للمستند بناءً على إعدادات البلجن
+ */
+add_filter( 'plugin_locale', 'souqpulse_override_plugin_locale', 10, 2 );
+
+function souqpulse_override_plugin_locale( $locale, $domain ) {
+    if ( 'souq-pulse' === $domain ) {
+        $forced_locale = get_option( 'souqpulse_language', 'auto' );
+        if ( 'auto' !== $forced_locale ) {
+            return $forced_locale;
+        }
+    }
+    return $locale;
+}
+
+/**
+ * تحميل ملفات الترجمة مع دعم الاختيار اليدوي للغة
+ * Priority 5 — يجب أن يُحمَّل قبل plugins_loaded (10)
+ */
+add_action( 'init', 'souqpulse_load_textdomain', 5 );
+
+function souqpulse_load_textdomain() {
+    // فحص وتجميع ملف اللغة العربية إذا تطلب الأمر
+    $po_file = SOUQPULSE_PATH . 'languages/souq-pulse-ar.po';
+    $mo_file = SOUQPULSE_PATH . 'languages/souq-pulse-ar.mo';
+    if ( file_exists( $po_file ) && ( ! file_exists( $mo_file ) || filemtime( $po_file ) > filemtime( $mo_file ) ) ) {
+        souqpulse_compile_po_to_mo( $po_file, $mo_file );
+    }
+
+    load_plugin_textdomain(
+        'souq-pulse',
+        false,
+        dirname( SOUQPULSE_BASENAME ) . '/languages'
+    );
+}
+
+/**
+ * تجميع ملف PO إلى MO برمجياً بشكل سريع وموفر للأداء
+ */
+function souqpulse_compile_po_to_mo( $po_file, $mo_file ) {
+    if ( ! file_exists( $po_file ) ) {
+        return false;
+    }
+
+    $po_content = file_get_contents( $po_file );
+    if ( ! $po_content ) {
+        return false;
+    }
+
+    $lines = explode( "\n", $po_content );
+    $entries = array();
+    $current_id = null;
+    $current_str = null;
+    $in_id = false;
+    $in_str = false;
+
+    foreach ( $lines as $line ) {
+        $line = trim( $line );
+        if ( empty( $line ) || strpos( $line, '#' ) === 0 ) {
+            if ( $current_id !== null && $current_str !== null ) {
+                $entries[ $current_id ] = $current_str;
+                $current_id = null;
+                $current_str = null;
+            }
+            $in_id = false;
+            $in_str = false;
+            continue;
+        }
+
+        if ( preg_match( '/^msgid\s+"(.*)"$/', $line, $m ) ) {
+            $current_id = $m[1];
+            $in_id = true;
+            $in_str = false;
+        } elseif ( preg_match( '/^msgstr\s+"(.*)"$/', $line, $m ) ) {
+            $current_str = $m[1];
+            $in_id = false;
+            $in_str = true;
+        } elseif ( strpos( $line, '"' ) === 0 ) {
+            $val = substr( $line, 1, -1 );
+            if ( $in_id ) {
+                $current_id .= $val;
+            } elseif ( $in_str ) {
+                $current_str .= $val;
+            }
+        }
+    }
+
+    if ( $current_id !== null && $current_str !== null ) {
+        $entries[ $current_id ] = $current_str;
+    }
+
+    foreach ( $entries as $k => $v ) {
+        if ( $k === '' || empty( $v ) ) {
+            unset( $entries[ $k ] );
+        }
+    }
+
+    ksort( $entries );
+    $count = count( $entries );
+    if ( $count <= 0 ) {
+        return false;
+    }
+
+    $orig_table_offset = 28;
+    $trans_table_offset = $orig_table_offset + ( $count * 8 );
+    $strings_offset = $trans_table_offset + ( $count * 8 );
+
+    $orig_table = '';
+    $trans_table = '';
+    $strings = '';
+    $current_strings_offset = $strings_offset;
+
+    foreach ( $entries as $orig => $trans ) {
+        $orig = stripcslashes( $orig );
+        $len = strlen( $orig );
+        $orig_table .= pack( 'L2', $len, $current_strings_offset );
+        $strings .= $orig . "\x00";
+        $current_strings_offset += $len + 1;
+    }
+
+    foreach ( $entries as $orig => $trans ) {
+        $trans = stripcslashes( $trans );
+        $len = strlen( $trans );
+        $trans_table .= pack( 'L2', $len, $current_strings_offset );
+        $strings .= $trans . "\x00";
+        $current_strings_offset += $len + 1;
+    }
+
+    $mo_data = pack( 'I*', 0x950412de, 0, $count, $orig_table_offset, $trans_table_offset, 0, 0 );
+    $mo_data .= $orig_table . $trans_table . $strings;
+
+    return file_put_contents( $mo_file, $mo_data ) !== false;
+}
+
+
+/**
  * التحقق من وجود WooCommerce وتفعيله
  */
 add_action( 'plugins_loaded', 'souqpulse_init_dependency_check' );

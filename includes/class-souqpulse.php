@@ -46,6 +46,7 @@ class SouqPulse {
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-admin.php';
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-ajax.php';
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-tracker.php';
+        require_once SOUQPULSE_PATH . 'includes/class-souqpulse-settings.php';
     }
 
     /**
@@ -61,10 +62,11 @@ class SouqPulse {
         // تهيئة وحدة التتبع (تشتغل في الواجهة الأمامية والخلفية)
         new SouqPulse_Tracker();
 
-        // تهيئة وحدة التحكم الإدارية والـ AJAX
+        // تهيئة وحدة التحكم الإدارية والـ AJAX والإعدادات
         if ( is_admin() ) {
             new SouqPulse_Admin();
             new SouqPulse_AJAX();
+            new SouqPulse_Settings();
         }
     }
 }

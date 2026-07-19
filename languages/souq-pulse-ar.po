@@ -1,0 +1,155 @@
+# SouqPulse Arabic Translation
+# Copyright (C) 2025 Saleh Mahmoud
+# This file is distributed under the same license as the SouqPulse plugin.
+# Translator: Saleh Mahmoud <https://github.com/salehmahmoud594>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: SouqPulse 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/salehmahmoud594/souq-pulse\n"
+"POT-Creation-Date: 2025-01-01 00:00+0000\n"
+"PO-Revision-Date: 2025-01-01 00:00+0000\n"
+"Last-Translator: Saleh Mahmoud <salehmahmoud594@github.com>\n"
+"Language-Team: Arabic\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
+"X-Generator: SouqPulse\n"
+"X-Domain: souq-pulse\n"
+
+msgid "SouqPulse Settings"
+msgstr "إعدادات نبض السوق"
+
+msgid "SouqPulse — Settings"
+msgstr "نبض السوق — الإعدادات"
+
+msgid "Display Settings"
+msgstr "إعدادات العرض"
+
+msgid "Dashboard Language"
+msgstr "لغة لوحة التحكم"
+
+msgid "Uses the WordPress site language"
+msgstr "يتبع لغة الموقع في ووردبريس"
+
+msgid "Choose the display language for the SouqPulse analytics dashboard. Requires a page refresh to take effect."
+msgstr "اختر لغة عرض لوحة تحليلات نبض السوق. يتطلب إعادة تحميل الصفحة لتفعيل التغيير."
+
+msgid "You do not have permission to access this page."
+msgstr "ليس لديك صلاحية الوصول إلى هذه الصفحة."
+
+msgid "Manage your analytics dashboard preferences."
+msgstr "أدر تفضيلات لوحة التحليلات الخاصة بك."
+
+msgid "How automatic language detection works:"
+msgstr "كيف يعمل الكشف التلقائي عن اللغة:"
+
+msgid "In Automatic mode, SouqPulse follows the WordPress site language set in Settings → General. If an Arabic locale (e.g., ar_EG) is active and a translation file is present, the dashboard will display in Arabic with RTL layout automatically."
+msgstr "في الوضع التلقائي، تتبع نبض السوق لغة موقع ووردبريس المحددة في الإعدادات ← عام. إذا كانت اللغة العربية (مثل ar_EG) مفعّلة وملف الترجمة موجود، ستعرض اللوحة بالعربية مع تخطيط RTL تلقائياً."
+
+msgid "Save Settings"
+msgstr "حفظ الإعدادات"
+
+msgid "Developed by"
+msgstr "تطوير"
+
+msgid "Settings saved successfully."
+msgstr "تم حفظ الإعدادات بنجاح."
+
+msgid "SouqPulse - نبض السوق"
+msgstr "SouqPulse - نبض السوق"
+
+msgid "نبض السوق"
+msgstr "نبض السوق"
+
+msgid "لوحة التحليلات"
+msgstr "لوحة التحليلات"
+
+msgid "إجمالي المبيعات"
+msgstr "إجمالي المبيعات"
+
+msgid "عدد الطلبات"
+msgstr "عدد الطلبات"
+
+msgid "متوسط قيمة الطلب"
+msgstr "متوسط قيمة الطلب"
+
+msgid "إجمالي الجلسات"
+msgstr "إجمالي الجلسات"
+
+msgid "معدل الارتداد"
+msgstr "معدل الارتداد"
+
+msgid "معدل التحويل"
+msgstr "معدل التحويل"
+
+msgid "الزوار الآن"
+msgstr "الزوار الآن"
+
+msgid "أعلى 5 منتجات مبيعاً"
+msgstr "أعلى 5 منتجات مبيعاً"
+
+msgid "أعلى 5 عملاء للمتجر"
+msgstr "أعلى 5 عملاء للمتجر"
+
+msgid "توزيع الطلبات جغرافياً (المحافظات)"
+msgstr "توزيع الطلبات جغرافياً (المحافظات)"
+
+msgid "متوسط القيمة العمرية (CLV):"
+msgstr "متوسط القيمة العمرية (CLV):"
+
+msgid "عملاء مكررون:"
+msgstr "عملاء مكررون:"
+
+msgid "عملاء لمرة واحدة:"
+msgstr "عملاء لمرة واحدة:"
+
+msgid "زيارة الموقع"
+msgstr "زيارة الموقع"
+
+msgid "إضافة للسلة"
+msgstr "إضافة للسلة"
+
+msgid "بدء الدفع"
+msgstr "بدء الدفع"
+
+msgid "معلومات الشحن"
+msgstr "معلومات الشحن"
+
+msgid "معلومات الدفع"
+msgstr "معلومات الدفع"
+
+msgid "الشراء"
+msgstr "الشراء"
+
+msgid "عميل زائر"
+msgstr "عميل زائر"
+
+msgid "القاهرة"
+msgstr "القاهرة"
+
+msgid "الإسكندرية"
+msgstr "الإسكندرية"
+
+msgid "الجيزة"
+msgstr "الجيزة"
+
+msgid "محافظات أخرى"
+msgstr "محافظات أخرى"
+
+msgid "حدث غير مدعوم التتبع."
+msgstr "حدث غير مدعوم التتبع."
+
+msgid "غير مصرح لك بالوصول لهذه البيانات."
+msgstr "غير مصرح لك بالوصول لهذه البيانات."
+
+msgid "غير مصرح لك."
+msgstr "غير مصرح لك."
+
+msgid "SouqPulse requires WooCommerce to be installed and active."
+msgstr "تتطلب إضافة نبض السوق تثبيت وتفعيل إضافة WooCommerce أولاً."
+
+msgid "Automatic (Follow Site)"
+msgstr "تلقائي (يتبع الموقع)"

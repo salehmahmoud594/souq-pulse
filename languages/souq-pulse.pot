@@ -1,0 +1,196 @@
+# SouqPulse Translation Template
+# Copyright (C) 2025 Saleh Mahmoud
+# This file is distributed under the same license as the SouqPulse plugin.
+# Author: Saleh Mahmoud <https://github.com/salehmahmoud594>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: SouqPulse 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/salehmahmoud594/souq-pulse\n"
+"POT-Creation-Date: 2025-01-01 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: SouqPulse POT Generator\n"
+"X-Domain: souq-pulse\n"
+
+#: includes/class-souqpulse-settings.php
+msgid "SouqPulse Settings"
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "SouqPulse — Settings"
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "Display Settings"
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "Dashboard Language"
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "Uses the WordPress site language"
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "Choose the display language for the SouqPulse analytics dashboard. Requires a page refresh to take effect."
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "Manage your analytics dashboard preferences."
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "How automatic language detection works:"
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "In Automatic mode, SouqPulse follows the WordPress site language set in Settings → General. If an Arabic locale (e.g., ar_EG) is active and a translation file is present, the dashboard will display in Arabic with RTL layout automatically."
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "Save Settings"
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "Developed by"
+msgstr ""
+
+#: includes/class-souqpulse-settings.php
+msgid "Settings saved successfully."
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "SouqPulse - نبض السوق"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "نبض السوق"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "لوحة التحليلات"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "إجمالي المبيعات"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "عدد الطلبات"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "متوسط قيمة الطلب"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "إجمالي الجلسات"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "معدل الارتداد"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "معدل التحويل"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "الزوار الآن"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "أعلى 5 منتجات مبيعاً"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "أعلى 5 عملاء للمتجر"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "توزيع الطلبات جغرافياً (المحافظات)"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "متوسط القيمة العمرية (CLV):"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "عملاء مكررون:"
+msgstr ""
+
+#: includes/class-souqpulse-admin.php
+msgid "عملاء لمرة واحدة:"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "زيارة الموقع"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "إضافة للسلة"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "بدء الدفع"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "معلومات الشحن"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "معلومات الدفع"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "الشراء"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "عميل زائر"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "القاهرة"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "الإسكندرية"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "الجيزة"
+msgstr ""
+
+#: includes/class-souqpulse-db.php
+msgid "محافظات أخرى"
+msgstr ""
+
+#: includes/class-souqpulse-tracker.php
+msgid "حدث غير مدعوم التتبع."
+msgstr ""
+
+#: includes/class-souqpulse-ajax.php
+msgid "غير مصرح لك بالوصول لهذه البيانات."
+msgstr ""
+
+#: includes/class-souqpulse-ajax.php
+msgid "غير مصرح لك."
+msgstr ""
+
+#: souq-pulse.php
+msgid "SouqPulse requires WooCommerce to be installed and active."
+msgstr ""
