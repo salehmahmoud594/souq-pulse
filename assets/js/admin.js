@@ -103,13 +103,22 @@
         $('#kpi-bounce-rate .kpi-value').text(current.bounce_rate.toFixed(2) + '%');
         $('#sessions-duration-meta').text('متوسط مدة الزيارة: ' + formatDuration(current.avg_duration));
 
+        // تحديث معدل التحويل الحقيقي للمتجر
+        $('#kpi-conversion .kpi-value').text(current.conversion_rate.toFixed(2) + '%');
+
+        // تحديث إحصائيات سلوك العملاء الكلية (CLV و Cohorts)
+        $('#cust-avg-clv').text(formatCurrency(data.customer_metrics.avg_clv));
+        $('#cust-repeat-count').text(data.customer_metrics.repeat_customers.toLocaleString());
+        $('#cust-onetime-count').text(data.customer_metrics.onetime_customers.toLocaleString());
+
         // تحديث التغييرات ونسب المقارنة
         if (compareEnabled) {
             updateKPIChange('#kpi-sales', current.sales, previous.sales);
             updateKPIChange('#kpi-orders', current.orders, previous.orders);
             updateKPIChange('#kpi-aov', current.aov, previous.aov);
             updateKPIChange('#kpi-sessions', current.sessions, previous.sessions);
-            updateKPIChange('#kpi-bounce-rate', previous.bounce_rate, current.bounce_rate); // الارتداد الأقل أفضل، لكن سنعرضه بالنسبة الطبيعية حالياً
+            updateKPIChange('#kpi-bounce-rate', previous.bounce_rate, current.bounce_rate);
+            updateKPIChange('#kpi-conversion', current.conversion_rate, previous.conversion_rate);
         } else {
             $('.kpi-change').css('display', 'none');
         }
@@ -344,12 +353,6 @@
      * دالة لتحديث باقي البيانات التجريبية للمراحل القادمة
      */
     function updateRemainingMockData(realOrdersCount, realSessionsCount) {
-        // حساب معدل التحويل الحقيقي المبدئي (سيصبح رسمياً في المرحلة 4)
-        var sessions = realSessionsCount > 0 ? realSessionsCount : Math.max(realOrdersCount * 35, 120);
-        var mockConversion = sessions > 0 ? (realOrdersCount / sessions) * 100 : 0;
-        
-        $('#kpi-conversion .kpi-value').text(mockConversion.toFixed(2) + '%');
-
         $('.realtime-value').text('18');
         $('#inv-total-units').text('850');
         $('#inv-low-stock').text('4');

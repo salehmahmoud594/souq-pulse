@@ -266,6 +266,21 @@ class SouqPulse_Admin {
                         <span class="card-title"><?php esc_html_e( 'أعلى 5 عملاء للمتجر', 'souq-pulse' ); ?></span>
                     </div>
                     <div class="card-body">
+                        <!-- ملخص سلوك العملاء والمجموعات -->
+                        <div class="customer-stats-summary">
+                            <div>
+                                <span><?php esc_html_e( 'متوسط القيمة العمرية (CLV):', 'souq-pulse' ); ?></span>
+                                <strong id="cust-avg-clv">ج.م 0.00</strong>
+                            </div>
+                            <div>
+                                <span><?php esc_html_e( 'عملاء مكررون:', 'souq-pulse' ); ?></span>
+                                <strong id="cust-repeat-count">0</strong>
+                            </div>
+                            <div>
+                                <span><?php esc_html_e( 'عملاء لمرة واحدة:', 'souq-pulse' ); ?></span>
+                                <strong id="cust-onetime-count">0</strong>
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table class="souqpulse-table" id="table-top-customers">
                                 <thead>

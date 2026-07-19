@@ -275,6 +275,35 @@ input:checked + .slider:before {
     display: inline-block;
 }
 
+.customer-stats-summary {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    background: var(--souqpulse-light);
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--souqpulse-border);
+    font-size: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.customer-stats-summary div {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.customer-stats-summary span {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.customer-stats-summary strong {
+    color: var(--souqpulse-dark);
+    font-weight: 700;
+}
+
 /* شبكة الرسومات البيانية */
 .souqpulse-charts-grid,
 .souqpulse-details-grid {

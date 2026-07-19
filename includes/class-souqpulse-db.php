@@ -57,26 +57,33 @@ class SouqPulse_DB {
 
         $results = array(
             'current' => array(
-                'sales'         => 0,
-                'orders'        => 0,
-                'aov'           => 0,
-                'new_customers' => 0,
-                'sessions'      => 0,
-                'bounce_rate'   => 0,
-                'avg_duration'  => 0,
+                'sales'           => 0,
+                'orders'          => 0,
+                'aov'             => 0,
+                'new_customers'   => 0,
+                'sessions'        => 0,
+                'bounce_rate'     => 0,
+                'avg_duration'    => 0,
+                'conversion_rate' => 0,
             ),
             'previous' => array(
-                'sales'         => 0,
-                'orders'        => 0,
-                'aov'           => 0,
-                'new_customers' => 0,
-                'sessions'      => 0,
-                'bounce_rate'   => 0,
-                'avg_duration'  => 0,
+                'sales'           => 0,
+                'orders'          => 0,
+                'aov'             => 0,
+                'new_customers'   => 0,
+                'sessions'        => 0,
+                'bounce_rate'     => 0,
+                'avg_duration'    => 0,
+                'conversion_rate' => 0,
             ),
-            'timeline'      => array(),
-            'top_products'  => array(),
-            'top_customers' => array(),
+            'timeline'         => array(),
+            'top_products'     => array(),
+            'top_customers'    => array(),
+            'customer_metrics' => array(
+                'avg_clv'           => 0,
+                'repeat_customers'  => 0,
+                'onetime_customers' => 0,
+            ),
         );
 
         // 1. استعلام الملخص للفترة الحالية
@@ -255,6 +262,41 @@ class SouqPulse_DB {
                 'total_spend' => (float) $row->total_spend,
             );
         }
+
+        // حساب معدل التحويل
+        $results['current']['conversion_rate'] = $results['current']['sessions'] > 0 ? ( ( $results['current']['orders'] / $results['current']['sessions'] ) * 100 ) : 0;
+        if ( $compare ) {
+            $results['previous']['conversion_rate'] = $results['previous']['sessions'] > 0 ? ( ( $results['previous']['orders'] / $results['previous']['sessions'] ) * 100 ) : 0;
+        }
+
+        // حساب متوسط القيمة العمرية للعميل (CLV)
+        $clv_query = "SELECT AVG(total_spend) FROM (
+            SELECT SUM(total_sales) as total_spend
+            FROM {$wpdb->prefix}wc_order_stats
+            WHERE status IN ('completed', 'processing', 'on-hold')
+              AND customer_id > 0
+            GROUP BY customer_id
+        ) as customer_spendings";
+        $avg_clv = (float) $wpdb->get_var( $clv_query );
+
+        // حساب العملاء المكررين والعملاء لمرة واحدة
+        $cohort_query = "SELECT 
+            COUNT(CASE WHEN order_count > 1 THEN 1 END) as repeat_count,
+            COUNT(CASE WHEN order_count = 1 THEN 1 END) as onetime_count
+        FROM (
+            SELECT COUNT(order_id) as order_count
+            FROM {$wpdb->prefix}wc_order_stats
+            WHERE status IN ('completed', 'processing', 'on-hold')
+              AND customer_id > 0
+            GROUP BY customer_id
+        ) as customer_orders";
+        $cohorts = $wpdb->get_row( $cohort_query );
+
+        $results['customer_metrics'] = array(
+            'avg_clv'           => $avg_clv,
+            'repeat_customers'  => $cohorts ? (int) $cohorts->repeat_count : 0,
+            'onetime_customers' => $cohorts ? (int) $cohorts->onetime_count : 0,
+        );
 
         // حفظ النتائج في كاش المؤقتات لمدة 15 دقيقة
         set_transient( $cache_key, $results, 15 * MINUTE_IN_SECONDS );
