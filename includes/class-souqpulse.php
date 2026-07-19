@@ -45,12 +45,22 @@ class SouqPulse {
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-db.php';
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-admin.php';
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-ajax.php';
+        require_once SOUQPULSE_PATH . 'includes/class-souqpulse-tracker.php';
     }
 
     /**
      * تهيئة المكونات وتفعيل الخطافات
      */
     private function init_components() {
+        // فحص تحديث قاعدة البيانات وتجهيز الجداول تلقائياً
+        if ( get_option( 'souqpulse_db_version' ) !== SOUQPULSE_VERSION ) {
+            SouqPulse_DB::activate();
+            update_option( 'souqpulse_db_version', SOUQPULSE_VERSION );
+        }
+
+        // تهيئة وحدة التتبع (تشتغل في الواجهة الأمامية والخلفية)
+        new SouqPulse_Tracker();
+
         // تهيئة وحدة التحكم الإدارية والـ AJAX
         if ( is_admin() ) {
             new SouqPulse_Admin();

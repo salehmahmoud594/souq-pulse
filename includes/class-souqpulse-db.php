@@ -15,7 +15,22 @@ class SouqPulse_DB {
      * دالة التفعيل لإعداد الجداول المخصصة
      */
     public static function activate() {
-        // سيتم إنشاء جدول مسار العميل (Funnel Events) في المرحلة الخامسة
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'souqpulse_funnel_events';
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            session_id varchar(64) NOT NULL,
+            event_type varchar(32) NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY session_id (session_id),
+            KEY event_type (event_type)
+        ) $charset_collate;";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta( $sql );
     }
 
     /**
@@ -297,6 +312,82 @@ class SouqPulse_DB {
             'repeat_customers'  => $cohorts ? (int) $cohorts->repeat_count : 0,
             'onetime_customers' => $cohorts ? (int) $cohorts->onetime_count : 0,
         );
+
+        // 7. استعلام مسار التحويل Funnel
+        $funnel_table = $wpdb->prefix . 'souqpulse_funnel_events';
+        $funnel_active = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $funnel_table ) );
+
+        $funnel_counts = array(
+            'view_session'      => 0,
+            'add_to_cart'       => 0,
+            'begin_checkout'    => 0,
+            'add_shipping_info' => 0,
+            'add_payment_info'  => 0,
+            'purchase'          => 0,
+        );
+
+        if ( $funnel_active ) {
+            $funnel_query = $wpdb->prepare(
+                "SELECT event_type, COUNT(DISTINCT session_id) as session_count 
+                 FROM {$funnel_table} 
+                 WHERE created_at >= %s AND created_at <= %s 
+                 GROUP BY event_type",
+                $start_date,
+                $end_date
+            );
+            $funnel_rows = $wpdb->get_results( $funnel_query );
+
+            foreach ( $funnel_rows as $row ) {
+                if ( isset( $funnel_counts[ $row->event_type ] ) ) {
+                    $funnel_counts[ $row->event_type ] = (int) $row->session_count;
+                }
+            }
+        }
+
+        // تحضير مصفوفة الـ Funnel بالترتيب وحساب النسب المئوية والتسرب
+        $funnel_data = array();
+        $steps = array(
+            'view_session'      => __( 'زيارة الموقع', 'souq-pulse' ),
+            'add_to_cart'       => __( 'إضافة للسلة', 'souq-pulse' ),
+            'begin_checkout'    => __( 'بدء الدفع', 'souq-pulse' ),
+            'add_shipping_info' => __( 'معلومات الشحن', 'souq-pulse' ),
+            'add_payment_info'  => __( 'معلومات الدفع', 'souq-pulse' ),
+            'purchase'          => __( 'الشراء', 'souq-pulse' ),
+        );
+
+        $total_sessions = $results['current']['sessions'] > 0 ? $results['current']['sessions'] : $funnel_counts['view_session'];
+        if ( $total_sessions <= 0 ) {
+            $total_sessions = 1; // تفادي القسمة على صفر
+        }
+
+        $prev_count = 0;
+        $index = 0;
+
+        foreach ( $steps as $type => $label ) {
+            $count = $funnel_counts[ $type ];
+            
+            // النسبة من إجمالي الزيارات
+            $pct_of_total = ( $count / $total_sessions ) * 100;
+
+            // نسبة التسرب من الخطوة السابقة
+            $drop_off = 0;
+            if ( $index > 0 && $prev_count > 0 ) {
+                $drop_off = ( ( $prev_count - $count ) / $prev_count ) * 100;
+            }
+
+            $funnel_data[] = array(
+                'type'         => $type,
+                'label'        => $label,
+                'count'        => $count,
+                'pct_of_total' => round( $pct_of_total, 1 ),
+                'drop_off'     => round( $drop_off, 1 ),
+            );
+
+            $prev_count = $count;
+            $index++;
+        }
+
+        $results['funnel'] = $funnel_data;
 
         // حفظ النتائج في كاش المؤقتات لمدة 15 دقيقة
         set_transient( $cache_key, $results, 15 * MINUTE_IN_SECONDS );

@@ -189,6 +189,47 @@
             ]);
         }
 
+        // 4.5. تحديث الرسم البياني لمسار الشراء (Funnel)
+        if (data.funnel && data.funnel.length > 0) {
+            var funnelCounts = [];
+            var funnelLabels = [];
+
+            data.funnel.forEach(function(item) {
+                funnelCounts.push(item.count);
+                funnelLabels.push(item.label);
+            });
+
+            funnelChart.updateSeries([{
+                name: 'زيارات مسار التحويل',
+                data: funnelCounts
+            }]);
+
+            funnelChart.updateOptions({
+                xaxis: {
+                    categories: funnelLabels
+                },
+                dataLabels: {
+                    formatter: function (val, opt) {
+                        var step = data.funnel[opt.dataPointIndex];
+                        var text = step.label + ': ' + val.toLocaleString() + ' (' + step.pct_of_total + '%)';
+                        if (step.type !== 'view_session' && step.drop_off > 0) {
+                            text += ' | تسرب: ' + step.drop_off + '%';
+                        }
+                        return text;
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val, opt) {
+                            var step = data.funnel[opt.seriesIndex]; // fallback or general
+                            // Better yet, just return formatted visitors count
+                            return val.toLocaleString() + ' زيارة';
+                        }
+                    }
+                }
+            });
+        }
+
         // 5. دمج وتحديث كروت المراحل اللاحقة بقيم تجريبية مؤقتاً لتفادي الفراغات
         updateRemainingMockData(current.orders, current.sessions);
     }
