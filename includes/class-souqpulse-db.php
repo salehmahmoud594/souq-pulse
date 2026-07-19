@@ -112,7 +112,7 @@ class SouqPulse_DB {
             "SELECT SUM(total_sales) as total_sales, COUNT(order_id) as order_count 
              FROM {$wpdb->prefix}wc_order_stats 
              WHERE date_created >= %s AND date_created <= %s 
-               AND status IN ('completed', 'processing', 'on-hold')",
+               AND status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')",
             $start_date,
             $end_date
         );
@@ -129,7 +129,7 @@ class SouqPulse_DB {
             "SELECT COUNT(DISTINCT customer_id) as new_cust 
              FROM {$wpdb->prefix}wc_order_stats 
              WHERE date_created >= %s AND date_created <= %s 
-               AND status IN ('completed', 'processing', 'on-hold') 
+               AND status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold') 
                AND returning_customer = 0",
             $start_date,
             $end_date
@@ -142,7 +142,7 @@ class SouqPulse_DB {
                 "SELECT SUM(total_sales) as total_sales, COUNT(order_id) as order_count 
                  FROM {$wpdb->prefix}wc_order_stats 
                  WHERE date_created >= %s AND date_created <= %s 
-                   AND status IN ('completed', 'processing', 'on-hold')",
+                   AND status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')",
                 $prev_start_date,
                 $prev_end_date
             );
@@ -158,7 +158,7 @@ class SouqPulse_DB {
                 "SELECT COUNT(DISTINCT customer_id) as new_cust 
                  FROM {$wpdb->prefix}wc_order_stats 
                  WHERE date_created >= %s AND date_created <= %s 
-                   AND status IN ('completed', 'processing', 'on-hold') 
+                   AND status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold') 
                    AND returning_customer = 0",
                 $prev_start_date,
                 $prev_end_date
@@ -217,7 +217,7 @@ class SouqPulse_DB {
             "SELECT DATE(date_created) as day, SUM(total_sales) as sales, COUNT(order_id) as orders 
              FROM {$wpdb->prefix}wc_order_stats 
              WHERE date_created >= %s AND date_created <= %s 
-               AND status IN ('completed', 'processing', 'on-hold') 
+               AND status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold') 
              GROUP BY DATE(date_created) 
              ORDER BY day ASC",
             $start_date,
@@ -262,7 +262,7 @@ class SouqPulse_DB {
              FROM {$wpdb->prefix}wc_order_stats o 
              LEFT JOIN {$wpdb->prefix}wc_customer_lookup c ON o.customer_id = c.customer_id 
              WHERE o.date_created >= %s AND o.date_created <= %s 
-               AND o.status IN ('completed', 'processing', 'on-hold') 
+               AND o.status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold') 
              GROUP BY o.customer_id, c.first_name, c.last_name, c.email 
              ORDER BY total_spend DESC 
              LIMIT 5",
@@ -294,7 +294,7 @@ class SouqPulse_DB {
         $clv_query = "SELECT AVG(total_spend) FROM (
             SELECT SUM(total_sales) as total_spend
             FROM {$wpdb->prefix}wc_order_stats
-            WHERE status IN ('completed', 'processing', 'on-hold')
+            WHERE status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
               AND customer_id > 0
             GROUP BY customer_id
         ) as customer_spendings";
@@ -307,7 +307,7 @@ class SouqPulse_DB {
         FROM (
             SELECT COUNT(order_id) as order_count
             FROM {$wpdb->prefix}wc_order_stats
-            WHERE status IN ('completed', 'processing', 'on-hold')
+            WHERE status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
               AND customer_id > 0
             GROUP BY customer_id
         ) as customer_orders";
@@ -419,7 +419,7 @@ class SouqPulse_DB {
             "SELECT c.state, COUNT(o.order_id) as order_count, SUM(o.total_sales) as total_sales
              FROM {$wpdb->prefix}wc_order_stats o
              JOIN {$wpdb->prefix}wc_customer_lookup c ON o.customer_id = c.customer_id
-             WHERE o.status IN ('completed', 'processing', 'on-hold')
+             WHERE o.status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
                AND c.country = 'EG'
                AND o.date_created >= %s AND o.date_created <= %s
              GROUP BY c.state

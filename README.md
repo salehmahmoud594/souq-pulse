@@ -1,91 +1,92 @@
-# SouqPulse (نبض السوق) 📊
+# SouqPulse 📊
 
-**SouqPulse (نبض السوق)** is a secure, high-performance, and fully localized RTL (Arabic) Analytics & Purchase Funnel Dashboard plugin for WordPress and WooCommerce. It merges WooCommerce e-commerce data with visitor traffic metrics from the **WP Statistics** plugin, rendering an integrated Google-Analytics-style overview directly within the WordPress admin area.
-
----
-
-## 🌟 الميزات الرئيسية (Key Features)
-
-* **لوحة مؤشرات أداء متكاملة (6 KPI Cards):**
-  * **المبيعات (Sales):** إجمالي الإيرادات للفترة الزمنية المحددة مع مقارنة بالفترة السابقة.
-  * **الطلبات (Orders):** عدد الطلبات الناجحة مع تتبع النمو.
-  * **متوسط قيمة الطلب (AOV):** حساب متوسط سلة المشتريات.
-  * **الجلسات (Sessions):** عدد الزوار الفريدين (بالتكامل مع جداول WP Statistics).
-  * **معدل الارتداد (Bounce Rate):** نسبة الزوار الذين غادروا من صفحة واحدة مع مؤشرات ذكية (انخفاض الارتداد = إيجابي باللون الأخضر).
-  * **معدل تحويل المتجر (Conversion Rate):** نسبة الطلبات الحقيقية إلى إجمالي الجلسات الفعلية.
-
-* **رسوم بيانية تفاعلية متقدمة (ApexCharts):**
-  * **خريطة المبيعات والطلبات:** رسم بياني مساحي (Area Chart) يوضح اتجاهات المبيعات اليومية.
-  * **مسار تحويل الشراء (Purchase Funnel):** تتبع سلوك العميل في 6 مراحل (زيارة الموقع ← إضافة للسلة ← بدء الدفع ← معلومات الشحن ← معلومات الدفع ← إتمام الشراء) مع حساب معدلات التسرب (Drop-off Rate) والتحويل لكل مرحلة (GA4-style).
-  * **التوزيع الجغرافي (Egypt Governorates):** رسم بياني دائري (Donut Chart) يوضح توزيع المبيعات على المحافظات المصرية بالأسماء العربية الفصيحة مع تجميع الأطراف في تصنيف "محافظات أخرى".
-  * **الزوار نشطون الآن (Real-time Sparkline):** عداد لحظي متصل بنظام نبضات نشاط (Heartbeat) يوضح حركة الزوار خلال آخر 5 دقائق.
-
-* **جداول وتقارير تفصيلية:**
-  * **أعلى 5 منتجات مبيعاً:** مرتبة حسب الإيرادات مع شريط تقدم نسبي.
-  * **أعلى 5 عملاء:** مرتبين حسب إجمالي الإنفاق مع شريط سلوك العملاء الكلي (متوسط CLV العام، عدد العملاء المكررين، عدد عملاء المرة الواحدة).
-  * **حالة المخزون (Inventory Health):** تقرير فوري للمنتجات منخفضة المخزون، والمنتهية، وإجمالي الوحدات المتاحة للبيع.
-
-* **تجربة مستخدم راقية (Delightful UX):**
-  * واجهة عربية RTL بالكامل متناسقة مع خط **Tajawal** المميز.
-  * هياكل تحميل متحركة (Loading Skeletons) تمنع رمش الشاشة أثناء جلب البيانات عبر AJAX.
-  * محدد تاريخ فوري بدون الحاجة لإعادة تحميل الصفحة.
+**SouqPulse** is a secure, high-performance, and fully integrated Analytics & Purchase Funnel Dashboard plugin for WordPress and WooCommerce. It merges WooCommerce e-commerce data with visitor traffic metrics from the **WP Statistics** plugin, rendering an integrated Google-Analytics-style overview directly within a single unified dashboard tab in the WordPress admin area.
 
 ---
 
-## 🛠️ البنية البرمجية وهيكلية الملفات (OOP Architecture)
+## 🌟 Key Features
 
-تم بناء الإضافة باتباع أسلوب البرمجة كائنية التوجه (OOP) الصارم وتقسيم المهام (Separation of Concerns):
+* **Unified Performance Dashboard (6 KPI Cards):**
+  * **Sales:** Total revenue for the selected timeframe with comparison to the previous period.
+  * **Orders:** Number of successful orders with growth tracking.
+  * **Average Order Value (AOV):** Automatically computed average shopping cart size.
+  * **Sessions:** Unique visitor sessions (integrated with WP Statistics tables).
+  * **Bounce Rate:** The percentage of single-page visits with smart coloration (lower bounce rate = green/positive).
+  * **Conversion Rate:** Calculated real-time store conversion rate (Orders / Sessions).
+
+* **Advanced Interactive Charts (ApexCharts):**
+  * **Sales & Orders Timeline:** An area chart showing daily sales trends and orders.
+  * **Purchase Funnel Tracking:** Tracks customer journey through 6 stages (View Session → Add to Cart → Begin Checkout → Add Shipping Info → Add Payment Info → Purchase) with drop-off percentages at each stage (GA4-style).
+  * **Geographical Sales distribution:** A donut chart showing sales distribution across Egyptian Governorates using localized Arabic names, automatically grouping long-tail data under "Other Governorates".
+  * **Real-time Visitors Count:** A live sparkline and heartbeat counter showing visitors active in the last 5 minutes.
+
+* **Detailed Tables & Reports:**
+  * **Top 5 Best-Selling Products:** Ranked by revenue with relative progress bars.
+  * **Top 5 Store Customers:** Ranked by total spending with customer cohort metrics (average CLV, repeat customer counts, one-time customer counts).
+  * **Inventory Health Card:** Real-time visibility into out-of-stock count, low-stock count, and total units available.
+
+* **Sleek & Integrated User Experience (UX):**
+  * Fully responsive interface styled with clean modern layout typography.
+  * Shimmering animated CSS loading skeletons to prevent screen flashing during AJAX requests.
+  * Instant date range select (Last 7 Days, Last 30 Days, Last 90 Days, Last 6 Months, Last 12 Months, All Time, and Custom Ranges) and comparison toggle without page refresh.
+  * Unified Settings panel nested directly inside the dashboard page as a secondary tab.
+
+---
+
+## 🛠️ Project Structure & OOP Architecture
+
+The plugin is built following strict Object-Oriented Programming (OOP) principles and Separation of Concerns:
 
 ```text
 souq-pulse/
-├── souq-pulse.php             # الملف الرئيسي والمشغل للبلجن (Plugin Bootstrapper)
-├── uninstall.php              # التنظيف الآمن لقاعدة البيانات عند حذف الإضافة
-├── README.md                  # ملف التوثيق والتعريف الحالي
+├── souq-pulse.php             # Main plugin bootstrapper and translation loader
+├── uninstall.php              # Secure database cleanup upon deletion
+├── README.md                  # Project documentation (this file)
 ├── includes/
-│   ├── class-souqpulse.php    # الفئة المنظمة والمحملة للمكونات (Core Loader)
-│   ├── class-souqpulse-db.php # الاستعلامات المباشرة والحسابات الإحصائية (DB Layer)
-│   ├── class-souqpulse-admin.php # بناء واجهة المستخدم وتسجيل صفحات التحكم (Admin UI)
-│   ├── class-souqpulse-ajax.php # استقبال ومعالجة طلبات لوحة التحكم بأمان (AJAX Controller)
-│   └── class-souqpulse-tracker.php # تتبع جلسات الزوار ونبضات النشاط والأحداث (Tracker Engine)
+│   ├── class-souqpulse.php    # Core component loader
+│   ├── class-souqpulse-db.php # Database queries, SQL wrappers & caching layer
+│   ├── class-souqpulse-admin.php # Dashboard UI renderer & settings manager
+│   ├── class-souqpulse-ajax.php # Secured AJAX request controller
+│   └── class-souqpulse-tracker.php # Session events logger & heartbeat tracker
 └── assets/
     ├── css/
-    │   └── admin-rtl.css      # التنسيقات والجماليات الانسيابية وهياكل التحميل RTL
+    │   └── admin-rtl.css      # Custom stylesheet, skeletons & tabs layout
     └── js/
-        ├── admin.js           # لوحة التحكم الإدارية ورسم المخططات البيانية
-        └── tracker.js         # سكريبت الفرونت إند الخفيف لتتبع أحداث المتجر والنبضات
+        ├── admin.js           # Dashboard UI scripting & ApexCharts renderer
+        └── tracker.js         # Frontend tracker & storefront heartbeat script
 ```
 
 ---
 
-## 🔒 الأمن والأداء (Security & Performance Compliance)
+## 🔒 Security & Performance Compliance
 
-تم فحص ومراجعة كافة الأكواد بالكامل تحت معايير `wp-guard` و `woo-guard` الصارمة:
+This plugin was built and audited against strict `wp-guard` and `woo-guard` coding standards:
 
-1. **حماية SQL Injection:** جميع الاستعلامات مهيأة ومحققة بالكامل باستخدام `$wpdb->prepare` مع استخدام الفهارس القياسية للمنصة.
-2. **صلاحيات الـ AJAX والـ Nonces:** تخضع جميع اتصالات لوحة التحكم للتحقق الثنائي لـ CSRF وصلاحية المدير المالي للمتجر (`manage_woocommerce`).
-3. **أمان البيانات والـ XSS:** تعقيم وتطهير كامل لكافة المدخلات المجلوبة عبر `$_POST` أو `$_COOKIE` بالترتيب القياسي `wp_unslash` يليه `sanitize_*` وتأمين المخرجات عبر الـ Escaping.
-4. **التوافق التام مع HPOS:** الإضافة تدعم وتتطابق بالكامل مع نظام الطلبات الجديد عالي الأداء من ووكومرس (High-performance Order Storage) وتتجنب استعلامات الجداول القديمة المبطئة للمواقع.
-5. **كاش المؤقتات (Transient Caching):** تُخزن جميع الاستعلامات الإحصائية الثقيلة في كاش الخادم مؤقتاً لمدة **15 دقيقة** لتوفير موارد الخادم، بينما يتحدث عداد المتصلين الآن لحظياً بشكل مستقل وخفيف لتجنب التحميل الزائد.
-
----
-
-## 🚀 التثبيت والتشغيل (Installation & Setup)
-
-1. تأكد من تفعيل إضافة **WooCommerce** وإضافة الزيارات **WP Statistics** في موقعك.
-2. ارفع مجلد `souq-pulse` إلى مسار الإضافات في موقعك `/wp-content/plugins/`.
-3. قم بتفعيل الإضافة **SouqPulse (نبض السوق)** من لوحة تحكم ووردبريس ← الإضافات.
-4. توجه إلى القائمة الجانبية: **WooCommerce** ← **SouqPulse (نبض السوق)** لتصفح لوحة التحليلات مباشرة.
+1. **SQL Injection Prevention:** All SQL queries are prepared and secured using `$wpdb->prepare` and reference standard lookup tables.
+2. **AJAX Nonce Verification:** Every admin AJAX endpoint is protected via CSRF Nonces and capability checks (`manage_woocommerce`).
+3. **Strict Input Sanitization:** Inputs fetched via `$_POST` or cookies are unslashed and sanitized appropriately (using `wp_unslash` and `sanitize_*` helpers).
+4. **HPOS Compatibility:** Declared and 100% compatible with WooCommerce's High-Performance Order Storage (HPOS).
+5. **Transient Caching:** Database-heavy statistical reports are cached as transients for **15 minutes** to minimize load times and database stress. The real-time heartbeat and visitors count skip caching for instant updates.
 
 ---
 
-## 👨‍💻 مطور المشروع (Developer & Author)
+## 🚀 Installation & Setup
 
-* **Developed by:** Saleh Mahmoud (صالح محمود)
+1. Verify that **WooCommerce** and **WP Statistics** are installed and active on your WordPress site.
+2. Upload the `souq-pulse` directory to `/wp-content/plugins/`.
+3. Activate **SouqPulse** from the WordPress admin plugins dashboard.
+4. Navigate to **WooCommerce** → **Souq Pulse** to explore the dashboard.
+
+---
+
+## 👨‍💻 Developer & Author
+
+* **Developed by:** Saleh Mahmoud
 * **GitHub Profile:** [@salehmahmoud594](https://github.com/salehmahmoud594)
 * **Repository URL:** [github.com/salehmahmoud594/souq-pulse](https://github.com/salehmahmoud594/souq-pulse)
 
 ---
 
-## 📄 الترخيص (License)
+## 📄 License
 
-هذا البرنامج متاح كبرمجية مفتوحة المصدر تحت شروط ترخيص **GPL v2** أو أي إصدار لاحق.
+This project is licensed under the GPL v2 or later license.

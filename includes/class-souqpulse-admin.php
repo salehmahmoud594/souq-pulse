@@ -17,6 +17,30 @@ class SouqPulse_Admin {
     public function __construct() {
         add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 99 );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+        add_action( 'admin_init', array( $this, 'register_settings' ) );
+    }
+
+    /**
+     * تسجيل إعدادات لوحة التحكم
+     */
+    public function register_settings() {
+        register_setting(
+            'souqpulse_settings_group',
+            'souqpulse_language',
+            array(
+                'sanitize_callback' => array( $this, 'sanitize_language' ),
+                'default'           => 'auto',
+            )
+        );
+    }
+
+    /**
+     * تطهير خيار اللغة
+     */
+    public function sanitize_language( $value ) {
+        $value = sanitize_key( wp_unslash( $value ) );
+        $supported = array( 'auto', 'ar', 'en' );
+        return in_array( $value, $supported, true ) ? $value : 'auto';
     }
 
     /**
@@ -67,44 +91,62 @@ class SouqPulse_Admin {
     public function render_dashboard_page() {
         ?>
         <div class="wrap souqpulse-dashboard-wrapper" dir="rtl">
-            <!-- الهيدر العلوي للوحة التحكم -->
-            <div class="souqpulse-header">
-                <div class="souqpulse-header-title">
-                    <h1><?php esc_html_e( 'Souq Pulse', 'souq-pulse' ); ?> <span class="badge"><?php esc_html_e( 'بيتا', 'souq-pulse' ); ?></span></h1>
-                    <p class="description"><?php esc_html_e( 'نظرة شاملة ولحظية على أداء مبيعات متجرك وسلوك الزوار في مكان واحد.', 'souq-pulse' ); ?></p>
-                </div>
-                <div class="souqpulse-header-actions">
-                    <!-- مفتاح اختيار النطاق الزمني -->
-                    <div class="date-picker-container">
-                        <select id="souqpulse-date-range" class="souqpulse-select">
-                            <option value="7days"><?php esc_html_e( 'آخر 7 أيام', 'souq-pulse' ); ?></option>
-                            <option value="30days" selected><?php esc_html_e( 'آخر 30 يوم', 'souq-pulse' ); ?></option>
-                            <option value="90days"><?php esc_html_e( 'آخر 90 يوم', 'souq-pulse' ); ?></option>
-                            <option value="6months"><?php esc_html_e( 'آخر 6 شهور', 'souq-pulse' ); ?></option>
-                            <option value="12months"><?php esc_html_e( 'آخر 12 شهر', 'souq-pulse' ); ?></option>
-                            <option value="alltime"><?php esc_html_e( 'كل الوقت', 'souq-pulse' ); ?></option>
-                            <option value="custom"><?php esc_html_e( 'فترة مخصصة', 'souq-pulse' ); ?></option>
-                        </select>
+            <!-- الهيدر العلوي للوحة التحكم مع التبويبات -->
+            <div class="souqpulse-header-section" style="margin-bottom: 24px;">
+                <div class="souqpulse-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div class="souqpulse-header-title">
+                        <h1 style="margin: 0; font-size: 24px; color: var(--souqpulse-dark); display: flex; align-items: center; gap: 8px;">
+                            📊 <?php esc_html_e( 'Souq Pulse', 'souq-pulse' ); ?> 
+                            <span class="badge" style="background: var(--souqpulse-primary); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: normal;"><?php esc_html_e( 'بيتا', 'souq-pulse' ); ?></span>
+                        </h1>
+                        <p class="description" style="margin: 4px 0 0; color: #64748b; font-size: 13px;"><?php esc_html_e( 'نظرة شاملة ولحظية على أداء مبيعات متجرك وسلوك الزوار في مكان واحد.', 'souq-pulse' ); ?></p>
+                    </div>
 
-                        <!-- حقول مخصصة للنطاق الزمني تظهر عند الحاجة -->
-                        <div id="souqpulse-custom-dates" class="custom-dates-inputs" style="display:none; align-items:center; gap:8px;">
-                            <input type="date" id="souqpulse-start-date" class="souqpulse-input-date" placeholder="<?php esc_attr_e( 'من تاريخ', 'souq-pulse' ); ?>">
-                            <span><?php esc_html_e( 'إلى', 'souq-pulse' ); ?></span>
-                            <input type="date" id="souqpulse-end-date" class="souqpulse-input-date" placeholder="<?php esc_attr_e( 'إلى تاريخ', 'souq-pulse' ); ?>">
-                        </div>
+                    <!-- التبويبات العلوية -->
+                    <div class="souqpulse-nav-tabs">
+                        <button class="souqpulse-tab-btn active" data-target="#souqpulse-analytics-tab">
+                            📊 <?php esc_html_e( 'لوحة التحليلات', 'souq-pulse' ); ?>
+                        </button>
+                        <button class="souqpulse-tab-btn" data-target="#souqpulse-settings-tab">
+                            ⚙️ <?php esc_html_e( 'الإعدادات', 'souq-pulse' ); ?>
+                        </button>
+                    </div>
+                    
+                    <div class="souqpulse-header-actions">
+                        <!-- مفتاح اختيار النطاق الزمني -->
+                        <div class="date-picker-container">
+                            <select id="souqpulse-date-range" class="souqpulse-select">
+                                <option value="7days"><?php esc_html_e( 'آخر 7 أيام', 'souq-pulse' ); ?></option>
+                                <option value="30days" selected><?php esc_html_e( 'آخر 30 يوم', 'souq-pulse' ); ?></option>
+                                <option value="90days"><?php esc_html_e( 'آخر 90 يوم', 'souq-pulse' ); ?></option>
+                                <option value="6months"><?php esc_html_e( 'آخر 6 شهور', 'souq-pulse' ); ?></option>
+                                <option value="12months"><?php esc_html_e( 'آخر 12 شهر', 'souq-pulse' ); ?></option>
+                                <option value="alltime"><?php esc_html_e( 'كل الوقت', 'souq-pulse' ); ?></option>
+                                <option value="custom"><?php esc_html_e( 'فترة مخصصة', 'souq-pulse' ); ?></option>
+                            </select>
 
-                        <div class="comparison-toggle">
-                            <label class="switch">
-                                <input type="checkbox" id="souqpulse-compare-toggle" checked>
-                                <span class="slider round"></span>
-                            </label>
-                            <span class="compare-label"><?php esc_html_e( 'مقارنة بالفترة السابقة', 'souq-pulse' ); ?></span>
+                            <!-- حقول مخصصة للنطاق الزمني تظهر عند الحاجة -->
+                            <div id="souqpulse-custom-dates" class="custom-dates-inputs" style="display:none; align-items:center; gap:8px;">
+                                <input type="date" id="souqpulse-start-date" class="souqpulse-input-date" placeholder="<?php esc_attr_e( 'من تاريخ', 'souq-pulse' ); ?>">
+                                <span><?php esc_html_e( 'إلى', 'souq-pulse' ); ?></span>
+                                <input type="date" id="souqpulse-end-date" class="souqpulse-input-date" placeholder="<?php esc_attr_e( 'إلى تاريخ', 'souq-pulse' ); ?>">
+                            </div>
+
+                            <div class="comparison-toggle">
+                                <label class="switch">
+                                    <input type="checkbox" id="souqpulse-compare-toggle" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                                <span class="compare-label"><?php esc_html_e( 'مقارنة بالفترة السابقة', 'souq-pulse' ); ?></span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- شبكة كروت الأداء الرئيسية (KPIs) -->
+            <!-- تبويب التحليلات -->
+            <div id="souqpulse-analytics-tab" class="souqpulse-tab-content active">
+                <!-- شبكة كروت الأداء الرئيسية (KPIs) -->
             <div class="souqpulse-kpi-grid">
                 <!-- كارت المبيعات الإجمالية -->
                 <div class="souqpulse-card kpi-card" id="kpi-sales">
@@ -323,6 +365,48 @@ class SouqPulse_Admin {
                 </div>
             </div>
         </div>
-        <?php
+
+        <!-- تبويب الإعدادات -->
+        <div id="souqpulse-settings-tab" class="souqpulse-tab-content" style="display:none; padding: 10px 0;">
+            <div class="souqpulse-card" style="max-width: 600px; margin: 0 auto; padding: 30px; background:#fff; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.05); border:1px solid var(--souqpulse-border);">
+                <h2 style="margin-top:0; margin-bottom: 20px; font-size:18px; color:var(--souqpulse-dark); font-weight:700;">
+                    🌐 <?php esc_html_e( 'إعدادات اللغة والترجمة', 'souq-pulse' ); ?>
+                </h2>
+                <form method="post" action="options.php">
+                    <?php
+                    settings_fields( 'souqpulse_settings_group' );
+                    $current_lang = get_option( 'souqpulse_language', 'auto' );
+                    ?>
+                    
+                    <div style="margin-bottom: 25px;">
+                        <label style="display:block; margin-bottom: 10px; font-weight: 500; color: #475569; font-size: 14px;">
+                            <?php esc_html_e( 'لغة لوحة التحكم:', 'souq-pulse' ); ?>
+                        </label>
+                        <select name="souqpulse_language" class="souqpulse-select" style="width: 100%; max-width: 320px; height: 40px; padding: 0 12px; font-size: 14px; border: 1px solid var(--souqpulse-border); border-radius: 6px; background-color:#fff; color:var(--souqpulse-dark); outline:none;">
+                            <option value="auto" <?php selected( $current_lang, 'auto' ); ?>><?php esc_html_e( 'تلقائي (يتبع لغة الموقع)', 'souq-pulse' ); ?></option>
+                            <option value="ar" <?php selected( $current_lang, 'ar' ); ?>><?php esc_html_e( 'العربية', 'souq-pulse' ); ?></option>
+                            <option value="en" <?php selected( $current_lang, 'en' ); ?>><?php esc_html_e( 'English', 'souq-pulse' ); ?></option>
+                        </select>
+                        <p style="color: #64748b; font-size: 12px; margin-top: 8px; line-height: 1.5;">
+                            <?php esc_html_e( 'اختر لغة عرض لوحة تحليلات نبض السوق. يتطلب حفظ الإعدادات لإعادة تحميل الكلمات المترجمة.', 'souq-pulse' ); ?>
+                        </p>
+                    </div>
+
+                    <!-- صندوق إرشادات -->
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding: 16px; margin-bottom: 25px; font-size:13px; color:#475569; line-height: 1.6;">
+                        <strong>💡 <?php esc_html_e( 'كيف يعمل الكشف التلقائي؟', 'souq-pulse' ); ?></strong><br>
+                        <?php esc_html_e( 'في الوضع التلقائي، ستتبع لوحة التحكم لغة موقع ووردبريس المحددة في الإعدادات العامة للموقع. إذا كانت لغة الموقع هي العربية، سيتم عرض اللوحة بالكامل بواجهة RTL ومصطلحات معربة.', 'souq-pulse' ); ?>
+                    </div>
+
+                    <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; display: flex; justify-content: flex-end;">
+                        <button type="submit" class="souqpulse-btn-primary" style="background:var(--souqpulse-primary); border:none; color:#fff; padding:10px 24px; border-radius:6px; font-weight:500; cursor:pointer; font-size: 14px; font-family: inherit; transition: opacity 0.2s ease;">
+                            <?php esc_html_e( 'حفظ الإعدادات', 'souq-pulse' ); ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php
     }
 }

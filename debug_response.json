@@ -1,0 +1,107 @@
+{
+    "current": {
+        "sales": 0,
+        "orders": 0,
+        "aov": 0,
+        "new_customers": 0,
+        "sessions": 0,
+        "bounce_rate": 0,
+        "avg_duration": 0,
+        "conversion_rate": 0
+    },
+    "previous": {
+        "sales": 0,
+        "orders": 0,
+        "aov": 0,
+        "new_customers": 0,
+        "sessions": 0,
+        "bounce_rate": 0,
+        "avg_duration": 0,
+        "conversion_rate": 0
+    },
+    "timeline": [],
+    "top_products": [
+        {
+            "id": 243,
+            "name": "Samsung Galaxy S21",
+            "revenue": 307615
+        },
+        {
+            "id": 259,
+            "name": "HTC Vive Pro 2",
+            "revenue": 231369
+        },
+        {
+            "id": 255,
+            "name": "XBOX Series X",
+            "revenue": 183632
+        },
+        {
+            "id": 671,
+            "name": "Valve Index Knuckles",
+            "revenue": 139108
+        },
+        {
+            "id": 239,
+            "name": "Apple Watch Series 6",
+            "revenue": 127680
+        }
+    ],
+    "top_customers": [],
+    "customer_metrics": {
+        "avg_clv": 0,
+        "repeat_customers": 0,
+        "onetime_customers": 0
+    },
+    "inventory": {
+        "total_units": 0,
+        "low_stock": 0,
+        "out_of_stock": 0
+    },
+    "geo": [],
+    "funnel": [
+        {
+            "type": "view_session",
+            "label": "زيارة الموقع",
+            "count": 3,
+            "pct_of_total": 100,
+            "drop_off": 0
+        },
+        {
+            "type": "add_to_cart",
+            "label": "إضافة للسلة",
+            "count": 0,
+            "pct_of_total": 0,
+            "drop_off": 100
+        },
+        {
+            "type": "begin_checkout",
+            "label": "بدء الدفع",
+            "count": 0,
+            "pct_of_total": 0,
+            "drop_off": 0
+        },
+        {
+            "type": "add_shipping_info",
+            "label": "معلومات الشحن",
+            "count": 0,
+            "pct_of_total": 0,
+            "drop_off": 0
+        },
+        {
+            "type": "add_payment_info",
+            "label": "معلومات الدفع",
+            "count": 0,
+            "pct_of_total": 0,
+            "drop_off": 0
+        },
+        {
+            "type": "purchase",
+            "label": "الشراء",
+            "count": 0,
+            "pct_of_total": 0,
+            "drop_off": 0
+        }
+    ],
+    "realtime_active_users": 1
+}

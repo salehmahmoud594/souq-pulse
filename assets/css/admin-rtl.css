@@ -327,6 +327,51 @@ input:checked + .slider:before {
     border-color: var(--souqpulse-primary);
 }
 
+/* التبويبات العلوية للوحة التحكم */
+.souqpulse-nav-tabs {
+    display: flex;
+    gap: 6px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.souqpulse-tab-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+}
+
+.souqpulse-tab-btn:hover {
+    color: var(--souqpulse-primary);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.souqpulse-tab-btn.active {
+    background: #fff;
+    color: var(--souqpulse-dark);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.souqpulse-tab-content {
+    display: none;
+}
+
+.souqpulse-tab-content.active {
+    display: block;
+}
+
 /* شبكة الرسومات البيانية */
 .souqpulse-charts-grid,
 .souqpulse-details-grid {
