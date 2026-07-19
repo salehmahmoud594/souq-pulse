@@ -1,0 +1,42 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+*~
+
+# Packages and Dependencies
+node_modules/
+bower_components/
+jspm_packages/
+.npm/
+.yarn/
+
+# Logs and databases
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# Development tools and agents config
+.gemini/
+.agents/
+.phpunit.result.cache
+.phpunit.cache/
+
+# Build assets maps (optional, if compiling)
+*.map
