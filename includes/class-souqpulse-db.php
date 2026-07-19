@@ -61,12 +61,18 @@ class SouqPulse_DB {
                 'orders'        => 0,
                 'aov'           => 0,
                 'new_customers' => 0,
+                'sessions'      => 0,
+                'bounce_rate'   => 0,
+                'avg_duration'  => 0,
             ),
             'previous' => array(
                 'sales'         => 0,
                 'orders'        => 0,
                 'aov'           => 0,
                 'new_customers' => 0,
+                'sessions'      => 0,
+                'bounce_rate'   => 0,
+                'avg_duration'  => 0,
             ),
             'timeline'      => array(),
             'top_products'  => array(),
@@ -130,6 +136,52 @@ class SouqPulse_DB {
                 $prev_end_date
             );
             $results['previous']['new_customers'] = (int) $wpdb->get_var( $prev_new_cust_query );
+        }
+
+        // 3.5. استعلام بيانات الزيارات من WP Statistics إن وجدت الجداول
+        $visitor_table = $wpdb->prefix . 'statistics_visitor';
+        $stats_active = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $visitor_table ) );
+
+        if ( $stats_active ) {
+            // الاستعلام للفترة الحالية
+            $curr_stats_query = $wpdb->prepare(
+                "SELECT 
+                    COUNT(ID) as sessions,
+                    COUNT(CASE WHEN hits <= 1 THEN 1 END) as bounced_count,
+                    AVG(hits) as avg_hits
+                 FROM {$visitor_table}
+                 WHERE last_visit >= %s AND last_visit <= %s",
+                $start_date,
+                $end_date
+            );
+            $curr_stats = $wpdb->get_row( $curr_stats_query );
+
+            if ( $curr_stats ) {
+                $results['current']['sessions']    = (int) $curr_stats->sessions;
+                $results['current']['bounce_rate'] = $results['current']['sessions'] > 0 ? ( ( (int) $curr_stats->bounced_count / $results['current']['sessions'] ) * 100 ) : 0;
+                $results['current']['avg_duration'] = round( (float) $curr_stats->avg_hits * 45 ); // بالثواني
+            }
+
+            // الاستعلام للفترة السابقة
+            if ( $compare ) {
+                $prev_stats_query = $wpdb->prepare(
+                    "SELECT 
+                        COUNT(ID) as sessions,
+                        COUNT(CASE WHEN hits <= 1 THEN 1 END) as bounced_count,
+                        AVG(hits) as avg_hits
+                     FROM {$visitor_table}
+                     WHERE last_visit >= %s AND last_visit <= %s",
+                    $prev_start_date,
+                    $prev_end_date
+                );
+                $prev_stats = $wpdb->get_row( $prev_stats_query );
+
+                if ( $prev_stats ) {
+                    $results['previous']['sessions']    = (int) $prev_stats->sessions;
+                    $results['previous']['bounce_rate'] = $results['previous']['sessions'] > 0 ? ( ( (int) $prev_stats->bounced_count / $results['previous']['sessions'] ) * 100 ) : 0;
+                    $results['previous']['avg_duration'] = round( (float) $prev_stats->avg_hits * 45 ); // بالثواني
+                }
+            }
         }
 
         // 4. استعلام الخط البياني الزمني للمبيعات والطلبات يومياً

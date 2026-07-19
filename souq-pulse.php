@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: SouqPulse (نبض السوق)
+ * Plugin Name: SouqPulse (Souq Pulse)
  * Description: لوحة تحليلات متكاملة لمتجر WooCommerce مدمجة مع إحصائيات الزوار من WP Statistics بواجهة عربية كاملة RTL.
  * Version: 1.0.0
  * Author: WordPress Developer
@@ -49,7 +49,7 @@ function souqpulse_init_dependency_check() {
  */
 function souqpulse_woocommerce_missing_notice() {
     $class = 'notice notice-error is-dismissible';
-    $message = __( 'إضافة <strong>نبض السوق (SouqPulse)</strong> تتطلب تفعيل إضافة <strong>WooCommerce</strong> للعمل. تم تعطيل الإضافة تلقائياً.', 'souq-pulse' );
+    $message = __( 'إضافة <strong>Souq Pulse (SouqPulse)</strong> تتطلب تفعيل إضافة <strong>WooCommerce</strong> للعمل. تم تعطيل الإضافة تلقائياً.', 'souq-pulse' );
 
     printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), wp_kses_post( $message ) );
 }

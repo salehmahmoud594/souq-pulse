@@ -20,13 +20,13 @@ class SouqPulse_Admin {
     }
 
     /**
-     * تسجيل صفحة لوحة تحليلات "نبض السوق" كصفحة فرعية تحت WooCommerce
+     * تسجيل صفحة لوحة تحليلات "Souq Pulse" كصفحة فرعية تحت WooCommerce
      */
     public function register_submenu_page() {
         add_submenu_page(
             'woocommerce',                                // الصفحة الأب
-            __( 'نبض السوق — التحليلات والمؤشرات', 'souq-pulse' ), // عنوان الصفحة في المتصفح
-            __( 'نبض السوق', 'souq-pulse' ),                    // اسم القائمة
+            __( 'Souq Pulse — التحليلات والمؤشرات', 'souq-pulse' ), // عنوان الصفحة في المتصفح
+            __( 'Souq Pulse', 'souq-pulse' ),                    // اسم القائمة
             'manage_woocommerce',                         // الصلاحية المطلوبة
             'souqpulse-dashboard',                        // المعرف الفريد للصفحة
             array( $this, 'render_dashboard_page' )       // الدالة المسؤولة عن عرض الصفحة
@@ -37,7 +37,7 @@ class SouqPulse_Admin {
      * تحميل ملفات التنسيق والأكواد البرمجية للوحة التحكم فقط
      */
     public function enqueue_assets( $hook ) {
-        // التأكد من تحميل الملفات في صفحة إحصائيات نبض السوق فقط
+        // التأكد من تحميل الملفات في صفحة إحصائيات Souq Pulse فقط
         if ( 'woocommerce_page_souqpulse-dashboard' !== $hook ) {
             return;
         }
@@ -62,7 +62,7 @@ class SouqPulse_Admin {
     }
 
     /**
-     * عرض محتويات لوحة تحليلات "نبض السوق"
+     * عرض محتويات لوحة تحليلات "Souq Pulse"
      */
     public function render_dashboard_page() {
         ?>
@@ -70,7 +70,7 @@ class SouqPulse_Admin {
             <!-- الهيدر العلوي للوحة التحكم -->
             <div class="souqpulse-header">
                 <div class="souqpulse-header-title">
-                    <h1><?php esc_html_e( 'نبض السوق', 'souq-pulse' ); ?> <span class="badge"><?php esc_html_e( 'بيتا', 'souq-pulse' ); ?></span></h1>
+                    <h1><?php esc_html_e( 'Souq Pulse', 'souq-pulse' ); ?> <span class="badge"><?php esc_html_e( 'بيتا', 'souq-pulse' ); ?></span></h1>
                     <p class="description"><?php esc_html_e( 'نظرة شاملة ولحظية على أداء مبيعات متجرك وسلوك الزوار في مكان واحد.', 'souq-pulse' ); ?></p>
                 </div>
                 <div class="souqpulse-header-actions">
@@ -139,6 +139,7 @@ class SouqPulse_Admin {
                     <div class="card-body">
                         <h2 class="kpi-value">0</h2>
                         <span class="kpi-change positive">↑ 0% <span class="change-label"><?php esc_html_e( 'vs الفترة السابقة', 'souq-pulse' ); ?></span></span>
+                        <span class="kpi-meta-text" id="sessions-duration-meta"><?php esc_html_e( 'متوسط مدة الزيارة: 0 ثانية', 'souq-pulse' ); ?></span>
                     </div>
                 </div>
 

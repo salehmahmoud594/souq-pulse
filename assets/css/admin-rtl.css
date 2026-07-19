@@ -1,5 +1,5 @@
 /**
- * SouqPulse (نبض السوق) - Admin Dashboard Styles
+ * SouqPulse (Souq Pulse) - Admin Dashboard Styles
  * RTL-First, Modern Premium Design System
  */
 
@@ -265,6 +265,14 @@ input:checked + .slider:before {
 .change-label {
     font-weight: 400;
     color: #94a3b8;
+}
+
+.kpi-meta-text {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 6px;
+    font-weight: 500;
+    display: inline-block;
 }
 
 /* شبكة الرسومات البيانية */

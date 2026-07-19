@@ -1,5 +1,5 @@
 /**
- * SouqPulse (نبض السوق) - Admin Script
+ * SouqPulse (Souq Pulse) - Admin Script
  * Handles dashboard charts initialization, AJAX requests, and UI interactions
  */
 
@@ -76,7 +76,7 @@
             if (response.success) {
                 updateDashboardUI(response.data, compare);
             } else {
-                console.error('فشل جلب بيانات نبض السوق:', response.data);
+                console.error('فشل جلب بيانات Souq Pulse:', response.data);
                 // إظهار رسالة خطأ للمستخدم
                 $('.kpi-value').text('ج.م 0.00');
             }
@@ -97,14 +97,19 @@
         $('#kpi-sales .kpi-value').text(formatCurrency(current.sales));
         $('#kpi-orders .kpi-value').text(current.orders.toLocaleString());
         $('#kpi-aov .kpi-value').text(formatCurrency(current.aov));
+        
+        // تحديث إحصائيات الزوار من WP Statistics
+        $('#kpi-sessions .kpi-value').text(current.sessions.toLocaleString());
+        $('#kpi-bounce-rate .kpi-value').text(current.bounce_rate.toFixed(2) + '%');
+        $('#sessions-duration-meta').text('متوسط مدة الزيارة: ' + formatDuration(current.avg_duration));
 
-        // كارت العملاء الجدد
-        // بما أن كارت العملاء الجدد لا يحتوي على كارت KPI منفصل، يمكن وضعه في مكان مخصص أو سنضيفه لاحقاً
-        // دعنا نقوم بتحديث التغييرات ونسب المقارنة
+        // تحديث التغييرات ونسب المقارنة
         if (compareEnabled) {
             updateKPIChange('#kpi-sales', current.sales, previous.sales);
             updateKPIChange('#kpi-orders', current.orders, previous.orders);
             updateKPIChange('#kpi-aov', current.aov, previous.aov);
+            updateKPIChange('#kpi-sessions', current.sessions, previous.sessions);
+            updateKPIChange('#kpi-bounce-rate', previous.bounce_rate, current.bounce_rate); // الارتداد الأقل أفضل، لكن سنعرضه بالنسبة الطبيعية حالياً
         } else {
             $('.kpi-change').css('display', 'none');
         }
@@ -176,7 +181,7 @@
         }
 
         // 5. دمج وتحديث كروت المراحل اللاحقة بقيم تجريبية مؤقتاً لتفادي الفراغات
-        updateRemainingMockData(current.orders);
+        updateRemainingMockData(current.orders, current.sessions);
     }
 
     /**
@@ -338,19 +343,30 @@
     /**
      * دالة لتحديث باقي البيانات التجريبية للمراحل القادمة
      */
-    function updateRemainingMockData(realOrdersCount) {
-        // حسابات مؤقتة للمرحلة 2 للـ Sessions والـ Bounce Rate ومعدل التحويل
-        var mockSessions = Math.max(realOrdersCount * 35, 120);
-        var mockConversion = mockSessions > 0 ? (realOrdersCount / mockSessions) * 100 : 0;
+    function updateRemainingMockData(realOrdersCount, realSessionsCount) {
+        // حساب معدل التحويل الحقيقي المبدئي (سيصبح رسمياً في المرحلة 4)
+        var sessions = realSessionsCount > 0 ? realSessionsCount : Math.max(realOrdersCount * 35, 120);
+        var mockConversion = sessions > 0 ? (realOrdersCount / sessions) * 100 : 0;
         
-        $('#kpi-sessions .kpi-value').text(mockSessions.toLocaleString());
         $('#kpi-conversion .kpi-value').text(mockConversion.toFixed(2) + '%');
-        $('#kpi-bounce-rate .kpi-value').text('44.5%');
 
         $('.realtime-value').text('18');
         $('#inv-total-units').text('850');
         $('#inv-low-stock').text('4');
         $('#inv-out-of-stock').text('2');
+    }
+
+    /**
+     * تنسيق مدة الزيارة بالدقائق والثواني
+     */
+    function formatDuration(seconds) {
+        if (!seconds || seconds <= 0) return '0 ثانية';
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        if (m > 0) {
+            return m + ' د ' + s + ' ث';
+        }
+        return s + ' ثانية';
     }
 
     /**
