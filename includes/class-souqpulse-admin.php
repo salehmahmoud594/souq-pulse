@@ -82,6 +82,9 @@ class SouqPulse_Admin {
         wp_localize_script( 'souqpulse-admin-js', 'souqpulseAdminData', array(
             'ajax_url' => admin_url( 'admin-ajax.php' ),
             'nonce'    => wp_create_nonce( 'souqpulse_admin_nonce' ),
+            'i18n'     => array(
+                'avg_duration_label' => __( 'متوسط مدة الزيارة: ', 'souq-pulse' ),
+            ),
         ) );
     }
 
@@ -314,10 +317,10 @@ class SouqPulse_Admin {
                     </div>
                 </div>
 
-                <!-- أعلى العملاء -->
+                <!-- أعلى العملاء ونسبة الإيراد -->
                 <div class="souqpulse-card table-card">
                     <div class="card-header">
-                        <span class="card-title"><?php esc_html_e( 'أعلى 5 عملاء للمتجر', 'souq-pulse' ); ?></span>
+                        <span class="card-title"><?php esc_html_e( 'أعلى 5 عملاء ومصدر الإيرادات', 'souq-pulse' ); ?></span>
                     </div>
                     <div class="card-body">
                         <!-- ملخص سلوك العملاء والمجموعات -->
@@ -335,6 +338,16 @@ class SouqPulse_Admin {
                                 <strong id="cust-onetime-count">0</strong>
                             </div>
                         </div>
+
+                        <!-- نسبة إيراد العملاء الراجعين -->
+                        <div class="returning-rev-widget" style="margin: 15px 0; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 4px; font-size: 13px; color: #334155; font-weight: 700;"><?php esc_html_e( 'مساهمة الإيرادات حسب فئة العميل', 'souq-pulse' ); ?></h4>
+                                <p id="rev-share-slogan" style="margin: 0; font-size: 11px; color: #64748b;"><?php esc_html_e( 'جاري تحليل مساهمة العملاء الأوفياء...', 'souq-pulse' ); ?></p>
+                            </div>
+                            <div id="souqpulse-rev-share-chart" style="min-width: 110px; height: 90px;"></div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="souqpulse-table" id="table-top-customers">
                                 <thead>
@@ -364,6 +377,50 @@ class SouqPulse_Admin {
                     </div>
                 </div>
             </div>
+
+            <!-- شبكة تحليلات وسائل الدفع وخريطة الذروة -->
+            <div class="souqpulse-details-grid" style="margin-top: 24px;">
+                <!-- تحليل وسائل الدفع -->
+                <div class="souqpulse-card details-card flex-1">
+                    <div class="card-header">
+                        <span class="card-title"><?php esc_html_e( 'تحليل وسائل الدفع ومخاطر الـ COD', 'souq-pulse' ); ?></span>
+                    </div>
+                    <div class="card-body">
+                        <div id="souqpulse-payment-chart" style="min-height: 200px;"></div>
+                        <div class="table-responsive" style="margin-top: 15px;">
+                            <table class="souqpulse-table" id="table-payment-methods">
+                                <thead>
+                                    <tr>
+                                        <th><?php esc_html_e( 'وسيلة الدفع', 'souq-pulse' ); ?></th>
+                                        <th><?php esc_html_e( 'الطلبات', 'souq-pulse' ); ?></th>
+                                        <th><?php esc_html_e( 'الإيرادات', 'souq-pulse' ); ?></th>
+                                        <th><?php esc_html_e( 'نسبة الإرجاع', 'souq-pulse' ); ?></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted"><?php esc_html_e( 'جاري تحميل البيانات...', 'souq-pulse' ); ?></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الخريطة الحرارية لأوقات الطلبات -->
+                <div class="souqpulse-card details-card flex-2">
+                    <div class="card-header">
+                        <span class="card-title"><?php esc_html_e( 'أوقات ذروة الطلبات (الأيام والساعات بتوقيت مصر)', 'souq-pulse' ); ?></span>
+                    </div>
+                    <div class="card-body">
+                        <div id="souqpulse-heatmap-chart" style="min-height: 280px;"></div>
+                        <p style="margin: 8px 0 0; font-size: 11px; color: #64748b; text-align: center;">
+                            💡 <?php esc_html_e( 'المربعات الأغمق تمثل أوقات الشراء المكثف للعملاء — يوصى بها لتوقيت نشر الحملات الإعلانية.', 'souq-pulse' ); ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
         </div>
 
         <!-- تبويب الإعدادات -->

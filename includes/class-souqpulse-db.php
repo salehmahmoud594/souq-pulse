@@ -881,6 +881,516 @@ class SouqPulse_DB {
 
         $results['geo'] = $geo_list;
 
+        // 9.5. استعلام نسبة إيرادات العملاء الراجعين مقابل الجدد — مبني على إجمالي الطلبات في كل الوقت
+        // (وليس فقط طلبات الفترة المحددة) حتى لا يُصنَّف العميل المخلص الذي اشترى مرة هذا الشهر كـ "جديد"
+        if ( $is_hpos ) {
+            $rev_share_query = $wpdb->prepare(
+                "SELECT 
+                    SUM(CASE WHEN lifetime.lifetime_orders > 1 THEN period_cust.period_spend ELSE 0 END) as returning_revenue,
+                    SUM(CASE WHEN lifetime.lifetime_orders = 1 THEN period_cust.period_spend ELSE 0 END) as new_revenue
+                 FROM (
+                    -- إيراد كل عميل صافياً خلال الفترة المحددة
+                    SELECT 
+                        CASE WHEN o.customer_id > 0 THEN CAST(o.customer_id AS CHAR) ELSE o.billing_email END as cust_id,
+                        SUM(o.total_amount - COALESCE(r.refund_sum, 0)) as period_spend
+                    FROM {$wpdb->prefix}wc_orders o
+                    LEFT JOIN (
+                        SELECT parent_order_id, SUM(ABS(total_amount)) as refund_sum
+                        FROM {$wpdb->prefix}wc_orders
+                        WHERE type = 'shop_order_refund'
+                        GROUP BY parent_order_id
+                    ) r ON o.id = r.parent_order_id
+                    WHERE o.type = 'shop_order'
+                      AND o.status IN ({$statuses_in})
+                      AND o.date_created_gmt >= %s AND o.date_created_gmt <= %s
+                    GROUP BY cust_id
+                 ) as period_cust
+                 JOIN (
+                    -- إجمالي طلبات كل عميل في كل تاريخه (لتمييز راجع من جديد)
+                    SELECT 
+                        CASE WHEN customer_id > 0 THEN CAST(customer_id AS CHAR) ELSE billing_email END as cust_id,
+                        COUNT(DISTINCT id) as lifetime_orders
+                    FROM {$wpdb->prefix}wc_orders
+                    WHERE type = 'shop_order'
+                      AND status IN ({$statuses_in})
+                    GROUP BY cust_id
+                 ) as lifetime ON period_cust.cust_id = lifetime.cust_id",
+                $start_date,
+                $end_date
+            );
+        } else {
+            $rev_share_query = $wpdb->prepare(
+                "SELECT 
+                    SUM(CASE WHEN lifetime.lifetime_orders > 1 THEN period_cust.period_spend ELSE 0 END) as returning_revenue,
+                    SUM(CASE WHEN lifetime.lifetime_orders = 1 THEN period_cust.period_spend ELSE 0 END) as new_revenue
+                 FROM (
+                    -- إيراد كل عميل صافياً خلال الفترة المحددة
+                    SELECT 
+                        CASE 
+                            WHEN pm_cust.meta_value IS NOT NULL AND CAST(pm_cust.meta_value AS UNSIGNED) > 0 
+                            THEN pm_cust.meta_value 
+                            ELSE pm_email.meta_value 
+                        END as cust_id,
+                        SUM(CAST(pm_tot.meta_value AS DECIMAL(26,8)) - COALESCE(r.refund_sum, 0)) as period_spend
+                    FROM {$wpdb->posts} o
+                    LEFT JOIN {$wpdb->postmeta} pm_cust ON o.ID = pm_cust.post_id AND pm_cust.meta_key = '_customer_user'
+                    LEFT JOIN {$wpdb->postmeta} pm_email ON o.ID = pm_email.post_id AND pm_email.meta_key = '_billing_email'
+                    LEFT JOIN {$wpdb->postmeta} pm_tot ON o.ID = pm_tot.post_id AND pm_tot.meta_key = '_order_total'
+                    LEFT JOIN (
+                        SELECT ref.post_parent, SUM(CAST(ABS(CAST(pm_ref.meta_value AS DECIMAL(26,8))) AS DECIMAL(26,8))) as refund_sum
+                        FROM {$wpdb->posts} ref
+                        LEFT JOIN {$wpdb->postmeta} pm_ref ON ref.ID = pm_ref.post_id AND pm_ref.meta_key = '_order_total'
+                        WHERE ref.post_type = 'shop_order_refund'
+                        GROUP BY ref.post_parent
+                    ) r ON o.ID = r.post_parent
+                    WHERE o.post_type = 'shop_order'
+                      AND o.post_status IN ({$statuses_in})
+                      AND o.post_date >= %s AND o.post_date <= %s
+                    GROUP BY cust_id
+                 ) as period_cust
+                 JOIN (
+                    -- إجمالي طلبات كل عميل في كل تاريخه (لتمييز راجع من جديد)
+                    SELECT 
+                        CASE 
+                            WHEN pm_cust2.meta_value IS NOT NULL AND CAST(pm_cust2.meta_value AS UNSIGNED) > 0 
+                            THEN pm_cust2.meta_value 
+                            ELSE pm_email2.meta_value 
+                        END as cust_id,
+                        COUNT(DISTINCT o2.ID) as lifetime_orders
+                    FROM {$wpdb->posts} o2
+                    LEFT JOIN {$wpdb->postmeta} pm_cust2 ON o2.ID = pm_cust2.post_id AND pm_cust2.meta_key = '_customer_user'
+                    LEFT JOIN {$wpdb->postmeta} pm_email2 ON o2.ID = pm_email2.post_id AND pm_email2.meta_key = '_billing_email'
+                    WHERE o2.post_type = 'shop_order'
+                      AND o2.post_status IN ({$statuses_in})
+                    GROUP BY cust_id
+                 ) as lifetime ON period_cust.cust_id = lifetime.cust_id",
+                $start_date,
+                $end_date
+            );
+        }
+        $rev_share_row = $wpdb->get_row( $rev_share_query );
+
+        $returning_rev = $rev_share_row ? (float) $rev_share_row->returning_revenue : 0;
+        $new_rev       = $rev_share_row ? (float) $rev_share_row->new_revenue : 0;
+        $total_rev_sum = $returning_rev + $new_rev;
+
+        $results['customer_revenue_share'] = array(
+            'returning_revenue' => $returning_rev,
+            'new_revenue'       => $new_rev,
+            'returning_pct'     => $total_rev_sum > 0 ? round( ( $returning_rev / $total_rev_sum ) * 100, 1 ) : 0,
+            'new_pct'           => $total_rev_sum > 0 ? round( ( $new_rev / $total_rev_sum ) * 100, 1 ) : 0,
+        );
+
+
+        // 9.6. استعلام تحليل وسائط الدفع ومخاطر الدفع عند الاستلام (Payment Methods Analysis)
+        if ( $is_hpos ) {
+            $payment_query = $wpdb->prepare(
+                "SELECT 
+                    pm_code.meta_value as method_code,
+                    pm_title.meta_value as method_title,
+                    COUNT(DISTINCT o.id) as order_count,
+                    SUM(o.total_amount - COALESCE(r.refund_sum, 0)) as net_revenue,
+                    COUNT(CASE WHEN o.status = 'wc-refunded' OR r.parent_order_id IS NOT NULL THEN 1 END) as refund_count
+                 FROM {$wpdb->prefix}wc_orders o
+                 LEFT JOIN {$wpdb->prefix}wc_orders_meta pm_code ON o.id = pm_code.order_id AND pm_code.meta_key = '_payment_method'
+                 LEFT JOIN {$wpdb->prefix}wc_orders_meta pm_title ON o.id = pm_title.order_id AND pm_title.meta_key = '_payment_method_title'
+                 LEFT JOIN (
+                     SELECT parent_order_id, SUM(ABS(total_amount)) as refund_sum
+                     FROM {$wpdb->prefix}wc_orders
+                     WHERE type = 'shop_order_refund'
+                     GROUP BY parent_order_id
+                 ) r ON o.id = r.parent_order_id
+                 WHERE o.type = 'shop_order'
+                   AND o.status IN ({$statuses_in})
+                   AND o.date_created_gmt >= %s AND o.date_created_gmt <= %s
+                 GROUP BY pm_code.meta_value, pm_title.meta_value
+                 ORDER BY net_revenue DESC",
+                $start_date,
+                $end_date
+            );
+        } else {
+            $payment_query = $wpdb->prepare(
+                "SELECT 
+                    pm_code.meta_value as method_code,
+                    pm_title.meta_value as method_title,
+                    COUNT(DISTINCT o.ID) as order_count,
+                    SUM(CAST(pm_tot.meta_value AS DECIMAL(26,8)) - COALESCE(r.refund_sum, 0)) as net_revenue,
+                    COUNT(CASE WHEN o.post_status = 'wc-refunded' OR r.post_parent IS NOT NULL THEN 1 END) as refund_count
+                 FROM {$wpdb->posts} o
+                 LEFT JOIN {$wpdb->postmeta} pm_code ON o.ID = pm_code.post_id AND pm_code.meta_key = '_payment_method'
+                 LEFT JOIN {$wpdb->postmeta} pm_title ON o.ID = pm_title.post_id AND pm_title.meta_key = '_payment_method_title'
+                 LEFT JOIN {$wpdb->postmeta} pm_tot ON o.ID = pm_tot.post_id AND pm_tot.meta_key = '_order_total'
+                 LEFT JOIN (
+                     SELECT ref.post_parent, SUM(CAST(ABS(CAST(pm_ref.meta_value AS DECIMAL(26,8))) AS DECIMAL(26,8))) as refund_sum
+                     FROM {$wpdb->posts} ref
+                     LEFT JOIN {$wpdb->postmeta} pm_ref ON ref.ID = pm_ref.post_id AND pm_ref.meta_key = '_order_total'
+                     WHERE ref.post_type = 'shop_order_refund'
+                     GROUP BY ref.post_parent
+                 ) r ON o.ID = r.post_parent
+                 WHERE o.post_type = 'shop_order'
+                   AND o.post_status IN ({$statuses_in})
+                   AND o.post_date >= %s AND o.post_date <= %s
+                 GROUP BY pm_code.meta_value, pm_title.meta_value
+                 ORDER BY net_revenue DESC",
+                $start_date,
+                $end_date
+            );
+        }
+        $payment_rows = $wpdb->get_results( $payment_query );
+
+        $payment_methods_list = array();
+        foreach ( $payment_rows as $row ) {
+            $code  = $row->method_code ? $row->method_code : 'other';
+            $title = $row->method_title ? $row->method_title : __( 'طريقة دفع غير محددة', 'souq-pulse' );
+            $orders  = (int) $row->order_count;
+            $revenue = (float) $row->net_revenue;
+            $refunds = (int) $row->refund_count;
+            $refund_rate = $orders > 0 ? round( ( $refunds / $orders ) * 100, 1 ) : 0;
+
+            $payment_methods_list[] = array(
+                'code'        => $code,
+                'title'       => $title,
+                'orders'      => $orders,
+                'revenue'     => $revenue,
+                'refunds'     => $refunds,
+                'refund_rate' => $refund_rate,
+            );
+        }
+        $results['payment_methods'] = $payment_methods_list;
+
+        // 9.7. استعلام الخريطة الحرارية لساعات وأيام الطلبات (Peak Day/Hour Heatmap)
+        if ( $is_hpos ) {
+            $heatmap_query = $wpdb->prepare(
+                "SELECT 
+                    DAYOFWEEK(DATE_ADD(date_created_gmt, INTERVAL 3 HOUR)) as day_of_week,
+                    HOUR(DATE_ADD(date_created_gmt, INTERVAL 3 HOUR)) as hour_of_day,
+                    COUNT(id) as order_count
+                 FROM {$wpdb->prefix}wc_orders
+                 WHERE type = 'shop_order'
+                   AND status IN ({$statuses_in})
+                   AND date_created_gmt >= %s AND date_created_gmt <= %s
+                 GROUP BY day_of_week, hour_of_day",
+                $start_date,
+                $end_date
+            );
+        } else {
+            $heatmap_query = $wpdb->prepare(
+                "SELECT 
+                    DAYOFWEEK(DATE_ADD(post_date, INTERVAL 3 HOUR)) as day_of_week,
+                    HOUR(DATE_ADD(post_date, INTERVAL 3 HOUR)) as hour_of_day,
+                    COUNT(ID) as order_count
+                 FROM {$wpdb->posts}
+                 WHERE post_type = 'shop_order'
+                   AND post_status IN ({$statuses_in})
+                   AND post_date >= %s AND post_date <= %s
+                 GROUP BY day_of_week, hour_of_day",
+                $start_date,
+                $end_date
+            );
+        }
+        $heatmap_rows = $wpdb->get_results( $heatmap_query );
+
+        $day_labels = array(
+            7 => __( 'السبت', 'souq-pulse' ),
+            1 => __( 'الأحد', 'souq-pulse' ),
+            2 => __( 'الإثنين', 'souq-pulse' ),
+            3 => __( 'الثلاثاء', 'souq-pulse' ),
+            4 => __( 'الأربعاء', 'souq-pulse' ),
+            5 => __( 'الخميس', 'souq-pulse' ),
+            6 => __( 'الجمعة', 'souq-pulse' ),
+        );
+
+        $heatmap_matrix = array();
+        $day_order = array( 7, 1, 2, 3, 4, 5, 6 );
+
+        foreach ( $day_order as $day_num ) {
+            $hours_data = array_fill( 0, 24, 0 );
+            $heatmap_matrix[ $day_num ] = array(
+                'name' => $day_labels[ $day_num ],
+                'data' => $hours_data,
+            );
+        }
+
+        if ( $heatmap_rows ) {
+            foreach ( $heatmap_rows as $row ) {
+                $d = (int) $row->day_of_week;
+                $h = (int) $row->hour_of_day;
+                if ( isset( $heatmap_matrix[ $d ] ) && $h >= 0 && $h <= 23 ) {
+                    $heatmap_matrix[ $d ]['data'][ $h ] = (int) $row->order_count;
+                }
+            }
+        }
+
+        $results['order_heatmap'] = array_values( $heatmap_matrix );
+
+        // 9.8. استعلام تحليل شرائح العملاء RFM (RFM Customer Segmentation)
+        if ( $is_hpos ) {
+            $rfm_query = "SELECT 
+                cust_id,
+                COUNT(DISTINCT id) as frequency,
+                SUM(total_amount - COALESCE(refund_sum, 0)) as monetary,
+                DATEDIFF(NOW(), MAX(date_created_gmt)) as recency_days
+            FROM (
+                SELECT 
+                    CASE WHEN o.customer_id > 0 THEN CAST(o.customer_id AS CHAR) ELSE o.billing_email END as cust_id,
+                    o.id,
+                    o.total_amount,
+                    o.date_created_gmt,
+                    r.refund_sum
+                FROM {$wpdb->prefix}wc_orders o
+                LEFT JOIN (
+                    SELECT parent_order_id, SUM(ABS(total_amount)) as refund_sum
+                    FROM {$wpdb->prefix}wc_orders
+                    WHERE type = 'shop_order_refund'
+                    GROUP BY parent_order_id
+                ) r ON o.id = r.parent_order_id
+                WHERE o.type = 'shop_order'
+                  AND o.status IN ({$statuses_in})
+            ) as customer_orders_all
+            GROUP BY cust_id";
+        } else {
+            $rfm_query = "SELECT 
+                cust_id,
+                COUNT(DISTINCT ID) as frequency,
+                SUM(CAST(pm_tot.meta_value AS DECIMAL(26,8)) - COALESCE(refund_sum, 0)) as monetary,
+                DATEDIFF(NOW(), MAX(post_date)) as recency_days
+            FROM (
+                SELECT 
+                    CASE 
+                        WHEN pm_cust.meta_value IS NOT NULL AND CAST(pm_cust.meta_value AS UNSIGNED) > 0 
+                        THEN pm_cust.meta_value 
+                        ELSE pm_email.meta_value 
+                    END as cust_id,
+                    o.ID,
+                    o.post_date,
+                    pm_tot.meta_value,
+                    r.refund_sum
+                FROM {$wpdb->posts} o
+                LEFT JOIN {$wpdb->postmeta} pm_cust ON o.ID = pm_cust.post_id AND pm_cust.meta_key = '_customer_user'
+                LEFT JOIN {$wpdb->postmeta} pm_email ON o.ID = pm_email.post_id AND pm_email.meta_key = '_billing_email'
+                LEFT JOIN {$wpdb->postmeta} pm_tot ON o.ID = pm_tot.post_id AND pm_tot.meta_key = '_order_total'
+                LEFT JOIN (
+                    SELECT ref.post_parent, SUM(CAST(ABS(CAST(pm_ref.meta_value AS DECIMAL(26,8))) AS DECIMAL(26,8))) as refund_sum
+                    FROM {$wpdb->posts} ref
+                    LEFT JOIN {$wpdb->postmeta} pm_ref ON ref.ID = pm_ref.post_id AND pm_ref.meta_key = '_order_total'
+                    WHERE ref.post_type = 'shop_order_refund'
+                    GROUP BY ref.post_parent
+                ) r ON o.ID = r.post_parent
+                WHERE o.post_type = 'shop_order'
+                  AND o.post_status IN ({$statuses_in})
+            ) as customer_orders_all
+            GROUP BY cust_id";
+        }
+        $rfm_rows = $wpdb->get_results( $rfm_query );
+
+        $rfm_counts = array(
+            'champions'     => array( 'count' => 0, 'revenue' => 0 ),
+            'loyal'         => array( 'count' => 0, 'revenue' => 0 ),
+            'promising'     => array( 'count' => 0, 'revenue' => 0 ),
+            'at_risk'       => array( 'count' => 0, 'revenue' => 0 ),
+            'lost'          => array( 'count' => 0, 'revenue' => 0 ),
+            'new_customers' => array( 'count' => 0, 'revenue' => 0 ),
+        );
+
+        $total_rfm_revenue = 0;
+
+        if ( $rfm_rows ) {
+            foreach ( $rfm_rows as $row ) {
+                $r = (int) $row->recency_days;
+                $f = (int) $row->frequency;
+                $m = (float) $row->monetary;
+                if ( $m < 0 ) $m = 0;
+
+                $total_rfm_revenue += $m;
+
+                if ( $f >= 3 && $r <= 60 ) {
+                    $rfm_counts['champions']['count']++;
+                    $rfm_counts['champions']['revenue'] += $m;
+                } elseif ( $f >= 2 && $r <= 120 ) {
+                    $rfm_counts['loyal']['count']++;
+                    $rfm_counts['loyal']['revenue'] += $m;
+                } elseif ( $f == 1 && $r <= 30 ) {
+                    $rfm_counts['new_customers']['count']++;
+                    $rfm_counts['new_customers']['revenue'] += $m;
+                } elseif ( $f == 1 && $r <= 90 ) {
+                    $rfm_counts['promising']['count']++;
+                    $rfm_counts['promising']['revenue'] += $m;
+                } elseif ( $f >= 2 && $r > 120 ) {
+                    $rfm_counts['at_risk']['count']++;
+                    $rfm_counts['at_risk']['revenue'] += $m;
+                } else {
+                    $rfm_counts['lost']['count']++;
+                    $rfm_counts['lost']['revenue'] += $m;
+                }
+            }
+        }
+
+        $rfm_meta = array(
+            'champions'     => array( 'label' => __( 'عملاء أبطال', 'souq-pulse' ), 'icon' => '👑', 'color' => '#10b981' ),
+            'loyal'         => array( 'label' => __( 'عملاء أوفياء', 'souq-pulse' ), 'icon' => '💎', 'color' => '#6366f1' ),
+            'promising'     => array( 'label' => __( 'عملاء واعدون', 'souq-pulse' ), 'icon' => '🌟', 'color' => '#3b82f6' ),
+            'at_risk'       => array( 'label' => __( 'عملاء في خطر', 'souq-pulse' ), 'icon' => '⚠️', 'color' => '#f59e0b' ),
+            'lost'          => array( 'label' => __( 'عملاء غائبون', 'souq-pulse' ), 'icon' => '😴', 'color' => '#ef4444' ),
+            'new_customers' => array( 'label' => __( 'عملاء جدد', 'souq-pulse' ), 'icon' => '✨', 'color' => '#8b5cf6' ),
+        );
+
+        $rfm_results = array();
+        foreach ( $rfm_counts as $key => $data ) {
+            $pct = $total_rfm_revenue > 0 ? round( ( $data['revenue'] / $total_rfm_revenue ) * 100, 1 ) : 0;
+            $rfm_results[ $key ] = array(
+                'key'     => $key,
+                'label'   => $rfm_meta[ $key ]['label'],
+                'icon'    => $rfm_meta[ $key ]['icon'],
+                'color'   => $rfm_meta[ $key ]['color'],
+                'count'   => $data['count'],
+                'revenue' => $data['revenue'],
+                'pct'     => $pct,
+            );
+        }
+        $results['rfm_segments'] = $rfm_results;
+
+        // 9.9. استعلام المنتجات الأكثر شراءً معاً (Product Affinity / Cross-Selling)
+        $six_months_ago = date( 'Y-m-d H:i:s', strtotime( '-6 months' ) );
+        if ( $is_hpos ) {
+            $affinity_query = $wpdb->prepare(
+                "SELECT 
+                    i1_meta.meta_value as product_a_id,
+                    p1.post_title as product_a_name,
+                    i2_meta.meta_value as product_b_id,
+                    p2.post_title as product_b_name,
+                    COUNT(DISTINCT items1.order_id) as pair_count
+                 FROM {$wpdb->prefix}woocommerce_order_items items1
+                 JOIN {$wpdb->prefix}woocommerce_order_items items2 
+                   ON items1.order_id = items2.order_id 
+                  AND items1.order_item_id < items2.order_item_id
+                 JOIN {$wpdb->prefix}woocommerce_order_itemmeta i1_meta 
+                   ON items1.order_item_id = i1_meta.order_item_id AND i1_meta.meta_key = '_product_id'
+                 JOIN {$wpdb->prefix}woocommerce_order_itemmeta i2_meta 
+                   ON items2.order_item_id = i2_meta.order_item_id AND i2_meta.meta_key = '_product_id' AND i1_meta.meta_value != i2_meta.meta_value
+                 LEFT JOIN {$wpdb->posts} p1 ON CAST(i1_meta.meta_value AS UNSIGNED) = p1.ID
+                 LEFT JOIN {$wpdb->posts} p2 ON CAST(i2_meta.meta_value AS UNSIGNED) = p2.ID
+                 WHERE items1.order_item_type = 'line_item' 
+                   AND items2.order_item_type = 'line_item'
+                   AND items1.order_id IN (
+                       SELECT id FROM {$wpdb->prefix}wc_orders
+                       WHERE type = 'shop_order' 
+                         AND status IN ({$statuses_in}) 
+                         AND date_created_gmt >= %s
+                   )
+                 GROUP BY product_a_id, product_b_id, product_a_name, product_b_name
+                 ORDER BY pair_count DESC
+                 LIMIT 5",
+                $six_months_ago
+            );
+        } else {
+            $affinity_query = $wpdb->prepare(
+                "SELECT 
+                    i1_meta.meta_value as product_a_id,
+                    p1.post_title as product_a_name,
+                    i2_meta.meta_value as product_b_id,
+                    p2.post_title as product_b_name,
+                    COUNT(DISTINCT items1.order_id) as pair_count
+                 FROM {$wpdb->prefix}woocommerce_order_items items1
+                 JOIN {$wpdb->prefix}woocommerce_order_items items2 
+                   ON items1.order_id = items2.order_id 
+                  AND items1.order_item_id < items2.order_item_id
+                 JOIN {$wpdb->prefix}woocommerce_order_itemmeta i1_meta 
+                   ON items1.order_item_id = i1_meta.order_item_id AND i1_meta.meta_key = '_product_id'
+                 JOIN {$wpdb->prefix}woocommerce_order_itemmeta i2_meta 
+                   ON items2.order_item_id = i2_meta.order_item_id AND i2_meta.meta_key = '_product_id' AND i1_meta.meta_value != i2_meta.meta_value
+                 LEFT JOIN {$wpdb->posts} p1 ON CAST(i1_meta.meta_value AS UNSIGNED) = p1.ID
+                 LEFT JOIN {$wpdb->posts} p2 ON CAST(i2_meta.meta_value AS UNSIGNED) = p2.ID
+                 WHERE items1.order_item_type = 'line_item' 
+                   AND items2.order_item_type = 'line_item'
+                   AND items1.order_id IN (
+                       SELECT ID FROM {$wpdb->posts}
+                       WHERE post_type = 'shop_order' 
+                         AND post_status IN ({$statuses_in}) 
+                         AND post_date >= %s
+                   )
+                 GROUP BY product_a_id, product_b_id, product_a_name, product_b_name
+                 ORDER BY pair_count DESC
+                 LIMIT 5",
+                $six_months_ago
+            );
+        }
+        $affinity_rows = $wpdb->get_results( $affinity_query );
+
+        $affinity_list = array();
+        foreach ( $affinity_rows as $row ) {
+            $name_a = $row->product_a_name ? $row->product_a_name : __( 'منتج غير محدد', 'souq-pulse' );
+            $name_b = $row->product_b_name ? $row->product_b_name : __( 'منتج غير محدد', 'souq-pulse' );
+
+            $affinity_list[] = array(
+                'product_a_id'   => (int) $row->product_a_id,
+                'product_a_name' => $name_a,
+                'product_b_id'   => (int) $row->product_b_id,
+                'product_b_name' => $name_b,
+                'pair_count'     => (int) $row->pair_count,
+            );
+        }
+        $results['product_affinity'] = $affinity_list;
+
+        // 9.10. بناء مصفوفات الرسوم البيانية الصغيرة لكل كارت (KPI Sparklines Data)
+        $sparkline_sales      = array();
+        $sparkline_orders     = array();
+        $sparkline_aov        = array();
+        $sparkline_sessions   = array();
+        $sparkline_bounce     = array();
+        $sparkline_conversion = array();
+
+        $daily_stats_map = array();
+        if ( $stats_active ) {
+            $daily_stats_query = $wpdb->prepare(
+                "SELECT 
+                    DATE(last_visit) as day,
+                    COUNT(ID) as sessions,
+                    COUNT(CASE WHEN hits <= 1 THEN 1 END) as bounced_count
+                 FROM {$visitor_table}
+                 WHERE last_visit >= %s AND last_visit <= %s
+                 GROUP BY DATE(last_visit)",
+                $start_date,
+                $end_date
+            );
+            $daily_stats_rows = $wpdb->get_results( $daily_stats_query );
+            if ( $daily_stats_rows ) {
+                foreach ( $daily_stats_rows as $ds ) {
+                    $daily_stats_map[ $ds->day ] = array(
+                        'sessions' => (int) $ds->sessions,
+                        'bounced'  => (int) $ds->bounced_count,
+                    );
+                }
+            }
+        }
+
+        foreach ( $results['timeline'] as $t_item ) {
+            $s_sales  = (float) $t_item['sales'];
+            $s_orders = (int) $t_item['orders'];
+            $s_aov    = $s_orders > 0 ? ( $s_sales / $s_orders ) : 0;
+
+            $day_str   = $t_item['day'];
+            $s_sess    = isset( $daily_stats_map[ $day_str ] ) ? $daily_stats_map[ $day_str ]['sessions'] : 0;
+            $s_bounced = isset( $daily_stats_map[ $day_str ] ) ? $daily_stats_map[ $day_str ]['bounced'] : 0;
+            $s_bounce_pct = $s_sess > 0 ? ( ( $s_bounced / $s_sess ) * 100 ) : 0;
+            $s_conv_pct   = $s_sess > 0 ? ( ( $s_orders / $s_sess ) * 100 ) : 0;
+
+            $sparkline_sales[]      = round( $s_sales, 2 );
+            $sparkline_orders[]     = $s_orders;
+            $sparkline_aov[]        = round( $s_aov, 2 );
+            $sparkline_sessions[]   = $s_sess;
+            $sparkline_bounce[]     = round( $s_bounce_pct, 1 );
+            $sparkline_conversion[] = round( $s_conv_pct, 1 );
+        }
+
+        $results['kpi_sparklines'] = array(
+            'sales'      => $sparkline_sales,
+            'orders'     => $sparkline_orders,
+            'aov'        => $sparkline_aov,
+            'sessions'   => $sparkline_sessions,
+            'bounce'     => $sparkline_bounce,
+            'conversion' => $sparkline_conversion,
+        );
+
         // حفظ النتائج في كاش المؤقتات لمدة 15 دقيقة
         set_transient( $cache_key, $results, 15 * MINUTE_IN_SECONDS );
 

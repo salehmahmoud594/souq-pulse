@@ -11,6 +11,9 @@
     var funnelChart;
     var geoChart;
     var sparklineChart;
+    var revShareChart;
+    var paymentChart;
+    var heatmapChart;
 
     $(document).ready(function() {
         // تهيئة الرسوم البيانية كقوالب فارغة أولاً
@@ -184,7 +187,8 @@
         // تحديث إحصائيات الزوار من WP Statistics والوقت الفعلي
         $('#kpi-sessions .kpi-value').text(current.sessions.toLocaleString());
         $('#kpi-bounce-rate .kpi-value').text(current.bounce_rate.toFixed(2) + '%');
-        $('#sessions-duration-meta').text('متوسط مدة الزيارة: ' + formatDuration(current.avg_duration));
+        var durationLabel = (souqpulseAdminData.i18n && souqpulseAdminData.i18n.avg_duration_label) ? souqpulseAdminData.i18n.avg_duration_label : 'متوسط مدة الزيارة: ';
+        $('#sessions-duration-meta').text(durationLabel + formatDuration(current.avg_duration));
         $('.realtime-value').text(data.realtime_active_users || 0);
         updateRealtimeSparkline(data.realtime_active_users || 0);
 
@@ -225,7 +229,7 @@
                     '</tr>';
             });
         } else {
-            productsHtml = '<tr><td colspan="3" class="text-center text-muted">لا توجد مبيعات في هذه الفترة.</td></tr>';
+            productsHtml = '<tr><td colspan="3">' + renderEmptyState('لا توجد مبيعات', 'جرّب اختيار نطاق زمني آخر للاطلاع على الإحصائيات.', '📦') + '</td></tr>';
         }
         $('#table-top-products tbody').html(productsHtml);
 
@@ -240,7 +244,7 @@
                     '</tr>';
             });
         } else {
-            customersHtml = '<tr><td colspan="3" class="text-center text-muted">لا توجد بيانات عملاء لهذه الفترة.</td></tr>';
+            customersHtml = '<tr><td colspan="3">' + renderEmptyState('لا توجد بيانات عملاء', 'جرّب اختيار نطاق زمني أوسع لعرض بيانات العملاء.', '👥') + '</td></tr>';
         }
         $('#table-top-customers tbody').html(customersHtml);
 
@@ -365,6 +369,61 @@
             geoChart.updateOptions({
                 labels: []
             });
+        }
+
+        // 4.8. تحديث ويدجت نسبة إيراد العملاء الراجعين
+        if (data.customer_revenue_share) {
+            var retPct = data.customer_revenue_share.returning_pct || 0;
+            var newPct = data.customer_revenue_share.new_pct || 0;
+            
+            if (revShareChart) {
+                revShareChart.updateSeries([data.customer_revenue_share.returning_revenue, data.customer_revenue_share.new_revenue]);
+            }
+            
+            if (retPct > 0 || newPct > 0) {
+                $('#rev-share-slogan').html('⚡ <strong>' + retPct + '%</strong> من الإيرادات من عملاء أوفياء راجعين!');
+            } else {
+                $('#rev-share-slogan').text('لا توجد مبيعات مسجلة في هذه الفترة.');
+            }
+        }
+
+        // 4.9. تحديث تحليلات وسائل الدفع ومخاطر الـ COD
+        if (data.payment_methods && data.payment_methods.length > 0) {
+            var payTitles = [];
+            var payRevenues = [];
+            var payTableHtml = '';
+
+            data.payment_methods.forEach(function(pm) {
+                payTitles.push(pm.title);
+                payRevenues.push(pm.revenue);
+
+                var isCod = pm.code.toLowerCase().indexOf('cod') !== -1 || pm.title.indexOf('عند الاستلام') !== -1;
+                var badgeStyle = pm.refund_rate > 15 ? 'background:#ef4444; color:#fff;' : (pm.refund_rate > 5 ? 'background:#f59e0b; color:#fff;' : 'background:#10b981; color:#fff;');
+                var codHighlight = isCod ? ' style="background: #fffbebf5;"' : '';
+
+                payTableHtml += '<tr' + codHighlight + '>' +
+                    '<td><strong>' + escHtml(pm.title) + '</strong>' + (isCod ? ' <span class="badge" style="background:#f59e0b; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-right:4px;">COD</span>' : '') + '</td>' +
+                    '<td class="text-center">' + pm.orders.toLocaleString() + '</td>' +
+                    '<td><strong>' + formatCurrency(pm.revenue) + '</strong></td>' +
+                    '<td><span class="badge" style="font-size:11px; padding:2px 8px; border-radius:12px; ' + badgeStyle + '">' + pm.refund_rate + '% (' + pm.refunds + ')</span></td>' +
+                    '</tr>';
+            });
+
+            if (paymentChart) {
+                paymentChart.updateSeries([{ name: 'الإيرادات (ج.م)', data: payRevenues }]);
+                paymentChart.updateOptions({ xaxis: { categories: payTitles } });
+            }
+            $('#table-payment-methods tbody').html(payTableHtml);
+        } else {
+            if (paymentChart) {
+                paymentChart.updateSeries([{ name: 'الإيرادات (ج.م)', data: [] }]);
+            }
+            $('#table-payment-methods tbody').html('<tr><td colspan="4">' + renderEmptyState('لا توجد وسائل دفع', 'لم يتم تسجيل أي طلبات بوسائل دفع في هذه الفترة.', '💳') + '</td></tr>');
+        }
+
+        // 4.10. تحديث الخريطة الحرارية لساعات وأيام الشراء (Order Heatmap)
+        if (data.order_heatmap && data.order_heatmap.length > 0 && heatmapChart) {
+            heatmapChart.updateSeries(data.order_heatmap);
         }
     }
 
@@ -506,22 +565,102 @@
         geoChart = new ApexCharts(document.querySelector("#souqpulse-geo-chart"), geoOptions);
         geoChart.render();
 
-        // 4. مخطط الزوار بالوقت الفعلي
+        // 5. مخطط مساهمة إيرادات العملاء الراجعين مقابل الجدد
+        var revShareOptions = {
+            chart: {
+                type: 'donut',
+                height: 90,
+                width: 110,
+                fontFamily: 'Tajawal, sans-serif',
+                sparkline: { enabled: true },
+                rtl: true
+            },
+            colors: ['#6366f1', '#3b82f6'],
+            series: [0, 0],
+            labels: ['عملاء راجعون', 'عملاء جدد'],
+            tooltip: {
+                y: {
+                    formatter: function(val) { return formatCurrency(val); }
+                }
+            }
+        };
+        revShareChart = new ApexCharts(document.querySelector("#souqpulse-rev-share-chart"), revShareOptions);
+        revShareChart.render();
+
+        // 6. مخطط تحليل وسائل الدفع
+        var paymentOptions = {
+            chart: {
+                type: 'bar',
+                height: 200,
+                fontFamily: 'Tajawal, sans-serif',
+                toolbar: { show: false },
+                rtl: true
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: true,
+                    barHeight: '50%',
+                    distributed: true
+                }
+            },
+            colors: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444'],
+            series: [{ name: 'الإيرادات (ج.م)', data: [] }],
+            xaxis: {
+                categories: [],
+                labels: { style: { colors: '#64748b' } }
+            },
+            legend: { show: false }
+        };
+        paymentChart = new ApexCharts(document.querySelector("#souqpulse-payment-chart"), paymentOptions);
+        paymentChart.render();
+
+        // 7. الخريطة الحرارية لساعات وأيام الشراء (Peak Order Heatmap)
+        var heatmapOptions = {
+            chart: {
+                type: 'heatmap',
+                height: 280,
+                fontFamily: 'Tajawal, sans-serif',
+                toolbar: { show: false },
+                rtl: true
+            },
+            colors: ['#6366f1'],
+            dataLabels: { enabled: false },
+            series: [],
+            xaxis: {
+                categories: ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm'],
+                labels: { style: { colors: '#64748b', fontSize: '10px' } }
+            },
+            yaxis: {
+                labels: { style: { colors: '#475569', fontWeight: 500 } }
+            },
+            grid: { padding: { right: 10, left: 10 } }
+        };
+        heatmapChart = new ApexCharts(document.querySelector("#souqpulse-heatmap-chart"), heatmapOptions);
+        heatmapChart.render();
+
+        // 8. مخطط المنحنى الصغير للزوار النشطين الآن (Real-time Sparkline)
         var sparklineOptions = {
             chart: {
                 type: 'area',
                 height: 80,
-                sparkline: { enabled: true },
                 fontFamily: 'Tajawal, sans-serif',
-                rtl: true
+                sparkline: { enabled: true }
             },
-            stroke: { curve: 'smooth', width: 2 },
-            fill: { opacity: 0.15 },
             colors: ['#10b981'],
-            series: [{ name: 'النشطون', data: [12, 14, 18, 15, 16, 22, 19, 25, 23, 27, 31, 28] }]
+            stroke: { curve: 'smooth', width: 2 },
+            fill: {
+                type: 'gradient',
+                gradient: { shadeIntensity: 1, opacityFrom: 0.15, opacityTo: 0.01 }
+            },
+            series: [{ name: 'النشطون', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }],
+            tooltip: { enabled: false }
         };
-        sparklineChart = new ApexCharts(document.querySelector("#souqpulse-realtime-chart"), sparklineOptions);
-        sparklineChart.render();
+        var sparklineEl = document.querySelector('#souqpulse-realtime-chart');
+        if (sparklineEl) {
+            sparklineChart = new ApexCharts(sparklineEl, sparklineOptions);
+            sparklineChart.render();
+        }
     }
 
     // تمت إزالة دالة البيانات التجريبية نظراً لأن كل كروت التقارير أصبحت حقيقية 100%
@@ -588,6 +727,20 @@
                   .replace(/>/g, '&gt;')
                   .replace(/"/g, '&quot;')
                   .replace(/'/g, '&#039;');
+    }
+
+    /**
+     * بناء عنصر الحالات الفارغة (Empty State)
+     */
+    function renderEmptyState(title, subtitle, icon) {
+        icon = icon || '📊';
+        title = title || 'لا توجد بيانات مسجلة';
+        subtitle = subtitle || 'جرّب اختيار نطاق زمني آخر للاطلاع على الإحصائيات.';
+        return '<div class="souqpulse-empty-state">' +
+               '  <div class="empty-icon">' + icon + '</div>' +
+               '  <h5 class="empty-title">' + escHtml(title) + '</h5>' +
+               '  <p class="empty-subtitle">' + escHtml(subtitle) + '</p>' +
+               '</div>';
     }
 
 })(jQuery);
