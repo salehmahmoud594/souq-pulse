@@ -12,6 +12,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SouqPulse_DB {
 
     /**
+     * الخاصية الإستاتيكية لتخزين حالة تفعيل HPOS
+     *
+     * @var bool|null
+     */
+    private static $is_hpos_enabled = null;
+
+    /**
+     * التحقق مما إذا كانت جداول HPOS المخصصة مفعّلة في WooCommerce
+     *
+     * @return bool
+     */
+    private static function is_hpos_enabled() {
+        if ( null === self::$is_hpos_enabled ) {
+            self::$is_hpos_enabled = class_exists( '\Automattic\WooCommerce\Utilities\OrderUtil' )
+                && \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+        }
+        return self::$is_hpos_enabled;
+    }
+
+    /**
      * دالة التفعيل لإعداد الجداول المخصصة
      */
     public static function activate() {
@@ -48,8 +68,8 @@ class SouqPulse_DB {
         $start_date = sanitize_text_field( $start_date );
         $end_date   = sanitize_text_field( $end_date );
 
-        // مفتاح الكاش الفريد للفترة والخيارات المحددة
-        $cache_key = 'souqpulse_sales_' . md5( $start_date . '_' . $end_date . '_' . ($compare ? '1' : '0') );
+        // مفتاح الكاش الفريد للفترة والخيارات المحددة شامل اختيار اللغة
+        $cache_key   = 'souqpulse_sales_' . md5( $start_date . '_' . $end_date . '_' . ( $compare ? '1' : '0' ) . '_' . get_locale() );
         $cached_data = get_transient( $cache_key );
 
         if ( false !== $cached_data ) {
@@ -69,6 +89,10 @@ class SouqPulse_DB {
 
         $prev_start_date = $prev_start_obj->format( 'Y-m-d H:i:s' );
         $prev_end_date   = $prev_end_obj->format( 'Y-m-d H:i:s' );
+
+        $is_hpos = self::is_hpos_enabled();
+        $statuses = array( 'wc-completed', 'wc-processing', 'wc-on-hold', 'wc-refunded' );
+        $statuses_in = "'" . implode( "', '", array_map( 'esc_sql', $statuses ) ) . "'";
 
         $results = array(
             'current' => array(
@@ -107,62 +131,208 @@ class SouqPulse_DB {
             'geo'              => array(),
         );
 
-        // 1. استعلام الملخص للفترة الحالية
-        $summary_query = $wpdb->prepare(
-            "SELECT SUM(total_sales) as total_sales, COUNT(order_id) as order_count 
-             FROM {$wpdb->prefix}wc_order_stats 
-             WHERE date_created >= %s AND date_created <= %s 
-               AND status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')",
-            $start_date,
-            $end_date
-        );
-        $summary = $wpdb->get_row( $summary_query );
+        // 1. استعلام إجمالي المبيعات والمرتجعات للفترة الحالية
+        if ( $is_hpos ) {
+            $gross_query = $wpdb->prepare(
+                "SELECT SUM(total_amount) as gross_sales, COUNT(id) as order_count
+                 FROM {$wpdb->prefix}wc_orders
+                 WHERE type = 'shop_order'
+                   AND status IN ({$statuses_in})
+                   AND date_created_gmt >= %s AND date_created_gmt <= %s",
+                $start_date,
+                $end_date
+            );
+            $gross_row = $wpdb->get_row( $gross_query );
 
-        if ( $summary ) {
-            $results['current']['sales']  = (float) $summary->total_sales;
-            $results['current']['orders'] = (int) $summary->order_count;
-            $results['current']['aov']    = $results['current']['orders'] > 0 ? ($results['current']['sales'] / $results['current']['orders']) : 0;
+            $refund_query = $wpdb->prepare(
+                "SELECT SUM(ABS(r.total_amount)) as total_refunds
+                 FROM {$wpdb->prefix}wc_orders r
+                 JOIN {$wpdb->prefix}wc_orders o ON r.parent_order_id = o.id
+                 WHERE r.type = 'shop_order_refund'
+                   AND o.type = 'shop_order'
+                   AND o.status IN ({$statuses_in})
+                   AND o.date_created_gmt >= %s AND o.date_created_gmt <= %s",
+                $start_date,
+                $end_date
+            );
+            $total_refunds = (float) $wpdb->get_var( $refund_query );
+        } else {
+            $gross_query = $wpdb->prepare(
+                "SELECT SUM(CAST(pm.meta_value AS DECIMAL(26,8))) as gross_sales, COUNT(p.ID) as order_count
+                 FROM {$wpdb->posts} p
+                 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_order_total'
+                 WHERE p.post_type = 'shop_order'
+                   AND p.post_status IN ({$statuses_in})
+                   AND p.post_date >= %s AND p.post_date <= %s",
+                $start_date,
+                $end_date
+            );
+            $gross_row = $wpdb->get_row( $gross_query );
+
+            $refund_query = $wpdb->prepare(
+                "SELECT SUM(CAST(ABS(CAST(pm.meta_value AS DECIMAL(26,8))) AS DECIMAL(26,8))) as total_refunds
+                 FROM {$wpdb->posts} r
+                 JOIN {$wpdb->posts} o ON r.post_parent = o.ID
+                 LEFT JOIN {$wpdb->postmeta} pm ON r.ID = pm.post_id AND pm.meta_key = '_order_total'
+                 WHERE r.post_type = 'shop_order_refund'
+                   AND o.post_type = 'shop_order'
+                   AND o.post_status IN ({$statuses_in})
+                   AND o.post_date >= %s AND o.post_date <= %s",
+                $start_date,
+                $end_date
+            );
+            $total_refunds = (float) $wpdb->get_var( $refund_query );
         }
 
-        // 2. استعلام عدد العملاء الجدد للفترة الحالية (returning_customer = 0)
-        $new_cust_query = $wpdb->prepare(
-            "SELECT COUNT(DISTINCT customer_id) as new_cust 
-             FROM {$wpdb->prefix}wc_order_stats 
-             WHERE date_created >= %s AND date_created <= %s 
-               AND status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold') 
-               AND returning_customer = 0",
-            $start_date,
-            $end_date
-        );
+        if ( $gross_row ) {
+            $gross_sales = (float) $gross_row->gross_sales;
+            $net_sales   = max( 0, $gross_sales - $total_refunds );
+
+            $results['current']['sales']  = $net_sales;
+            $results['current']['orders'] = (int) $gross_row->order_count;
+            $results['current']['aov']    = $results['current']['orders'] > 0 ? ( $net_sales / $results['current']['orders'] ) : 0;
+        }
+
+        // 2. استعلام عدد العملاء الجدد للفترة الحالية
+        if ( $is_hpos ) {
+            $new_cust_query = $wpdb->prepare(
+                "SELECT COUNT(DISTINCT customer_identifier) FROM (
+                    SELECT 
+                        CASE WHEN customer_id > 0 THEN CAST(customer_id AS CHAR) ELSE billing_email END as customer_identifier,
+                        MIN(date_created_gmt) as first_order_date
+                    FROM {$wpdb->prefix}wc_orders
+                    WHERE type = 'shop_order'
+                      AND status IN ({$statuses_in})
+                    GROUP BY customer_identifier
+                ) as customer_first_orders
+                WHERE first_order_date >= %s AND first_order_date <= %s",
+                $start_date,
+                $end_date
+            );
+        } else {
+            $new_cust_query = $wpdb->prepare(
+                "SELECT COUNT(DISTINCT customer_identifier) FROM (
+                    SELECT 
+                        CASE 
+                            WHEN pm_cust.meta_value IS NOT NULL AND CAST(pm_cust.meta_value AS UNSIGNED) > 0 
+                            THEN pm_cust.meta_value 
+                            ELSE pm_email.meta_value 
+                        END as customer_identifier,
+                        MIN(p.post_date) as first_order_date
+                    FROM {$wpdb->posts} p
+                    LEFT JOIN {$wpdb->postmeta} pm_cust ON p.ID = pm_cust.post_id AND pm_cust.meta_key = '_customer_user'
+                    LEFT JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_billing_email'
+                    WHERE p.post_type = 'shop_order'
+                      AND p.post_status IN ({$statuses_in})
+                    GROUP BY customer_identifier
+                ) as customer_first_orders
+                WHERE first_order_date >= %s AND first_order_date <= %s",
+                $start_date,
+                $end_date
+            );
+        }
         $results['current']['new_customers'] = (int) $wpdb->get_var( $new_cust_query );
 
         // 3. حساب الفترة السابقة للمقارنة
         if ( $compare ) {
-            $prev_summary_query = $wpdb->prepare(
-                "SELECT SUM(total_sales) as total_sales, COUNT(order_id) as order_count 
-                 FROM {$wpdb->prefix}wc_order_stats 
-                 WHERE date_created >= %s AND date_created <= %s 
-                   AND status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')",
-                $prev_start_date,
-                $prev_end_date
-            );
-            $prev_summary = $wpdb->get_row( $prev_summary_query );
+            if ( $is_hpos ) {
+                $prev_gross_query = $wpdb->prepare(
+                    "SELECT SUM(total_amount) as gross_sales, COUNT(id) as order_count
+                     FROM {$wpdb->prefix}wc_orders
+                     WHERE type = 'shop_order'
+                       AND status IN ({$statuses_in})
+                       AND date_created_gmt >= %s AND date_created_gmt <= %s",
+                    $prev_start_date,
+                    $prev_end_date
+                );
+                $prev_gross_row = $wpdb->get_row( $prev_gross_query );
 
-            if ( $prev_summary ) {
-                $results['previous']['sales']  = (float) $prev_summary->total_sales;
-                $results['previous']['orders'] = (int) $prev_summary->order_count;
-                $results['previous']['aov']    = $results['previous']['orders'] > 0 ? ($results['previous']['sales'] / $results['previous']['orders']) : 0;
+                $prev_refund_query = $wpdb->prepare(
+                    "SELECT SUM(ABS(r.total_amount)) as total_refunds
+                     FROM {$wpdb->prefix}wc_orders r
+                     JOIN {$wpdb->prefix}wc_orders o ON r.parent_order_id = o.id
+                     WHERE r.type = 'shop_order_refund'
+                       AND o.type = 'shop_order'
+                       AND o.status IN ({$statuses_in})
+                       AND o.date_created_gmt >= %s AND o.date_created_gmt <= %s",
+                    $prev_start_date,
+                    $prev_end_date
+                );
+                $prev_total_refunds = (float) $wpdb->get_var( $prev_refund_query );
+            } else {
+                $prev_gross_query = $wpdb->prepare(
+                    "SELECT SUM(CAST(pm.meta_value AS DECIMAL(26,8))) as gross_sales, COUNT(p.ID) as order_count
+                     FROM {$wpdb->posts} p
+                     LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_order_total'
+                     WHERE p.post_type = 'shop_order'
+                       AND p.post_status IN ({$statuses_in})
+                       AND p.post_date >= %s AND p.post_date <= %s",
+                    $prev_start_date,
+                    $prev_end_date
+                );
+                $prev_gross_row = $wpdb->get_row( $prev_gross_query );
+
+                $prev_refund_query = $wpdb->prepare(
+                    "SELECT SUM(CAST(ABS(CAST(pm.meta_value AS DECIMAL(26,8))) AS DECIMAL(26,8))) as total_refunds
+                     FROM {$wpdb->posts} r
+                     JOIN {$wpdb->posts} o ON r.post_parent = o.ID
+                     LEFT JOIN {$wpdb->postmeta} pm ON r.ID = pm.post_id AND pm.meta_key = '_order_total'
+                     WHERE r.post_type = 'shop_order_refund'
+                       AND o.post_type = 'shop_order'
+                       AND o.post_status IN ({$statuses_in})
+                       AND o.post_date >= %s AND o.post_date <= %s",
+                    $prev_start_date,
+                    $prev_end_date
+                );
+                $prev_total_refunds = (float) $wpdb->get_var( $prev_refund_query );
             }
 
-            $prev_new_cust_query = $wpdb->prepare(
-                "SELECT COUNT(DISTINCT customer_id) as new_cust 
-                 FROM {$wpdb->prefix}wc_order_stats 
-                 WHERE date_created >= %s AND date_created <= %s 
-                   AND status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold') 
-                   AND returning_customer = 0",
-                $prev_start_date,
-                $prev_end_date
-            );
+            if ( $prev_gross_row ) {
+                $prev_gross_sales = (float) $prev_gross_row->gross_sales;
+                $prev_net_sales   = max( 0, $prev_gross_sales - $prev_total_refunds );
+
+                $results['previous']['sales']  = $prev_net_sales;
+                $results['previous']['orders'] = (int) $prev_gross_row->order_count;
+                $results['previous']['aov']    = $results['previous']['orders'] > 0 ? ( $prev_net_sales / $results['previous']['orders'] ) : 0;
+            }
+
+            if ( $is_hpos ) {
+                $prev_new_cust_query = $wpdb->prepare(
+                    "SELECT COUNT(DISTINCT customer_identifier) FROM (
+                        SELECT 
+                            CASE WHEN customer_id > 0 THEN CAST(customer_id AS CHAR) ELSE billing_email END as customer_identifier,
+                            MIN(date_created_gmt) as first_order_date
+                        FROM {$wpdb->prefix}wc_orders
+                        WHERE type = 'shop_order'
+                          AND status IN ({$statuses_in})
+                        GROUP BY customer_identifier
+                    ) as customer_first_orders
+                    WHERE first_order_date >= %s AND first_order_date <= %s",
+                    $prev_start_date,
+                    $prev_end_date
+                );
+            } else {
+                $prev_new_cust_query = $wpdb->prepare(
+                    "SELECT COUNT(DISTINCT customer_identifier) FROM (
+                        SELECT 
+                            CASE 
+                                WHEN pm_cust.meta_value IS NOT NULL AND CAST(pm_cust.meta_value AS UNSIGNED) > 0 
+                                THEN pm_cust.meta_value 
+                                ELSE pm_email.meta_value 
+                            END as customer_identifier,
+                            MIN(p.post_date) as first_order_date
+                        FROM {$wpdb->posts} p
+                        LEFT JOIN {$wpdb->postmeta} pm_cust ON p.ID = pm_cust.post_id AND pm_cust.meta_key = '_customer_user'
+                        LEFT JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_billing_email'
+                        WHERE p.post_type = 'shop_order'
+                          AND p.post_status IN ({$statuses_in})
+                        GROUP BY customer_identifier
+                    ) as customer_first_orders
+                    WHERE first_order_date >= %s AND first_order_date <= %s",
+                    $prev_start_date,
+                    $prev_end_date
+                );
+            }
             $results['previous']['new_customers'] = (int) $wpdb->get_var( $prev_new_cust_query );
         }
 
@@ -171,7 +341,6 @@ class SouqPulse_DB {
         $stats_active = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $visitor_table ) );
 
         if ( $stats_active ) {
-            // الاستعلام للفترة الحالية
             $curr_stats_query = $wpdb->prepare(
                 "SELECT 
                     COUNT(ID) as sessions,
@@ -185,12 +354,11 @@ class SouqPulse_DB {
             $curr_stats = $wpdb->get_row( $curr_stats_query );
 
             if ( $curr_stats ) {
-                $results['current']['sessions']    = (int) $curr_stats->sessions;
-                $results['current']['bounce_rate'] = $results['current']['sessions'] > 0 ? ( ( (int) $curr_stats->bounced_count / $results['current']['sessions'] ) * 100 ) : 0;
-                $results['current']['avg_duration'] = round( (float) $curr_stats->avg_hits * 45 ); // بالثواني
+                $results['current']['sessions']     = (int) $curr_stats->sessions;
+                $results['current']['bounce_rate']  = $results['current']['sessions'] > 0 ? ( ( (int) $curr_stats->bounced_count / $results['current']['sessions'] ) * 100 ) : 0;
+                $results['current']['avg_duration'] = round( (float) $curr_stats->avg_hits * 45 );
             }
 
-            // الاستعلام للفترة السابقة
             if ( $compare ) {
                 $prev_stats_query = $wpdb->prepare(
                     "SELECT 
@@ -205,48 +373,148 @@ class SouqPulse_DB {
                 $prev_stats = $wpdb->get_row( $prev_stats_query );
 
                 if ( $prev_stats ) {
-                    $results['previous']['sessions']    = (int) $prev_stats->sessions;
-                    $results['previous']['bounce_rate'] = $results['previous']['sessions'] > 0 ? ( ( (int) $prev_stats->bounced_count / $results['previous']['sessions'] ) * 100 ) : 0;
-                    $results['previous']['avg_duration'] = round( (float) $prev_stats->avg_hits * 45 ); // بالثواني
+                    $results['previous']['sessions']     = (int) $prev_stats->sessions;
+                    $results['previous']['bounce_rate']  = $results['previous']['sessions'] > 0 ? ( ( (int) $prev_stats->bounced_count / $results['previous']['sessions'] ) * 100 ) : 0;
+                    $results['previous']['avg_duration'] = round( (float) $prev_stats->avg_hits * 45 );
                 }
             }
         }
 
         // 4. استعلام الخط البياني الزمني للمبيعات والطلبات يومياً
-        $timeline_query = $wpdb->prepare(
-            "SELECT DATE(date_created) as day, SUM(total_sales) as sales, COUNT(order_id) as orders 
-             FROM {$wpdb->prefix}wc_order_stats 
-             WHERE date_created >= %s AND date_created <= %s 
-               AND status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold') 
-             GROUP BY DATE(date_created) 
-             ORDER BY day ASC",
-            $start_date,
-            $end_date
-        );
-        $timeline_rows = $wpdb->get_results( $timeline_query );
-        
-        foreach ( $timeline_rows as $row ) {
+        if ( $is_hpos ) {
+            $timeline_gross = $wpdb->prepare(
+                "SELECT DATE(date_created_gmt) as day, SUM(total_amount) as sales, COUNT(id) as orders
+                 FROM {$wpdb->prefix}wc_orders
+                 WHERE type = 'shop_order'
+                   AND status IN ({$statuses_in})
+                   AND date_created_gmt >= %s AND date_created_gmt <= %s
+                 GROUP BY DATE(date_created_gmt)
+                 ORDER BY day ASC",
+                $start_date,
+                $end_date
+            );
+            $gross_rows = $wpdb->get_results( $timeline_gross );
+
+            $timeline_refunds = $wpdb->prepare(
+                "SELECT DATE(o.date_created_gmt) as day, SUM(ABS(r.total_amount)) as refund_sales
+                 FROM {$wpdb->prefix}wc_orders r
+                 JOIN {$wpdb->prefix}wc_orders o ON r.parent_order_id = o.id
+                 WHERE r.type = 'shop_order_refund'
+                   AND o.type = 'shop_order'
+                   AND o.status IN ({$statuses_in})
+                   AND o.date_created_gmt >= %s AND o.date_created_gmt <= %s
+                 GROUP BY DATE(o.date_created_gmt)",
+                $start_date,
+                $end_date
+            );
+            $refund_rows = $wpdb->get_results( $timeline_refunds );
+        } else {
+            $timeline_gross = $wpdb->prepare(
+                "SELECT DATE(p.post_date) as day, SUM(CAST(pm.meta_value AS DECIMAL(26,8))) as sales, COUNT(p.ID) as orders
+                 FROM {$wpdb->posts} p
+                 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_order_total'
+                 WHERE p.post_type = 'shop_order'
+                   AND p.post_status IN ({$statuses_in})
+                   AND p.post_date >= %s AND p.post_date <= %s
+                 GROUP BY DATE(p.post_date)
+                 ORDER BY day ASC",
+                $start_date,
+                $end_date
+            );
+            $gross_rows = $wpdb->get_results( $timeline_gross );
+
+            $timeline_refunds = $wpdb->prepare(
+                "SELECT DATE(o.post_date) as day, SUM(CAST(ABS(CAST(pm.meta_value AS DECIMAL(26,8))) AS DECIMAL(26,8))) as refund_sales
+                 FROM {$wpdb->posts} r
+                 JOIN {$wpdb->posts} o ON r.post_parent = o.ID
+                 LEFT JOIN {$wpdb->postmeta} pm ON r.ID = pm.post_id AND pm.meta_key = '_order_total'
+                 WHERE r.post_type = 'shop_order_refund'
+                   AND o.post_type = 'shop_order'
+                   AND o.post_status IN ({$statuses_in})
+                   AND o.post_date >= %s AND o.post_date <= %s
+                 GROUP BY DATE(o.post_date)",
+                $start_date,
+                $end_date
+            );
+            $refund_rows = $wpdb->get_results( $timeline_refunds );
+        }
+
+        $refunds_by_day = array();
+        foreach ( $refund_rows as $rf ) {
+            $refunds_by_day[ $rf->day ] = (float) $rf->refund_sales;
+        }
+
+        foreach ( $gross_rows as $row ) {
+            $day_refund = isset( $refunds_by_day[ $row->day ] ) ? $refunds_by_day[ $row->day ] : 0;
+            $net_day_sales = max( 0, (float) $row->sales - $day_refund );
+
             $results['timeline'][] = array(
                 'day'    => $row->day,
-                'sales'  => (float) $row->sales,
+                'sales'  => $net_day_sales,
                 'orders' => (int) $row->orders,
             );
         }
 
         // 5. استعلام أعلى 5 منتجات مبيعاً
-        $products_query = $wpdb->prepare(
-            "SELECT p.product_id, post.post_title as name, SUM(p.product_net_revenue) as revenue 
-             FROM {$wpdb->prefix}wc_order_product_lookup p 
-             LEFT JOIN {$wpdb->posts} post ON p.product_id = post.ID 
-             JOIN {$wpdb->prefix}wc_order_stats s ON p.order_id = s.order_id
-             WHERE p.date_created >= %s AND p.date_created <= %s 
-               AND s.status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
-             GROUP BY p.product_id, post.post_title 
-             ORDER BY revenue DESC 
-             LIMIT 5",
-            $start_date,
-            $end_date
-        );
+        if ( $is_hpos ) {
+            $products_query = $wpdb->prepare(
+                "SELECT i_meta.meta_value as product_id, post.post_title as name, SUM(CAST(tot_meta.meta_value AS DECIMAL(26,8))) as revenue
+                 FROM {$wpdb->prefix}woocommerce_order_items items
+                 JOIN {$wpdb->prefix}woocommerce_order_itemmeta i_meta ON items.order_item_id = i_meta.order_item_id AND i_meta.meta_key = '_product_id'
+                 JOIN {$wpdb->prefix}woocommerce_order_itemmeta tot_meta ON items.order_item_id = tot_meta.order_item_id AND tot_meta.meta_key = '_line_total'
+                 LEFT JOIN {$wpdb->posts} post ON CAST(i_meta.meta_value AS UNSIGNED) = post.ID
+                 WHERE items.order_item_type = 'line_item'
+                   AND items.order_id IN (
+                       SELECT id FROM {$wpdb->prefix}wc_orders
+                       WHERE type = 'shop_order'
+                         AND status IN ({$statuses_in})
+                         AND date_created_gmt >= %s AND date_created_gmt <= %s
+                       UNION ALL
+                       SELECT r.id FROM {$wpdb->prefix}wc_orders r
+                       JOIN {$wpdb->prefix}wc_orders o ON r.parent_order_id = o.id
+                       WHERE r.type = 'shop_order_refund'
+                         AND o.type = 'shop_order'
+                         AND o.status IN ({$statuses_in})
+                         AND o.date_created_gmt >= %s AND o.date_created_gmt <= %s
+                   )
+                 GROUP BY i_meta.meta_value, post.post_title
+                 ORDER BY revenue DESC
+                 LIMIT 5",
+                $start_date,
+                $end_date,
+                $start_date,
+                $end_date
+            );
+        } else {
+            $products_query = $wpdb->prepare(
+                "SELECT i_meta.meta_value as product_id, post.post_title as name, SUM(CAST(tot_meta.meta_value AS DECIMAL(26,8))) as revenue
+                 FROM {$wpdb->prefix}woocommerce_order_items items
+                 JOIN {$wpdb->prefix}woocommerce_order_itemmeta i_meta ON items.order_item_id = i_meta.order_item_id AND i_meta.meta_key = '_product_id'
+                 JOIN {$wpdb->prefix}woocommerce_order_itemmeta tot_meta ON items.order_item_id = tot_meta.order_item_id AND tot_meta.meta_key = '_line_total'
+                 LEFT JOIN {$wpdb->posts} post ON CAST(i_meta.meta_value AS UNSIGNED) = post.ID
+                 WHERE items.order_item_type = 'line_item'
+                   AND items.order_id IN (
+                       SELECT ID FROM {$wpdb->posts}
+                       WHERE post_type = 'shop_order'
+                         AND post_status IN ({$statuses_in})
+                         AND post_date >= %s AND post_date <= %s
+                       UNION ALL
+                       SELECT r.ID FROM {$wpdb->posts} r
+                       JOIN {$wpdb->posts} o ON r.post_parent = o.ID
+                       WHERE r.post_type = 'shop_order_refund'
+                         AND o.post_type = 'shop_order'
+                         AND o.post_status IN ({$statuses_in})
+                         AND o.post_date >= %s AND o.post_date <= %s
+                   )
+                 GROUP BY i_meta.meta_value, post.post_title
+                 ORDER BY revenue DESC
+                 LIMIT 5",
+                $start_date,
+                $end_date,
+                $start_date,
+                $end_date
+            );
+        }
         $product_rows = $wpdb->get_results( $products_query );
 
         foreach ( $product_rows as $row ) {
@@ -257,30 +525,83 @@ class SouqPulse_DB {
             );
         }
 
-        // 6. استعلام أعلى 5 عملاء حسب قيمة المشتريات
-        $customers_query = $wpdb->prepare(
-            "SELECT o.customer_id, c.first_name, c.last_name, c.email, 
-                    COUNT(o.order_id) as order_count, SUM(o.total_sales) as total_spend 
-             FROM {$wpdb->prefix}wc_order_stats o 
-             LEFT JOIN {$wpdb->prefix}wc_customer_lookup c ON o.customer_id = c.customer_id 
-             WHERE o.date_created >= %s AND o.date_created <= %s 
-               AND o.status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold') 
-             GROUP BY o.customer_id, c.first_name, c.last_name, c.email 
-             ORDER BY total_spend DESC 
-             LIMIT 5",
-            $start_date,
-            $end_date
-        );
+        // 6. استعلام أعلى 5 عملاء حسب صافي قيمة الشراء
+        if ( $is_hpos ) {
+            $customers_query = $wpdb->prepare(
+                "SELECT 
+                    cust_id,
+                    email,
+                    COUNT(order_id) as order_count,
+                    SUM(gross_amount - refund_amount) as total_spend
+                 FROM (
+                    SELECT 
+                        o.id as order_id,
+                        o.customer_id as cust_id,
+                        o.billing_email as email,
+                        o.total_amount as gross_amount,
+                        COALESCE(SUM(ABS(r.total_amount)), 0) as refund_amount
+                    FROM {$wpdb->prefix}wc_orders o
+                    LEFT JOIN {$wpdb->prefix}wc_orders r ON r.parent_order_id = o.id AND r.type = 'shop_order_refund'
+                    WHERE o.type = 'shop_order'
+                      AND o.status IN ({$statuses_in})
+                      AND o.date_created_gmt >= %s AND o.date_created_gmt <= %s
+                    GROUP BY o.id, o.customer_id, o.billing_email, o.total_amount
+                 ) as order_totals
+                 GROUP BY cust_id, email
+                 ORDER BY total_spend DESC
+                 LIMIT 5",
+                $start_date,
+                $end_date
+            );
+        } else {
+            $customers_query = $wpdb->prepare(
+                "SELECT 
+                    cust_id,
+                    email,
+                    COUNT(order_id) as order_count,
+                    SUM(gross_amount - refund_amount) as total_spend
+                 FROM (
+                    SELECT 
+                        o.ID as order_id,
+                        COALESCE(pm_cust.meta_value, 0) as cust_id,
+                        pm_email.meta_value as email,
+                        CAST(pm_tot.meta_value AS DECIMAL(26,8)) as gross_amount,
+                        COALESCE(SUM(CAST(ABS(CAST(pm_ref.meta_value AS DECIMAL(26,8))) AS DECIMAL(26,8))), 0) as refund_amount
+                    FROM {$wpdb->posts} o
+                    LEFT JOIN {$wpdb->postmeta} pm_cust ON o.ID = pm_cust.post_id AND pm_cust.meta_key = '_customer_user'
+                    LEFT JOIN {$wpdb->postmeta} pm_email ON o.ID = pm_email.post_id AND pm_email.meta_key = '_billing_email'
+                    LEFT JOIN {$wpdb->postmeta} pm_tot ON o.ID = pm_tot.post_id AND pm_tot.meta_key = '_order_total'
+                    LEFT JOIN {$wpdb->posts} r ON r.post_parent = o.ID AND r.post_type = 'shop_order_refund'
+                    LEFT JOIN {$wpdb->postmeta} pm_ref ON r.ID = pm_ref.post_id AND pm_ref.meta_key = '_order_total'
+                    WHERE o.post_type = 'shop_order'
+                      AND o.post_status IN ({$statuses_in})
+                      AND o.post_date >= %s AND o.post_date <= %s
+                    GROUP BY o.ID, pm_cust.meta_value, pm_email.meta_value, pm_tot.meta_value
+                 ) as order_totals
+                 GROUP BY cust_id, email
+                 ORDER BY total_spend DESC
+                 LIMIT 5",
+                $start_date,
+                $end_date
+            );
+        }
         $customer_rows = $wpdb->get_results( $customers_query );
 
         foreach ( $customer_rows as $row ) {
-            $name = trim( $row->first_name . ' ' . $row->last_name );
-            if ( empty( $name ) ) {
-                $name = $row->email ? $row->email : __( 'عميل زائر', 'souq-pulse' );
+            $customer_name = '';
+            if ( ! empty( $row->cust_id ) && (int) $row->cust_id > 0 ) {
+                $user_info = get_userdata( (int) $row->cust_id );
+                if ( $user_info ) {
+                    $customer_name = trim( $user_info->first_name . ' ' . $user_info->last_name );
+                }
             }
+            if ( empty( $customer_name ) ) {
+                $customer_name = $row->email ? $row->email : __( 'عميل زائر', 'souq-pulse' );
+            }
+
             $results['top_customers'][] = array(
-                'customer_id' => (int) $row->customer_id,
-                'name'        => $name,
+                'customer_id' => (int) $row->cust_id,
+                'name'        => $customer_name,
                 'orders'      => (int) $row->order_count,
                 'total_spend' => (float) $row->total_spend,
             );
@@ -292,31 +613,62 @@ class SouqPulse_DB {
             $results['previous']['conversion_rate'] = $results['previous']['sessions'] > 0 ? ( ( $results['previous']['orders'] / $results['previous']['sessions'] ) * 100 ) : 0;
         }
 
-        // حساب متوسط القيمة العمرية للعميل (CLV)
-        $clv_query = "SELECT AVG(total_spend) FROM (
-            SELECT SUM(total_sales) as total_spend
-            FROM {$wpdb->prefix}wc_order_stats
-            WHERE status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
-              AND customer_id > 0
-            GROUP BY customer_id
-        ) as customer_spendings";
-        $avg_clv = (float) $wpdb->get_var( $clv_query );
-
-        // حساب العملاء المكررين والعملاء لمرة واحدة
-        $cohort_query = "SELECT 
-            COUNT(CASE WHEN order_count > 1 THEN 1 END) as repeat_count,
-            COUNT(CASE WHEN order_count = 1 THEN 1 END) as onetime_count
-        FROM (
-            SELECT COUNT(order_id) as order_count
-            FROM {$wpdb->prefix}wc_order_stats
-            WHERE status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
-              AND customer_id > 0
-            GROUP BY customer_id
-        ) as customer_orders";
-        $cohorts = $wpdb->get_row( $cohort_query );
+        // 6.5. حساب متوسط القيمة العمرية للعميل (CLV) والعملاء المكررين
+        if ( $is_hpos ) {
+            $clv_cohort_query = "SELECT 
+                AVG(net_spend) as avg_clv,
+                COUNT(CASE WHEN valid_orders > 1 THEN 1 END) as repeat_count,
+                COUNT(CASE WHEN valid_orders = 1 THEN 1 END) as onetime_count
+            FROM (
+                SELECT 
+                    CASE WHEN o.customer_id > 0 THEN CAST(o.customer_id AS CHAR) ELSE o.billing_email END as cust_id,
+                    COUNT(DISTINCT o.id) as valid_orders,
+                    SUM(o.total_amount - COALESCE(r.refund_sum, 0)) as net_spend
+                FROM {$wpdb->prefix}wc_orders o
+                LEFT JOIN (
+                    SELECT parent_order_id, SUM(ABS(total_amount)) as refund_sum
+                    FROM {$wpdb->prefix}wc_orders
+                    WHERE type = 'shop_order_refund'
+                    GROUP BY parent_order_id
+                ) r ON o.id = r.parent_order_id
+                WHERE o.type = 'shop_order'
+                  AND o.status IN ({$statuses_in})
+                GROUP BY cust_id
+            ) as customer_summaries";
+        } else {
+            $clv_cohort_query = "SELECT 
+                AVG(net_spend) as avg_clv,
+                COUNT(CASE WHEN valid_orders > 1 THEN 1 END) as repeat_count,
+                COUNT(CASE WHEN valid_orders = 1 THEN 1 END) as onetime_count
+            FROM (
+                SELECT 
+                    CASE 
+                        WHEN pm_cust.meta_value IS NOT NULL AND CAST(pm_cust.meta_value AS UNSIGNED) > 0 
+                        THEN pm_cust.meta_value 
+                        ELSE pm_email.meta_value 
+                    END as cust_id,
+                    COUNT(DISTINCT o.ID) as valid_orders,
+                    SUM(CAST(pm_tot.meta_value AS DECIMAL(26,8)) - COALESCE(r.refund_sum, 0)) as net_spend
+                FROM {$wpdb->posts} o
+                LEFT JOIN {$wpdb->postmeta} pm_cust ON o.ID = pm_cust.post_id AND pm_cust.meta_key = '_customer_user'
+                LEFT JOIN {$wpdb->postmeta} pm_email ON o.ID = pm_email.post_id AND pm_email.meta_key = '_billing_email'
+                LEFT JOIN {$wpdb->postmeta} pm_tot ON o.ID = pm_tot.post_id AND pm_tot.meta_key = '_order_total'
+                LEFT JOIN (
+                    SELECT ref.post_parent, SUM(CAST(ABS(CAST(pm_ref.meta_value AS DECIMAL(26,8))) AS DECIMAL(26,8))) as refund_sum
+                    FROM {$wpdb->posts} ref
+                    LEFT JOIN {$wpdb->postmeta} pm_ref ON ref.ID = pm_ref.post_id AND pm_ref.meta_key = '_order_total'
+                    WHERE ref.post_type = 'shop_order_refund'
+                    GROUP BY ref.post_parent
+                ) r ON o.ID = r.post_parent
+                WHERE o.post_type = 'shop_order'
+                  AND o.post_status IN ({$statuses_in})
+                GROUP BY cust_id
+            ) as customer_summaries";
+        }
+        $cohorts = $wpdb->get_row( $clv_cohort_query );
 
         $results['customer_metrics'] = array(
-            'avg_clv'           => $avg_clv,
+            'avg_clv'           => $cohorts ? (float) $cohorts->avg_clv : 0,
             'repeat_customers'  => $cohorts ? (int) $cohorts->repeat_count : 0,
             'onetime_customers' => $cohorts ? (int) $cohorts->onetime_count : 0,
         );
@@ -352,7 +704,6 @@ class SouqPulse_DB {
             }
         }
 
-        // تحضير مصفوفة الـ Funnel بالترتيب وحساب النسب المئوية والتسرب
         $funnel_data = array();
         $steps = array(
             'view_session'      => __( 'زيارة الموقع', 'souq-pulse' ),
@@ -365,7 +716,7 @@ class SouqPulse_DB {
 
         $total_sessions = $results['current']['sessions'] > 0 ? $results['current']['sessions'] : $funnel_counts['view_session'];
         if ( $total_sessions <= 0 ) {
-            $total_sessions = 1; // تفادي القسمة على صفر
+            $total_sessions = 1;
         }
 
         $prev_count = 0;
@@ -374,10 +725,8 @@ class SouqPulse_DB {
         foreach ( $steps as $type => $label ) {
             $count = $funnel_counts[ $type ];
             
-            // النسبة من إجمالي الزيارات
             $pct_of_total = ( $count / $total_sessions ) * 100;
 
-            // نسبة التسرب من الخطوة السابقة
             $drop_off = 0;
             if ( $index > 0 && $prev_count > 0 ) {
                 $drop_off = ( ( $prev_count - $count ) / $prev_count ) * 100;
@@ -416,19 +765,22 @@ class SouqPulse_DB {
             'out_of_stock' => $stock_stats ? (int) $stock_stats->out_of_stock_count : 0,
         );
 
-        // 9. استعلام المؤشرات الجغرافية للمحافظات المصرية (من عنوان الطلب المباشر مع Fallback لبروفايل العميل)
-        $address_table = $wpdb->prefix . 'wc_order_addresses';
-        $has_address_table = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $address_table ) );
-
-        if ( $has_address_table ) {
+        // 9. استعلام المؤشرات الجغرافية للمحافظات المصرية مع فلتر صريح country = 'EG'
+        if ( $is_hpos ) {
             $geo_query = $wpdb->prepare(
-                "SELECT a.state, COUNT(o.order_id) as order_count, SUM(o.total_sales) as total_sales
-                 FROM {$wpdb->prefix}wc_order_stats o
-                 JOIN {$address_table} a ON o.order_id = a.order_id
-                 WHERE o.status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
-                   AND a.address_type = 'billing'
+                "SELECT a.state, COUNT(DISTINCT o.id) as order_count, SUM(o.total_amount - COALESCE(r.refund_sum, 0)) as total_sales
+                 FROM {$wpdb->prefix}wc_orders o
+                 JOIN {$wpdb->prefix}wc_order_addresses a ON o.id = a.order_id AND a.address_type = 'billing'
+                 LEFT JOIN (
+                     SELECT parent_order_id, SUM(ABS(total_amount)) as refund_sum
+                     FROM {$wpdb->prefix}wc_orders
+                     WHERE type = 'shop_order_refund'
+                     GROUP BY parent_order_id
+                 ) r ON o.id = r.parent_order_id
+                 WHERE o.type = 'shop_order'
+                   AND o.status IN ({$statuses_in})
                    AND a.country = 'EG'
-                   AND o.date_created >= %s AND o.date_created <= %s
+                   AND o.date_created_gmt >= %s AND o.date_created_gmt <= %s
                  GROUP BY a.state
                  ORDER BY total_sales DESC",
                 $start_date,
@@ -436,13 +788,22 @@ class SouqPulse_DB {
             );
         } else {
             $geo_query = $wpdb->prepare(
-                "SELECT c.state, COUNT(o.order_id) as order_count, SUM(o.total_sales) as total_sales
-                 FROM {$wpdb->prefix}wc_order_stats o
-                 JOIN {$wpdb->prefix}wc_customer_lookup c ON o.customer_id = c.customer_id
-                 WHERE o.status IN ('wc-completed', 'wc-processing', 'wc-on-hold', 'completed', 'processing', 'on-hold')
-                   AND c.country = 'EG'
-                   AND o.date_created >= %s AND o.date_created <= %s
-                 GROUP BY c.state
+                "SELECT pm_state.meta_value as state, COUNT(DISTINCT o.ID) as order_count, SUM(CAST(pm_tot.meta_value AS DECIMAL(26,8)) - COALESCE(r.refund_sum, 0)) as total_sales
+                 FROM {$wpdb->posts} o
+                 JOIN {$wpdb->postmeta} pm_country ON o.ID = pm_country.post_id AND pm_country.meta_key = '_billing_country' AND pm_country.meta_value = 'EG'
+                 LEFT JOIN {$wpdb->postmeta} pm_state ON o.ID = pm_state.post_id AND pm_state.meta_key = '_billing_state'
+                 LEFT JOIN {$wpdb->postmeta} pm_tot ON o.ID = pm_tot.post_id AND pm_tot.meta_key = '_order_total'
+                 LEFT JOIN (
+                     SELECT ref.post_parent, SUM(CAST(ABS(CAST(pm_ref.meta_value AS DECIMAL(26,8))) AS DECIMAL(26,8))) as refund_sum
+                     FROM {$wpdb->posts} ref
+                     LEFT JOIN {$wpdb->postmeta} pm_ref ON ref.ID = pm_ref.post_id AND pm_ref.meta_key = '_order_total'
+                     WHERE ref.post_type = 'shop_order_refund'
+                     GROUP BY ref.post_parent
+                 ) r ON o.ID = r.post_parent
+                 WHERE o.post_type = 'shop_order'
+                   AND o.post_status IN ({$statuses_in})
+                   AND o.post_date >= %s AND o.post_date <= %s
+                 GROUP BY pm_state.meta_value
                  ORDER BY total_sales DESC",
                 $start_date,
                 $end_date
@@ -486,7 +847,7 @@ class SouqPulse_DB {
         $other_orders = 0;
 
         foreach ( $geo_rows as $row ) {
-            $state_code = strtoupper( $row->state );
+            $state_code = strtoupper( (string) $row->state );
             if ( isset( $eg_states[ $state_code ] ) ) {
                 $state_name = $eg_states[ $state_code ];
                 if ( isset( $geo_data[ $state_name ] ) ) {
@@ -513,7 +874,6 @@ class SouqPulse_DB {
             );
         }
 
-        // تحويلها لمصفوفة مفهرسة وترتيبها حسب المبيعات تنازلياً
         $geo_list = array_values( $geo_data );
         usort( $geo_list, function( $a, $b ) {
             return $b['sales'] <=> $a['sales'];

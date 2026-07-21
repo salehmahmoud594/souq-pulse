@@ -3,7 +3,7 @@
  * Plugin Name: SouqPulse (نبض السوق)
  * Plugin URI: https://github.com/salehmahmoud594/souq-pulse
  * Description: An integrated and smart analytics dashboard for WooCommerce, merging real-time visitor traffic from WP Statistics with advanced KPIs in a fully localized Arabic RTL interface.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Saleh Mahmoud
  * Author URI: https://github.com/salehmahmoud594
  * Text Domain: souq-pulse
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // تعريف الثوابت الأساسية
-define( 'SOUQPULSE_VERSION', '1.0.0' );
+define( 'SOUQPULSE_VERSION', '1.1.0' );
 define( 'SOUQPULSE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SOUQPULSE_URL', plugin_dir_url( __FILE__ ) );
 define( 'SOUQPULSE_BASENAME', plugin_basename( __FILE__ ) );

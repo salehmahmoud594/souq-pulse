@@ -151,7 +151,7 @@ class SouqPulse_Admin {
                 <!-- كارت المبيعات الإجمالية -->
                 <div class="souqpulse-card kpi-card" id="kpi-sales">
                     <div class="card-header">
-                        <span class="card-title"><?php esc_html_e( 'إجمالي المبيعات', 'souq-pulse' ); ?></span>
+                        <span class="card-title" title="<?php esc_attr_e( 'صافي العوائد (شاملاً الضرائب والشحن ومخصوماً منه المرتجعات)', 'souq-pulse' ); ?>"><?php esc_html_e( 'إجمالي المبيعات', 'souq-pulse' ); ?></span>
                         <span class="card-icon"><span class="dashicons dashicons-chart-area"></span></span>
                     </div>
                     <div class="card-body">
