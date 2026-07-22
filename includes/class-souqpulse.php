@@ -5,11 +5,12 @@
  * @package SouqPulse
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
-class SouqPulse {
+class SouqPulse
+{
 
     /**
      * نسخة واحدة من الفئة (Singleton Instance)
@@ -23,8 +24,9 @@ class SouqPulse {
      *
      * @return SouqPulse
      */
-    public static function get_instance() {
-        if ( is_null( self::$instance ) ) {
+    public static function get_instance()
+    {
+        if (is_null(self::$instance)) {
             self::$instance = new self();
         }
         return self::$instance;
@@ -33,7 +35,8 @@ class SouqPulse {
     /**
      * المشيّد الخاص لمنع إنشاء كائنات جديدة خارج الفئة
      */
-    private function __construct() {
+    private function __construct()
+    {
         $this->load_dependencies();
         $this->init_components();
     }
@@ -41,7 +44,8 @@ class SouqPulse {
     /**
      * تحميل الملفات المطلوبة
      */
-    private function load_dependencies() {
+    private function load_dependencies()
+    {
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-db.php';
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-admin.php';
         require_once SOUQPULSE_PATH . 'includes/class-souqpulse-ajax.php';
@@ -51,18 +55,19 @@ class SouqPulse {
     /**
      * تهيئة المكونات وتفعيل الخطافات
      */
-    private function init_components() {
+    private function init_components()
+    {
         // فحص تحديث قاعدة البيانات وتجهيز الجداول تلقائياً
-        if ( get_option( 'souqpulse_db_version' ) !== SOUQPULSE_VERSION ) {
+        if (get_option('souqpulse_db_version') !== SOUQPULSE_VERSION) {
             SouqPulse_DB::activate();
-            update_option( 'souqpulse_db_version', SOUQPULSE_VERSION );
+            update_option('souqpulse_db_version', SOUQPULSE_VERSION);
         }
 
         // تهيئة وحدة التتبع (تشتغل في الواجهة الأمامية والخلفية)
         new SouqPulse_Tracker();
 
         // تهيئة وحدة التحكم الإدارية والـ AJAX
-        if ( is_admin() ) {
+        if (is_admin()) {
             new SouqPulse_Admin();
             new SouqPulse_AJAX();
         }

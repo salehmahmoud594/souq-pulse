@@ -476,6 +476,10 @@
             if (kpiSparklines.bounce && data.kpi_sparklines.bounce) kpiSparklines.bounce.updateSeries([{ data: data.kpi_sparklines.bounce }]);
             if (kpiSparklines.conversion && data.kpi_sparklines.conversion) kpiSparklines.conversion.updateSeries([{ data: data.kpi_sparklines.conversion }]);
         }
+
+        // 4.14. تحديث خريطة مصر التفاعلية SVG ومصفوفة احتفاظ العملاء (Cohort Retention)
+        renderEgyptMap(data.geo);
+        renderCohortRetentionTable(data.cohort_retention);
     }
 
     /**
@@ -823,6 +827,114 @@
                '  <h5 class="empty-title">' + escHtml(title) + '</h5>' +
                '  <p class="empty-subtitle">' + escHtml(subtitle) + '</p>' +
                '</div>';
+    }
+
+    /**
+     * رسم وتلوين خريطة مصر التفاعلية SVG بناءً على كثافة المبيعات (Choropleth Scale)
+     */
+    function renderEgyptMap(geoData) {
+        var $container = $('#souqpulse-egypt-map-container');
+        if (!$container.length) return;
+
+        // خريطة أسماء وأكواد ومسارات محافظات مصر المعتمدة
+        var govPaths = {
+            'EG-C':   { name: 'القاهرة', d: 'M460,250 L480,240 L500,260 L480,280 L460,270 Z' },
+            'EG-ALX': { name: 'الإسكندرية', d: 'M340,160 L380,150 L390,170 L350,180 Z' },
+            'EG-GZ':  { name: 'الجيزة', d: 'M420,260 L460,270 L430,340 L390,320 Z' },
+            'EG-QAL': { name: 'القليوبية', d: 'M460,230 L480,220 L490,240 L470,245 Z' },
+            'EG-DK':  { name: 'الدقهلية', d: 'M470,180 L500,170 L510,200 L480,205 Z' },
+            'EG-SHR': { name: 'الشرقية', d: 'M490,200 L530,190 L540,220 L500,230 Z' },
+            'EG-GH':  { name: 'الغربية', d: 'M440,190 L470,185 L475,215 L445,215 Z' },
+            'EG-KB':  { name: 'المنوفية', d: 'M430,215 L465,215 L460,240 L430,235 Z' },
+            'EG-BH':  { name: 'البحيرة', d: 'M380,170 L430,185 L430,225 L370,210 Z' },
+            'EG-KSH': { name: 'كفر الشيخ', d: 'M430,160 L475,160 L470,185 L430,185 Z' },
+            'EG-DA':  { name: 'دمياط', d: 'M500,165 L525,165 L520,185 L495,185 Z' },
+            'EG-PTS': { name: 'بورسعيد', d: 'M530,175 L560,175 L555,195 L530,195 Z' },
+            'EG-IS':  { name: 'الإسماعيلية', d: 'M530,200 L570,200 L565,230 L530,225 Z' },
+            'EG-SUZ': { name: 'السويس', d: 'M530,235 L580,240 L570,270 L525,260 Z' },
+            'EG-NS':  { name: 'شمال سيناء', d: 'M580,180 L670,170 L650,230 L575,210 Z' },
+            'EG-SS':  { name: 'جنوب سيناء', d: 'M580,240 L650,235 L620,330 L575,290 Z' },
+            'EG-FYM': { name: 'الفيوم', d: 'M400,310 L440,305 L435,340 L395,335 Z' },
+            'EG-BNS': { name: 'بني سويف', d: 'M435,340 L480,335 L475,375 L425,370 Z' },
+            'EG-MN':  { name: 'المنيا', d: 'M425,375 L485,375 L480,440 L415,435 Z' },
+            'EG-AST': { name: 'أسيوط', d: 'M420,440 L495,440 L490,500 L410,495 Z' },
+            'EG-SHG': { name: 'سوهاج', d: 'M425,505 L510,505 L505,560 L420,555 Z' },
+            'EG-QNA': { name: 'قنا', d: 'M490,565 L570,555 L560,620 L480,615 Z' },
+            'EG-LX':  { name: 'الأقصر', d: 'M490,620 L550,620 L545,660 L485,655 Z' },
+            'EG-ASW': { name: 'أسوان', d: 'M480,660 L590,660 L580,770 L465,770 Z' },
+            'EG-WAD': { name: 'الوادي الجديد', d: 'M150,330 L410,330 L460,770 L150,770 Z' },
+            'EG-MS':  { name: 'مطروح', d: 'M150,140 L360,140 L390,320 L150,320 Z' },
+            'EG-BA':  { name: 'البحر الأحمر', d: 'M550,270 L600,270 L650,770 L570,770 Z' }
+        };
+
+        var maxSales = 0;
+        var geoMap = {};
+        if (geoData && geoData.length) {
+            geoData.forEach(function(item) {
+                if (item.code) {
+                    geoMap[item.code] = item;
+                    if (item.sales > maxSales) maxSales = item.sales;
+                }
+            });
+        }
+
+        var svgHtml = '<svg class="souqpulse-egypt-svg" viewBox="100 120 600 670" xmlns="http://www.w3.org/2000/svg">';
+        
+        $.each(govPaths, function(code, info) {
+            var item = geoMap[code];
+            var sales = item ? item.sales : 0;
+            var orders = item ? item.orders : 0;
+            var ratio = maxSales > 0 ? (sales / maxSales) : 0;
+
+            var fillColor = '#cbd5e1';
+            if (ratio > 0.75) fillColor = '#4338ca';
+            else if (ratio > 0.4) fillColor = '#6366f1';
+            else if (ratio > 0.15) fillColor = '#818cf8';
+            else if (ratio > 0) fillColor = '#c7d2fe';
+
+            var tooltipTitle = escHtml(info.name) + ': ' + formatCurrency(sales) + ' (' + orders + ' طلب)';
+
+            svgHtml += '<path d="' + info.d + '" class="souqpulse-gov-path" fill="' + fillColor + '" data-code="' + code + '" data-name="' + escHtml(info.name) + '">' +
+                       '<title>' + tooltipTitle + '</title>' +
+                       '</path>';
+        });
+
+        svgHtml += '</svg>';
+        $container.html(svgHtml);
+    }
+
+    /**
+     * رسم جدول مصفوفة احتفاظ العملاء شهرياً مع التلوين الحراري (Cohort Retention Heatmap)
+     */
+    function renderCohortRetentionTable(cohortData) {
+        var $tbody = $('#table-cohort-retention tbody');
+        if (!$tbody.length) return;
+
+        if (!cohortData || !cohortData.cohorts || cohortData.cohorts.length === 0) {
+            $tbody.html('<tr><td colspan="8">' + renderEmptyState('لا توجد بيانات مجموعات', 'يتطلب تسجيل طلبات في أكثر من شهر لحساب الاحتفاظ.', '📅') + '</td></tr>');
+            return;
+        }
+
+        var html = '';
+        cohortData.cohorts.forEach(function(row) {
+            html += '<tr>' +
+                '<td style="text-align: right; font-weight: 700; color: #1e293b;">' + escHtml(row.cohort_name) + '</td>' +
+                '<td><strong style="color: #6366f1;">' + row.total_size.toLocaleString() + '</strong></td>';
+
+            for (var i = 0; i < 6; i++) {
+                var pct = row.retention[i];
+                if (pct === null || pct === undefined) {
+                    html += '<td style="color: #cbd5e1;">-</td>';
+                } else {
+                    var bg = 'rgba(99, 102, 241, ' + Math.max(0.12, (pct / 100)) + ')';
+                    var color = pct > 40 ? '#1e1b4b' : '#334155';
+                    html += '<td><div class="cohort-cell" style="background: ' + bg + '; color: ' + color + ';">' + pct + '%</div></td>';
+                }
+            }
+            html += '</tr>';
+        });
+
+        $tbody.html(html);
     }
 
 })(jQuery);
