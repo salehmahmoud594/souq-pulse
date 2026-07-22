@@ -1,155 +1,1113 @@
-# SouqPulse Arabic Translation
-# Copyright (C) 2025 Saleh Mahmoud
-# This file is distributed under the same license as the SouqPulse plugin.
-# Translator: Saleh Mahmoud <https://github.com/salehmahmoud594>
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: SouqPulse 1.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/salehmahmoud594/souq-pulse\n"
-"POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2025-01-01 00:00+0000\n"
 "Last-Translator: Saleh Mahmoud <salehmahmoud594@github.com>\n"
 "Language-Team: Arabic\n"
-"Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-01-01 00:00+0000\n"
+"PO-Revision-Date: 2025-01-01 00:00+0000\n"
+"Language: ar\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5);\n"
 "X-Generator: SouqPulse\n"
 "X-Domain: souq-pulse\n"
 
+#: includes/class-souqpulse-settings.php:46
+#: includes/class-souqpulse-settings.php:148
 msgid "SouqPulse Settings"
 msgstr "إعدادات نبض السوق"
 
+#: includes/class-souqpulse-settings.php:47
 msgid "SouqPulse — Settings"
 msgstr "نبض السوق — الإعدادات"
 
+#: includes/class-souqpulse-settings.php:70
 msgid "Display Settings"
 msgstr "إعدادات العرض"
 
+#: includes/class-souqpulse-settings.php:77
+#: includes/class-souqpulse-settings.php:175
 msgid "Dashboard Language"
 msgstr "لغة لوحة التحكم"
 
+#: includes/class-souqpulse-settings.php:108
 msgid "Uses the WordPress site language"
 msgstr "يتبع لغة الموقع في ووردبريس"
 
+#: includes/class-souqpulse-settings.php:115
 msgid "Choose the display language for the SouqPulse analytics dashboard. Requires a page refresh to take effect."
 msgstr "اختر لغة عرض لوحة تحليلات نبض السوق. يتطلب إعادة تحميل الصفحة لتفعيل التغيير."
 
+#: includes/class-souqpulse-settings.php:137
 msgid "You do not have permission to access this page."
 msgstr "ليس لديك صلاحية الوصول إلى هذه الصفحة."
 
+#: includes/class-souqpulse-settings.php:151
 msgid "Manage your analytics dashboard preferences."
 msgstr "أدر تفضيلات لوحة التحليلات الخاصة بك."
 
+#: includes/class-souqpulse-settings.php:185
 msgid "How automatic language detection works:"
 msgstr "كيف يعمل الكشف التلقائي عن اللغة:"
 
+#: includes/class-souqpulse-settings.php:186
 msgid "In Automatic mode, SouqPulse follows the WordPress site language set in Settings → General. If an Arabic locale (e.g., ar_EG) is active and a translation file is present, the dashboard will display in Arabic with RTL layout automatically."
 msgstr "في الوضع التلقائي، تتبع نبض السوق لغة موقع ووردبريس المحددة في الإعدادات ← عام. إذا كانت اللغة العربية (مثل ar_EG) مفعّلة وملف الترجمة موجود، ستعرض اللوحة بالعربية مع تخطيط RTL تلقائياً."
 
+#: includes/class-souqpulse-admin.php:771
+#: includes/class-souqpulse-settings.php:190
 msgid "Save Settings"
 msgstr "حفظ الإعدادات"
 
+#: includes/class-souqpulse-settings.php:197
 msgid "Developed by"
 msgstr "تطوير"
 
+#: includes/class-souqpulse-settings.php:162
 msgid "Settings saved successfully."
 msgstr "تم حفظ الإعدادات بنجاح."
 
-msgid "SouqPulse - نبض السوق"
-msgstr "SouqPulse - نبض السوق"
+#. Plugin Name of the plugin
+#: souq-pulse.php
+msgid "SouqPulse (نبض السوق)"
+msgstr "SouqPulse (نبض السوق)"
 
-msgid "نبض السوق"
+#. Plugin URI of the plugin
+#: souq-pulse.php
+msgid "https://github.com/salehmahmoud594/souq-pulse"
+msgstr "https://github.com/salehmahmoud594/souq-pulse"
+
+#. Description of the plugin
+#: souq-pulse.php
+msgid "An integrated and smart analytics dashboard for WooCommerce, merging real-time visitor traffic from WP Statistics with advanced KPIs in a fully localized Arabic RTL interface."
+msgstr "لوحة تحكم تحليلية متكاملة وذكية لووكومرس، تدمج حركة الزوار بالوقت الفعلي من WP Statistics مع مؤشرات أداء متقدمة في واجهة عربية RTL بالكامل."
+
+#. Author of the plugin
+#: souq-pulse.php
+msgid "Saleh Mahmoud"
+msgstr "صالح محمود"
+
+#. Author URI of the plugin
+#: souq-pulse.php
+msgid "https://github.com/salehmahmoud594"
+msgstr "https://github.com/salehmahmoud594"
+
+#: includes/class-souqpulse-admin.php:57
+msgid "Souq Pulse — Analytics and Indicators"
+msgstr "نبض السوق — التحليلات والمؤشرات"
+
+#: includes/class-souqpulse-admin.php:58
+#: includes/class-souqpulse-admin.php:243
+msgid "Souq Pulse"
 msgstr "نبض السوق"
 
-msgid "لوحة التحليلات"
-msgstr "لوحة التحليلات"
+#: includes/class-souqpulse-admin.php:95
+#: includes/class-souqpulse-admin.php:306
+msgid "Total Sales"
+msgstr "المبيعات الإجمالية"
 
-msgid "إجمالي المبيعات"
-msgstr "إجمالي المبيعات"
-
-msgid "عدد الطلبات"
+#: includes/class-souqpulse-admin.php:96
+#: includes/class-souqpulse-admin.php:321
+msgid "Number of Orders"
 msgstr "عدد الطلبات"
 
-msgid "متوسط قيمة الطلب"
+#: includes/class-souqpulse-admin.php:97
+msgid "Average Order Value"
 msgstr "متوسط قيمة الطلب"
 
-msgid "إجمالي الجلسات"
-msgstr "إجمالي الجلسات"
+#: includes/class-souqpulse-admin.php:98
+msgid "Visitors & Sessions"
+msgstr "الزوار والجلسات"
 
-msgid "معدل الارتداد"
+#: includes/class-souqpulse-admin.php:99
+#: includes/class-souqpulse-admin.php:366
+msgid "Bounce Rate"
 msgstr "معدل الارتداد"
 
-msgid "معدل التحويل"
+#: includes/class-souqpulse-admin.php:100
+msgid "Conversion Rate"
 msgstr "معدل التحويل"
 
-msgid "الزوار الآن"
-msgstr "الزوار الآن"
+#: includes/class-souqpulse-admin.php:101
+msgid "No Change"
+msgstr "بدون تغيير"
 
-msgid "أعلى 5 منتجات مبيعاً"
-msgstr "أعلى 5 منتجات مبيعاً"
+#: includes/class-souqpulse-admin.php:102
+#: includes/class-souqpulse-admin.php:474
+#: includes/class-souqpulse-admin.php:586
+msgid "Sales"
+msgstr "المبيعات"
 
-msgid "أعلى 5 عملاء للمتجر"
-msgstr "أعلى 5 عملاء للمتجر"
+#: includes/class-souqpulse-admin.php:103
+#: includes/class-souqpulse-admin.php:164
+#: includes/class-souqpulse-admin.php:528
+#: includes/class-souqpulse-admin.php:560
+#: includes/class-souqpulse-admin.php:585
+#: includes/class-souqpulse-admin.php:616
+msgid "Orders"
+msgstr "الطلبات"
 
-msgid "توزيع الطلبات جغرافياً (المحافظات)"
-msgstr "توزيع الطلبات جغرافياً (المحافظات)"
+#: includes/class-souqpulse-admin.php:104
+#: includes/class-souqpulse-admin.php:413
+msgid "Active visitor in last 5 mins"
+msgstr "زائر نشط خلال آخر 5 دقائق"
 
-msgid "متوسط القيمة العمرية (CLV):"
-msgstr "متوسط القيمة العمرية (CLV):"
+#: includes/class-souqpulse-admin.php:105
+msgid "No data for this period."
+msgstr "لا توجد بيانات لهذه الفترة."
 
-msgid "عملاء مكررون:"
-msgstr "عملاء مكررون:"
+#: includes/class-souqpulse-admin.php:106
+msgid "No products sold"
+msgstr "لا توجد منتجات مباعة"
 
-msgid "عملاء لمرة واحدة:"
-msgstr "عملاء لمرة واحدة:"
+#: includes/class-souqpulse-admin.php:107
+msgid "No products were sold during the selected period."
+msgstr "لم يتم بيع أي منتجات خلال الفترة المحددة."
 
-msgid "زيارة الموقع"
-msgstr "زيارة الموقع"
+#: includes/class-souqpulse-admin.php:108
+#: includes/class-souqpulse-admin.php:159
+msgid "Order"
+msgstr "طلب"
 
-msgid "إضافة للسلة"
-msgstr "إضافة للسلة"
+#: includes/class-souqpulse-admin.php:109
+msgid "Piece"
+msgstr "قطعة"
 
-msgid "بدء الدفع"
-msgstr "بدء الدفع"
+#: includes/class-souqpulse-admin.php:110
+msgid "No pairs sold"
+msgstr "لا توجد منتجات مشتركة"
 
-msgid "معلومات الشحن"
-msgstr "معلومات الشحن"
+#: includes/class-souqpulse-admin.php:111
+msgid "No two products were bought together in one order."
+msgstr "لم يتم شراء منتجين معاً في أي طلب."
 
-msgid "معلومات الدفع"
+#: includes/class-souqpulse-admin.php:112
+msgid "Time(s)"
+msgstr "مرة"
+
+#: includes/class-souqpulse-admin.php:113
+msgid "No Geographic Data"
+msgstr "لا توجد بيانات جغرافية"
+
+#: includes/class-souqpulse-admin.php:114
+msgid "No orders were recorded in known countries."
+msgstr "لم يتم تسجيل أي طلبات في دول معروفة."
+
+#: includes/class-souqpulse-admin.php:115
+msgid "No Sales in Egypt"
+msgstr "لا توجد مبيعات في مصر"
+
+#: includes/class-souqpulse-admin.php:116
+msgid "No orders were recorded inside Egypt."
+msgstr "لم يتم تسجيل طلبات من داخل مصر."
+
+#: includes/class-souqpulse-admin.php:117
+msgid "No Cohort Data"
+msgstr "لا توجد بيانات احتفاظ"
+
+#: includes/class-souqpulse-admin.php:118
+msgid "Requires orders in more than one month to calculate retention."
+msgstr "يتطلب طلبات في أكثر من شهر لحساب الاحتفاظ."
+
+#: includes/class-souqpulse-admin.php:119
+msgid "No Payment Methods"
+msgstr "لا توجد وسائل دفع"
+
+#: includes/class-souqpulse-admin.php:120
+msgid "No orders were recorded with payment methods in this period."
+msgstr "لم يتم تسجيل طلبات بوسائل دفع في هذه الفترة."
+
+#: includes/class-souqpulse-admin.php:121
+msgid "No Sales"
+msgstr "لا توجد مبيعات"
+
+#: includes/class-souqpulse-admin.php:122
+msgid "No sales recorded in this period."
+msgstr "لا توجد مبيعات مسجلة في هذه الفترة."
+
+#: includes/class-souqpulse-admin.php:123
+msgid "No Data Recorded"
+msgstr "لا توجد بيانات مسجلة"
+
+#: includes/class-souqpulse-admin.php:124
+msgid "Try selecting another date range to see statistics."
+msgstr "جرّب اختيار نطاق زمني آخر للاطلاع على الإحصائيات."
+
+#: includes/class-souqpulse-admin.php:125
+msgid "No Customer Data"
+msgstr "لا توجد بيانات للعملاء"
+
+#: includes/class-souqpulse-admin.php:126
+msgid "Try selecting a wider date range to see customer data."
+msgstr "جرّب اختيار نطاق زمني أوسع لعرض بيانات العملاء."
+
+#: includes/class-souqpulse-admin.php:127
+msgid "January"
+msgstr "يناير"
+
+#: includes/class-souqpulse-admin.php:128
+msgid "February"
+msgstr "فبراير"
+
+#: includes/class-souqpulse-admin.php:129
+msgid "March"
+msgstr "مارس"
+
+#: includes/class-souqpulse-admin.php:130
+msgid "April"
+msgstr "أبريل"
+
+#: includes/class-souqpulse-admin.php:131
+msgid "May"
+msgstr "مايو"
+
+#: includes/class-souqpulse-admin.php:132
+msgid "June"
+msgstr "يونيو"
+
+#: includes/class-souqpulse-admin.php:133
+msgid "July"
+msgstr "يوليو"
+
+#: includes/class-souqpulse-admin.php:134
+msgid "August"
+msgstr "أغسطس"
+
+#: includes/class-souqpulse-admin.php:135
+msgid "September"
+msgstr "سبتمبر"
+
+#: includes/class-souqpulse-admin.php:136
+msgid "October"
+msgstr "أكتوبر"
+
+#: includes/class-souqpulse-admin.php:137
+msgid "November"
+msgstr "نوفمبر"
+
+#: includes/class-souqpulse-admin.php:138
+msgid "December"
+msgstr "ديسمبر"
+
+#: includes/class-souqpulse-admin.php:139
+#: includes/class-souqpulse-db.php:1381
+msgid "Sunday"
+msgstr "الأحد"
+
+#: includes/class-souqpulse-admin.php:140
+#: includes/class-souqpulse-db.php:1382
+msgid "Monday"
+msgstr "الإثنين"
+
+#: includes/class-souqpulse-admin.php:141
+#: includes/class-souqpulse-db.php:1383
+msgid "Tuesday"
+msgstr "الثلاثاء"
+
+#: includes/class-souqpulse-admin.php:142
+#: includes/class-souqpulse-db.php:1384
+msgid "Wednesday"
+msgstr "الأربعاء"
+
+#: includes/class-souqpulse-admin.php:143
+#: includes/class-souqpulse-db.php:1385
+msgid "Thursday"
+msgstr "الخميس"
+
+#: includes/class-souqpulse-admin.php:144
+#: includes/class-souqpulse-db.php:1386
+msgid "Friday"
+msgstr "الجمعة"
+
+#: includes/class-souqpulse-admin.php:145
+#: includes/class-souqpulse-db.php:1380
+msgid "Saturday"
+msgstr "السبت"
+
+#: includes/class-souqpulse-admin.php:146
+#: includes/class-souqpulse-db.php:1516
+msgid "Champions"
+msgstr "أبطال الشراء"
+
+#: includes/class-souqpulse-admin.php:147
+#: includes/class-souqpulse-db.php:1517
+msgid "Loyal Customers"
+msgstr "عملاء مخلصون"
+
+#: includes/class-souqpulse-admin.php:148
+msgid "Potential Loyalist"
+msgstr "فرصة سانحة"
+
+#: includes/class-souqpulse-admin.php:149
+#: includes/class-souqpulse-db.php:1521
+msgid "New Customers"
+msgstr "عملاء جدد"
+
+#: includes/class-souqpulse-admin.php:150
+msgid "Need Attention"
+msgstr "يحتاجون اهتمام"
+
+#: includes/class-souqpulse-admin.php:151
+msgid "At Risk"
+msgstr "معرضون للخطر"
+
+#: includes/class-souqpulse-admin.php:152
+msgid "Can't Lose Them"
+msgstr "لا يمكن خسارتهم"
+
+#: includes/class-souqpulse-admin.php:153
+msgid "Hibernating"
+msgstr "عملاء نائمون"
+
+#: includes/class-souqpulse-admin.php:154
+msgid "Lost"
+msgstr "عملاء ضائعون"
+
+#: includes/class-souqpulse-admin.php:155
+msgid "Returning Customers"
+msgstr "عملاء راجعون"
+
+#: includes/class-souqpulse-admin.php:156
+msgid "Visitor"
+msgstr "زائر"
+
+#: includes/class-souqpulse-admin.php:157
+msgid "Session"
+msgstr "جلسة"
+
+#: includes/class-souqpulse-admin.php:158
+#: includes/class-souqpulse-admin.php:473
+msgid "Product"
+msgstr "منتج"
+
+#: includes/class-souqpulse-admin.php:160
+#: includes/class-souqpulse-admin.php:220
+#: includes/class-souqpulse-admin.php:617
+msgid "Revenue"
+msgstr "الإيرادات"
+
+#: includes/class-souqpulse-admin.php:161
+msgid "Hour"
+msgstr "الساعة"
+
+#: includes/class-souqpulse-admin.php:162
+msgid "Day"
+msgstr "اليوم"
+
+#: includes/class-souqpulse-admin.php:163
+msgid "Date"
+msgstr "التاريخ"
+
+#: includes/class-souqpulse-admin.php:165
+msgid "Visits"
+msgstr "الزيارات"
+
+#: includes/class-souqpulse-admin.php:166
+#: includes/class-souqpulse-admin.php:271
+msgid "All Time"
+msgstr "كل الوقت"
+
+#: includes/class-souqpulse-admin.php:167
+msgid "Active Users"
+msgstr "النشطون"
+
+#: includes/class-souqpulse-admin.php:168
+msgid "Payment Information"
 msgstr "معلومات الدفع"
 
-msgid "الشراء"
-msgstr "الشراء"
+#: includes/class-souqpulse-admin.php:169
+msgid "Shipping Information"
+msgstr "معلومات الشحن"
 
-msgid "عميل زائر"
-msgstr "عميل زائر"
+#: includes/class-souqpulse-admin.php:170
+msgid "Cash on Delivery"
+msgstr "عند الاستلام"
 
-msgid "القاهرة"
+#: includes/class-souqpulse-admin.php:171
+msgid "Other"
+msgstr "أخرى"
+
+#: includes/class-souqpulse-admin.php:172
+#: includes/class-souqpulse-db.php:791
+msgid "Site Visit"
+msgstr "زيارة الموقع"
+
+#: includes/class-souqpulse-admin.php:173
+msgid "View Product"
+msgstr "مشاهدة منتج"
+
+#: includes/class-souqpulse-admin.php:174
+#: includes/class-souqpulse-db.php:792
+msgid "Add to Cart"
+msgstr "إضافة للسلة"
+
+#: includes/class-souqpulse-admin.php:175
+msgid "Checkout"
+msgstr "بداية الدفع"
+
+#: includes/class-souqpulse-admin.php:176
+msgid "Completed Purchase"
+msgstr "عملية الشراء"
+
+#: includes/class-souqpulse-admin.php:177
+#: includes/class-souqpulse-db.php:793
+msgid "Begin Checkout"
+msgstr "بدء الدفع"
+
+#: includes/class-souqpulse-admin.php:178
+msgid "Purchase Process"
+msgstr "عملية الشراء"
+
+#: includes/class-souqpulse-admin.php:179
+msgid "Funnel Visits"
+msgstr "زيارات مسار التحويل"
+
+#: includes/class-souqpulse-admin.php:180
+#: includes/class-souqpulse-db.php:967
+#: includes/class-souqpulse-db.php:968
+msgid "Cairo"
 msgstr "القاهرة"
 
-msgid "الإسكندرية"
+#: includes/class-souqpulse-admin.php:181
+#: includes/class-souqpulse-db.php:969
+msgid "Alexandria"
 msgstr "الإسكندرية"
 
-msgid "الجيزة"
+#: includes/class-souqpulse-admin.php:182
+#: includes/class-souqpulse-db.php:970
+msgid "Giza"
 msgstr "الجيزة"
 
-msgid "محافظات أخرى"
+#: includes/class-souqpulse-admin.php:183
+#: includes/class-souqpulse-db.php:971
+msgid "Qalyubia"
+msgstr "القليوبية"
+
+#: includes/class-souqpulse-admin.php:184
+#: includes/class-souqpulse-db.php:972
+msgid "Dakahlia"
+msgstr "الدقهلية"
+
+#: includes/class-souqpulse-admin.php:185
+#: includes/class-souqpulse-db.php:973
+msgid "Beheira"
+msgstr "البحيرة"
+
+#: includes/class-souqpulse-admin.php:186
+#: includes/class-souqpulse-db.php:974
+msgid "Faiyum"
+msgstr "الفيوم"
+
+#: includes/class-souqpulse-admin.php:187
+#: includes/class-souqpulse-db.php:975
+msgid "Gharbia"
+msgstr "الغربية"
+
+#: includes/class-souqpulse-admin.php:188
+#: includes/class-souqpulse-db.php:976
+msgid "Monufia"
+msgstr "المنوفية"
+
+#: includes/class-souqpulse-admin.php:189
+#: includes/class-souqpulse-db.php:977
+msgid "Ismailia"
+msgstr "الإسماعيلية"
+
+#: includes/class-souqpulse-admin.php:190
+#: includes/class-souqpulse-db.php:978
+msgid "Suez"
+msgstr "السويس"
+
+#: includes/class-souqpulse-admin.php:191
+#: includes/class-souqpulse-db.php:979
+msgid "Port Said"
+msgstr "بورسعيد"
+
+#: includes/class-souqpulse-admin.php:192
+#: includes/class-souqpulse-db.php:980
+msgid "Aswan"
+msgstr "أسوان"
+
+#: includes/class-souqpulse-admin.php:193
+#: includes/class-souqpulse-db.php:981
+msgid "Asyut"
+msgstr "أسيوط"
+
+#: includes/class-souqpulse-admin.php:194
+#: includes/class-souqpulse-db.php:982
+msgid "Beni Suef"
+msgstr "بني سويف"
+
+#: includes/class-souqpulse-admin.php:195
+#: includes/class-souqpulse-db.php:983
+msgid "Damietta"
+msgstr "دمياط"
+
+#: includes/class-souqpulse-admin.php:196
+msgid "Kafr el-Sheikh"
+msgstr "كفر الشيخ"
+
+#: includes/class-souqpulse-admin.php:197
+#: includes/class-souqpulse-db.php:985
+msgid "Luxor"
+msgstr "الأقصر"
+
+#: includes/class-souqpulse-admin.php:198
+#: includes/class-souqpulse-db.php:986
+msgid "Minya"
+msgstr "المنيا"
+
+#: includes/class-souqpulse-admin.php:199
+#: includes/class-souqpulse-db.php:987
+msgid "Matrouh"
+msgstr "مطروح"
+
+#: includes/class-souqpulse-admin.php:200
+#: includes/class-souqpulse-db.php:988
+msgid "North Sinai"
+msgstr "شمال سيناء"
+
+#: includes/class-souqpulse-admin.php:201
+#: includes/class-souqpulse-db.php:991
+msgid "South Sinai"
+msgstr "جنوب سيناء"
+
+#: includes/class-souqpulse-admin.php:202
+#: includes/class-souqpulse-db.php:989
+msgid "Sohag"
+msgstr "سوهاج"
+
+#: includes/class-souqpulse-admin.php:203
+#: includes/class-souqpulse-db.php:990
+msgid "Sharqia"
+msgstr "الشرقية"
+
+#: includes/class-souqpulse-admin.php:204
+#: includes/class-souqpulse-db.php:992
+msgid "New Valley"
+msgstr "الوادي الجديد"
+
+#: includes/class-souqpulse-admin.php:205
+#: includes/class-souqpulse-db.php:993
+msgid "Red Sea"
+msgstr "البحر الأحمر"
+
+#: includes/class-souqpulse-admin.php:206
+#: includes/class-souqpulse-db.php:994
+msgid "Qena"
+msgstr "قنا"
+
+#: includes/class-souqpulse-admin.php:207
+#: includes/class-souqpulse-db.php:1027
+msgid "Other Governorates"
 msgstr "محافظات أخرى"
 
-msgid "حدث غير مدعوم التتبع."
-msgstr "حدث غير مدعوم التتبع."
+#: includes/class-souqpulse-admin.php:208
+msgid "Error connecting to server:"
+msgstr "خطأ في الاتصال بالخادم:"
 
-msgid "غير مصرح لك بالوصول لهذه البيانات."
-msgstr "غير مصرح لك بالوصول لهذه البيانات."
+#: includes/class-souqpulse-admin.php:209
+msgid "Failed fetching Souq Pulse data:"
+msgstr "فشل جلب بيانات نبض السوق:"
 
-msgid "غير مصرح لك."
-msgstr "غير مصرح لك."
+#: includes/class-souqpulse-admin.php:210
+#: includes/class-souqpulse-admin.php:313
+#: includes/class-souqpulse-admin.php:327
+#: includes/class-souqpulse-admin.php:342
+#: includes/class-souqpulse-admin.php:356
+#: includes/class-souqpulse-admin.php:372
+#: includes/class-souqpulse-admin.php:386
+msgid "vs Previous Period"
+msgstr "vs الفترة السابقة"
 
-msgid "SouqPulse requires WooCommerce to be installed and active."
-msgstr "تتطلب إضافة نبض السوق تثبيت وتفعيل إضافة WooCommerce أولاً."
+#: includes/class-souqpulse-admin.php:211
+#: includes/class-souqpulse-admin.php:527
+msgid "Customer"
+msgstr "عميل"
 
-msgid "Automatic (Follow Site)"
-msgstr "تلقائي (يتبع الموقع)"
+#: includes/class-souqpulse-admin.php:212
+msgid "% of Revenue"
+msgstr "% من الإيرادات"
+
+#: includes/class-souqpulse-admin.php:213
+msgid "of Revenue from Returning Loyal Customers!"
+msgstr "من الإيرادات من عملاء مخلصين!"
+
+#: includes/class-souqpulse-admin.php:214
+msgid "Drop-off"
+msgstr "تسرب"
+
+#: includes/class-souqpulse-admin.php:215
+msgid "Average Visit Duration: "
+msgstr "متوسط مدة الزيارة: "
+
+#: includes/class-souqpulse-admin.php:216
+msgid "Visit"
+msgstr "زيارة الموقع"
+
+#: includes/class-souqpulse-admin.php:217
+msgid "Second"
+msgstr "ثانية"
+
+#: includes/class-souqpulse-admin.php:218
+msgid "s"
+msgstr "ث"
+
+#: includes/class-souqpulse-admin.php:219
+msgid "m"
+msgstr "د"
+
+#: includes/class-souqpulse-admin.php:221
+msgid "Sales Revenue"
+msgstr "إيرادات المبيعات"
+
+#: includes/class-souqpulse-admin.php:245
+msgid "Beta"
+msgstr "تجريبي"
+
+#: includes/class-souqpulse-admin.php:248
+msgid "Comprehensive real-time overview of your store's sales performance and visitor behavior in one place."
+msgstr "نظرة شاملة ولحظية على أداء مبيعات متجرك وسلوك الزوار في مكان واحد."
+
+#: includes/class-souqpulse-admin.php:255
+msgid "Analytics Dashboard"
+msgstr "لوحة التحليلات"
+
+#: includes/class-souqpulse-admin.php:258
+msgid "Settings"
+msgstr "الإعدادات"
+
+#: includes/class-souqpulse-admin.php:266
+msgid "Last 7 Days"
+msgstr "آخر 7 أيام"
+
+#: includes/class-souqpulse-admin.php:267
+msgid "Last 30 Days"
+msgstr "آخر 30 يوم"
+
+#: includes/class-souqpulse-admin.php:268
+msgid "Last 90 Days"
+msgstr "آخر 90 يوم"
+
+#: includes/class-souqpulse-admin.php:269
+msgid "Last 6 Months"
+msgstr "آخر 6 شهور"
+
+#: includes/class-souqpulse-admin.php:270
+msgid "Last 12 Months"
+msgstr "آخر 12 شهر"
+
+#: includes/class-souqpulse-admin.php:272
+msgid "Custom Period"
+msgstr "فترة مخصصة"
+
+#: includes/class-souqpulse-admin.php:279
+msgid "From Date"
+msgstr "من تاريخ"
+
+#: includes/class-souqpulse-admin.php:280
+msgid "To"
+msgstr "إلى"
+
+#: includes/class-souqpulse-admin.php:282
+msgid "To Date"
+msgstr "إلى تاريخ"
+
+#: includes/class-souqpulse-admin.php:291
+msgid "Compared to previous period"
+msgstr "مقارنة بالفترة السابقة"
+
+#: includes/class-souqpulse-admin.php:306
+msgid "Net Revenue (Including taxes and shipping, excluding refunds)"
+msgstr "صافي الإيرادات (شاملاً الضرائب والشحن ومخصوماً منه المرتجعات)"
+
+#: includes/class-souqpulse-admin.php:310
+#: includes/class-souqpulse-admin.php:339
+#, php-format
+msgid "%s EGP"
+msgstr "%s ج.م"
+
+#: includes/class-souqpulse-admin.php:335
+msgid "Average Order Value (AOV)"
+msgstr "متوسط قيمة الطلب"
+
+#: includes/class-souqpulse-admin.php:350
+msgid "Number of Visits (Sessions)"
+msgstr "عدد الزيارات (الجلسات)"
+
+#: includes/class-souqpulse-admin.php:358
+msgid "Average Visit Duration: 0 seconds"
+msgstr "متوسط مدة الزيارة: 0 ثانية"
+
+#: includes/class-souqpulse-admin.php:380
+msgid "Store Conversion Rate"
+msgstr "معدل التحويل للمتجر"
+
+#: includes/class-souqpulse-admin.php:398
+msgid "Total Sales and Number of Orders Over Time"
+msgstr "إجمالي المبيعات وعدد الطلبات عبر الوقت"
+
+#: includes/class-souqpulse-admin.php:408
+msgid "Active Visitors Now"
+msgstr "الزوار النشطون الآن"
+
+#: includes/class-souqpulse-admin.php:427
+msgid "Purchase Funnel"
+msgstr "مسار تحويل العميل (Purchase Funnel)"
+
+#: includes/class-souqpulse-admin.php:437
+msgid "Inventory Status"
+msgstr "حالة المخزون"
+
+#: includes/class-souqpulse-admin.php:443
+msgid "Total Units Available:"
+msgstr "إجمالي القطع المتوفرة:"
+
+#: includes/class-souqpulse-admin.php:448
+msgid "Low Stock Products:"
+msgstr "منتجات منخفضة المخزون:"
+
+#: includes/class-souqpulse-admin.php:454
+msgid "Out of Stock Products:"
+msgstr "منتجات نفذت من المخزون:"
+
+#: includes/class-souqpulse-admin.php:466
+msgid "Top 5 Selling Products"
+msgstr "أعلى 5 منتجات مبيعاً"
+
+#: includes/class-souqpulse-admin.php:475
+msgid "Progress"
+msgstr "التقدم"
+
+#: includes/class-souqpulse-admin.php:481
+#: includes/class-souqpulse-admin.php:535
+#: includes/class-souqpulse-admin.php:624
+msgid "Loading data..."
+msgstr "جاري تحميل البيانات..."
+
+#: includes/class-souqpulse-admin.php:492
+msgid "Top 5 Customers & Revenue Source"
+msgstr "أعلى 5 عملاء ومصدر الإيرادات"
+
+#: includes/class-souqpulse-admin.php:498
+msgid "Average Customer Lifetime Value (CLV):"
+msgstr "متوسط القيمة الدائمة للعميل (CLV):"
+
+#: includes/class-souqpulse-admin.php:502
+msgid "Repeat Customers:"
+msgstr "عملاء متكررون:"
+
+#: includes/class-souqpulse-admin.php:506
+msgid "One-time Customers:"
+msgstr "عملاء لمرة واحدة:"
+
+#: includes/class-souqpulse-admin.php:516
+msgid "Revenue Contribution by Customer Segment"
+msgstr "نسبة الإيرادات حسب شريحة العملاء"
+
+#: includes/class-souqpulse-admin.php:518
+msgid "Analyzing loyal customer contribution..."
+msgstr "جاري تحليل مساهمة العملاء..."
+
+#: includes/class-souqpulse-admin.php:529
+msgid "Total Purchase"
+msgstr "إجمالي الشراء"
+
+#: includes/class-souqpulse-admin.php:546
+msgid "Geographic Distribution of Sales and Orders"
+msgstr "التوزيع الجغرافي للمبيعات والطلبات"
+
+#: includes/class-souqpulse-admin.php:548
+msgid "All Countries"
+msgstr "كل الدول"
+
+#: includes/class-souqpulse-admin.php:549
+msgid "Governorates of Egypt"
+msgstr "محافظات مصر"
+
+#: includes/class-souqpulse-admin.php:559
+msgid "Country"
+msgstr "الدولة"
+
+#: includes/class-souqpulse-admin.php:561
+msgid "Revenue & Contribution Percentage"
+msgstr "الإيرادات ونسبة المساهمة"
+
+#: includes/class-souqpulse-admin.php:566
+msgid "Loading geographic distribution..."
+msgstr "جاري تحميل التوزيع الجغرافي..."
+
+#: includes/class-souqpulse-admin.php:584
+msgid "Governorate"
+msgstr "المحافظة"
+
+#: includes/class-souqpulse-admin.php:591
+msgid "Loading..."
+msgstr "جاري التحميل..."
+
+#: includes/class-souqpulse-admin.php:607
+msgid "Payment Methods Analysis & COD Risks"
+msgstr "تحليل وسائل الدفع ومخاطر الدفع عند الاستلام"
+
+#: includes/class-souqpulse-admin.php:615
+msgid "Payment Method"
+msgstr "وسيلة الدفع"
+
+#: includes/class-souqpulse-admin.php:618
+msgid "Return Rate"
+msgstr "معدل الاسترجاع"
+
+#: includes/class-souqpulse-admin.php:636
+msgid "Peak Order Times (Days & Hours - Egypt Time)"
+msgstr "أوقات ذروة الشراء (الأيام والساعات - بتوقيت مصر)"
+
+#: includes/class-souqpulse-admin.php:642
+msgid "Darker squares represent intensive customer buying times — recommended for timing ad campaigns."
+msgstr "المربعات الأغمق تمثل أوقات الشراء المكثفة للعملاء — يُنصح بها لتوقيت الحملات الإعلانية."
+
+#: includes/class-souqpulse-admin.php:654
+msgid "RFM — Interactive Customer Segmentation"
+msgstr "RFM — تقسيم العملاء التفاعلي"
+
+#: includes/class-souqpulse-admin.php:668
+msgid "Frequently Bought Together (Product Affinity)"
+msgstr "غالباً تُشترى معاً (ترابط المنتجات)"
+
+#: includes/class-souqpulse-admin.php:675
+msgid "Product Bundle"
+msgstr "حزمة المنتجات"
+
+#: includes/class-souqpulse-admin.php:677
+msgid "Frequency"
+msgstr "التكرار"
+
+#: includes/class-souqpulse-admin.php:683
+msgid "Analyzing product affinity..."
+msgstr "جاري تحليل ترابط المنتجات..."
+
+#: includes/class-souqpulse-admin.php:697
+msgid "Monthly Customer Retention Matrix (Cohort Retention Heatmap)"
+msgstr "مصفوفة احتفاظ العملاء شهرياً (Cohort Retention Heatmap)"
+
+#: includes/class-souqpulse-admin.php:706
+msgid "Monthly Cohort"
+msgstr "الاحتفاظ الشهري"
+
+#: includes/class-souqpulse-admin.php:707
+msgid "Count"
+msgstr "العدد"
+
+#: includes/class-souqpulse-admin.php:708
+msgid "Month 0"
+msgstr "الشهر 0"
+
+#: includes/class-souqpulse-admin.php:709
+msgid "Month +1"
+msgstr "الشهر +1"
+
+#: includes/class-souqpulse-admin.php:710
+msgid "Month +2"
+msgstr "الشهر +2"
+
+#: includes/class-souqpulse-admin.php:711
+msgid "Month +3"
+msgstr "الشهر +3"
+
+#: includes/class-souqpulse-admin.php:712
+msgid "Month +4"
+msgstr "الشهر +4"
+
+#: includes/class-souqpulse-admin.php:713
+msgid "Month +5"
+msgstr "الشهر +5"
+
+#: includes/class-souqpulse-admin.php:719
+msgid "Analyzing cohort retention matrix..."
+msgstr "جاري تحليل مصفوفة الاحتفاظ..."
+
+#: includes/class-souqpulse-admin.php:735
+msgid "Language & Translation Settings"
+msgstr "إعدادات اللغة والترجمة"
+
+#: includes/class-souqpulse-admin.php:745
+msgid "Dashboard Language:"
+msgstr "لغة لوحة التحكم:"
+
+#: includes/class-souqpulse-admin.php:750
+msgid "Automatic (Follows Site Language)"
+msgstr "تلقائي (يتبع لغة الموقع)"
+
+#: includes/class-souqpulse-admin.php:752
+msgid "Arabic"
+msgstr "العربية"
+
+#: includes/class-souqpulse-admin.php:754
+msgid "English"
+msgstr "الإنجليزية"
+
+#: includes/class-souqpulse-admin.php:757
+msgid "Select the display language for Souq Pulse dashboard. Requires saving settings to reload translated words."
+msgstr "اختر لغة العرض للوحة تحكم نبض السوق. يتطلب حفظ الإعدادات لإعادة تحميل الكلمات المترجمة."
+
+#: includes/class-souqpulse-admin.php:764
+msgid "How does automatic detection work?"
+msgstr "كيف يعمل التحديد التلقائي؟"
+
+#: includes/class-souqpulse-admin.php:765
+msgid "In Automatic mode, the dashboard will follow the WordPress site language set in the site's general settings. If the site language is Arabic, the board will be displayed entirely in an RTL interface and Arabic terminology."
+msgstr "في الوضع التلقائي، ستتبع لوحة التحكم لغة موقع ووردبريس المحددة في إعدادات الموقع العامة. إذا كانت لغة الموقع هي العربية، سيتم عرض اللوحة بالكامل بواجهة RTL ومصطلحات عربية."
+
+#: includes/class-souqpulse-ajax.php:34
+msgid "You are not authorized to access this data."
+msgstr "ليس لديك صلاحية للوصول إلى هذه البيانات."
+
+#: includes/class-souqpulse-ajax.php:91
+msgid "Unauthorized."
+msgstr "غير مصرح."
+
+#: includes/class-souqpulse-db.php:47
+msgid "Not specified"
+msgstr "غير محدد"
+
+#: includes/class-souqpulse-db.php:58
+msgid "Egypt"
+msgstr "مصر"
+
+#: includes/class-souqpulse-db.php:59
+msgid "Saudi Arabia"
+msgstr "السعودية"
+
+#: includes/class-souqpulse-db.php:60
+msgid "United Arab Emirates"
+msgstr "الإمارات"
+
+#: includes/class-souqpulse-db.php:61
+msgid "Kuwait"
+msgstr "الكويت"
+
+#: includes/class-souqpulse-db.php:62
+msgid "Qatar"
+msgstr "قطر"
+
+#: includes/class-souqpulse-db.php:63
+msgid "Oman"
+msgstr "عمان"
+
+#: includes/class-souqpulse-db.php:64
+msgid "Bahrain"
+msgstr "البحرين"
+
+#: includes/class-souqpulse-db.php:65
+msgid "Jordan"
+msgstr "الأردن"
+
+#: includes/class-souqpulse-db.php:66
+msgid "Iraq"
+msgstr "العراق"
+
+#: includes/class-souqpulse-db.php:67
+msgid "Lebanon"
+msgstr "لبنان"
+
+#: includes/class-souqpulse-db.php:68
+msgid "Libya"
+msgstr "ليبيا"
+
+#: includes/class-souqpulse-db.php:69
+msgid "Morocco"
+msgstr "المغرب"
+
+#: includes/class-souqpulse-db.php:70
+msgid "Algeria"
+msgstr "الجزائر"
+
+#: includes/class-souqpulse-db.php:71
+msgid "Tunisia"
+msgstr "تونس"
+
+#: includes/class-souqpulse-db.php:72
+msgid "Sudan"
+msgstr "السودان"
+
+#: includes/class-souqpulse-db.php:73
+msgid "Yemen"
+msgstr "اليمن"
+
+#: includes/class-souqpulse-db.php:74
+msgid "United States"
+msgstr "أمريكا"
+
+#: includes/class-souqpulse-db.php:75
+msgid "United Kingdom"
+msgstr "بريطانيا"
+
+#: includes/class-souqpulse-db.php:76
+msgid "Canada"
+msgstr "كندا"
+
+#: includes/class-souqpulse-db.php:77
+msgid "Germany"
+msgstr "ألمانيا"
+
+#: includes/class-souqpulse-db.php:78
+msgid "France"
+msgstr "فرنسا"
+
+#: includes/class-souqpulse-db.php:79
+msgid "Turkey"
+msgstr "تركيا"
+
+#: includes/class-souqpulse-db.php:602
+msgid "Unknown Product"
+msgstr "منتج غير معروف"
+
+#: includes/class-souqpulse-db.php:681
+msgid "Guest Customer"
+msgstr "عميل زائر"
+
+#: includes/class-souqpulse-db.php:794
+msgid "Shipping Info"
+msgstr "معلومات الشحن"
+
+#: includes/class-souqpulse-db.php:795
+msgid "Payment Info"
+msgstr "معلومات الدفع"
+
+#: includes/class-souqpulse-db.php:796
+msgid "Purchase"
+msgstr "شراء مكتمل"
+
+#: includes/class-souqpulse-db.php:984
+msgid "Kafr El Sheikh"
+msgstr "كفر الشيخ"
+
+#: includes/class-souqpulse-db.php:1330
+msgid "Unspecified payment method"
+msgstr "وسيلة دفع غير محددة"
+
+#: includes/class-souqpulse-db.php:1518
+msgid "Promising Customers"
+msgstr "عملاء واعدون"
+
+#: includes/class-souqpulse-db.php:1519
+msgid "At Risk Customers"
+msgstr "عملاء معرضون للخطر"
+
+#: includes/class-souqpulse-db.php:1520
+msgid "Hibernating Customers"
+msgstr "عملاء نائمون"
+
+#: includes/class-souqpulse-db.php:1633
+#: includes/class-souqpulse-db.php:1634
+msgid "Unspecified Product"
+msgstr "منتج غير محدد"
+
+#: includes/class-souqpulse-tracker.php:178
+msgid "Event tracking is not supported."
+msgstr "تتبع الأحداث غير مدعوم."
+
+#: souq-pulse.php:195
+msgid "<strong>Souq Pulse (SouqPulse)</strong> requires <strong>WooCommerce</strong> to be activated. The plugin has been automatically deactivated."
+msgstr "إضافة <strong>نبض السوق (SouqPulse)</strong> تتطلب تفعيل إضافة <strong>WooCommerce</strong>. تم تعطيل الإضافة تلقائياً."
