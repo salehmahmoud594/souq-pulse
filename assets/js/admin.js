@@ -14,6 +14,14 @@
     var revShareChart;
     var paymentChart;
     var heatmapChart;
+    var kpiSparklines = {
+        sales: null,
+        orders: null,
+        aov: null,
+        sessions: null,
+        bounce: null,
+        conversion: null
+    };
 
     $(document).ready(function() {
         // تهيئة الرسوم البيانية كقوالب فارغة أولاً
@@ -218,8 +226,12 @@
             var maxRevenue = data.top_products[0].revenue;
             data.top_products.forEach(function(item) {
                 var percent = maxRevenue > 0 ? (item.revenue / maxRevenue) * 100 : 0;
+                var thumb = item.thumbnail ? '<img src="' + escHtml(item.thumbnail) + '" alt="" style="width:28px; height:28px; border-radius:4px; object-fit:cover; margin-left:8px; vertical-align:middle;" />' : '<span style="display:inline-block; width:28px; height:28px; border-radius:4px; background:#e2e8f0; color:#64748b; text-align:center; line-height:28px; margin-left:8px; font-size:12px;">📦</span>';
+                var qtyBadge = item.quantity > 0 ? ' <span class="badge" style="font-size:10px; color:#475569; background:#f1f5f9; padding:2px 6px; border-radius:10px; margin-right:4px;">(' + item.quantity.toLocaleString() + ' قطعة)</span>' : '';
+                var priceTag = item.price ? '<br><span class="product-price-tag">' + escHtml(String(item.price)) + '</span>' : '';
+
                 productsHtml += '<tr>' +
-                    '<td>' + escHtml(item.name) + '</td>' +
+                    '<td>' + thumb + '<strong style="vertical-align:middle;">' + escHtml(item.name) + '</strong>' + qtyBadge + priceTag + '</td>' +
                     '<td><strong>' + formatCurrency(item.revenue) + '</strong></td>' +
                     '<td>' +
                     '  <div class="progress-bar-container">' +
@@ -424,6 +436,45 @@
         // 4.10. تحديث الخريطة الحرارية لساعات وأيام الشراء (Order Heatmap)
         if (data.order_heatmap && data.order_heatmap.length > 0 && heatmapChart) {
             heatmapChart.updateSeries(data.order_heatmap);
+        }
+
+        // 4.11. تحديث بطاقات تقسيم العملاء RFM
+        if (data.rfm_segments) {
+            var rfmHtml = '';
+            $.each(data.rfm_segments, function(key, seg) {
+                var safeColor = /^#[0-9a-fA-F]{3,6}$/.test(seg.color) ? seg.color : '#6366f1';
+                rfmHtml += '<div class="rfm-card" style="border-top-color:' + safeColor + ';">' +
+                    '<span class="rfm-icon">' + (seg.icon || '👤') + '</span>' +
+                    '<span class="rfm-label">' + escHtml(seg.label) + '</span>' +
+                    '<span class="rfm-count" style="color:' + safeColor + ';">' + (seg.count || 0).toLocaleString() + ' <span class="rfm-unit">عميل</span></span>' +
+                    '<span class="rfm-pct">' + (seg.pct || 0) + '% من الإيرادات</span>' +
+                    '</div>';
+            });
+            $('#rfm-segment-container').html(rfmHtml);
+        }
+
+        // 4.12. تحديث جدول المنتجات الأكثر شراءً معاً (Product Affinity)
+        if (data.product_affinity && data.product_affinity.length > 0) {
+            var affinityHtml = '';
+            data.product_affinity.forEach(function(pair) {
+                affinityHtml += '<tr>' +
+                    '<td><span style="color:#1e293b; font-weight:600;">' + escHtml(pair.product_a_name) + '</span> <span style="color:#94a3b8; font-size:12px; margin:0 4px;">➕</span> <span style="color:#1e293b; font-weight:600;">' + escHtml(pair.product_b_name) + '</span></td>' +
+                    '<td style="text-align:center;"><span class="badge" style="background:#f1f5f9; color:#475569; padding:3px 8px; border-radius:12px; font-weight:700;">' + pair.pair_count.toLocaleString() + ' مرة</span></td>' +
+                    '</tr>';
+            });
+            $('#table-product-affinity tbody').html(affinityHtml);
+        } else {
+            $('#table-product-affinity tbody').html('<tr><td colspan="2">' + renderEmptyState('لا توجد ثنائيات مباعة', 'لم يتكرر شراء منتجين معا في طلب واحد.', '🛍️') + '</td></tr>');
+        }
+
+        // 4.13. تحديث الـ KPI Sparklines الـ 6 بالبيانات اليومية
+        if (data.kpi_sparklines) {
+            if (kpiSparklines.sales && data.kpi_sparklines.sales) kpiSparklines.sales.updateSeries([{ data: data.kpi_sparklines.sales }]);
+            if (kpiSparklines.orders && data.kpi_sparklines.orders) kpiSparklines.orders.updateSeries([{ data: data.kpi_sparklines.orders }]);
+            if (kpiSparklines.aov && data.kpi_sparklines.aov) kpiSparklines.aov.updateSeries([{ data: data.kpi_sparklines.aov }]);
+            if (kpiSparklines.sessions && data.kpi_sparklines.sessions) kpiSparklines.sessions.updateSeries([{ data: data.kpi_sparklines.sessions }]);
+            if (kpiSparklines.bounce && data.kpi_sparklines.bounce) kpiSparklines.bounce.updateSeries([{ data: data.kpi_sparklines.bounce }]);
+            if (kpiSparklines.conversion && data.kpi_sparklines.conversion) kpiSparklines.conversion.updateSeries([{ data: data.kpi_sparklines.conversion }]);
         }
     }
 
@@ -661,6 +712,37 @@
             sparklineChart = new ApexCharts(sparklineEl, sparklineOptions);
             sparklineChart.render();
         }
+
+        // 9. تهيئة الـ KPI Sparklines — 6 مخططات مصغرة داخل كروت الأداء
+        var kpiSparkConfigs = [
+            { key: 'sales',      id: '#sparkline-sales',       color: '#6366f1' },
+            { key: 'orders',     id: '#sparkline-orders',      color: '#10b981' },
+            { key: 'aov',        id: '#sparkline-aov',         color: '#6366f1' },
+            { key: 'sessions',   id: '#sparkline-sessions',    color: '#3b82f6' },
+            { key: 'bounce',     id: '#sparkline-bounce',      color: '#ef4444' },
+            { key: 'conversion', id: '#sparkline-conversion',  color: '#10b981' }
+        ];
+        kpiSparkConfigs.forEach(function(cfg) {
+            var spEl = document.querySelector(cfg.id);
+            if (!spEl) return;
+            kpiSparklines[cfg.key] = new ApexCharts(spEl, {
+                chart: {
+                    type: 'area',
+                    height: 50,
+                    sparkline: { enabled: true },
+                    animations: { enabled: false }
+                },
+                colors: [cfg.color],
+                stroke: { curve: 'smooth', width: 2 },
+                fill: {
+                    type: 'gradient',
+                    gradient: { shadeIntensity: 1, opacityFrom: 0.25, opacityTo: 0.01 }
+                },
+                series: [{ name: cfg.key, data: [0, 0, 0, 0, 0, 0, 0] }],
+                tooltip: { enabled: false }
+            });
+            kpiSparklines[cfg.key].render();
+        });
     }
 
     // تمت إزالة دالة البيانات التجريبية نظراً لأن كل كروت التقارير أصبحت حقيقية 100%

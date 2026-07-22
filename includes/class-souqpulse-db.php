@@ -458,10 +458,11 @@ class SouqPulse_DB {
         // 5. استعلام أعلى 5 منتجات مبيعاً
         if ( $is_hpos ) {
             $products_query = $wpdb->prepare(
-                "SELECT i_meta.meta_value as product_id, post.post_title as name, SUM(CAST(tot_meta.meta_value AS DECIMAL(26,8))) as revenue
+                "SELECT i_meta.meta_value as product_id, post.post_title as name, SUM(CAST(tot_meta.meta_value AS DECIMAL(26,8))) as revenue, SUM(CAST(qty_meta.meta_value AS UNSIGNED)) as total_quantity
                  FROM {$wpdb->prefix}woocommerce_order_items items
                  JOIN {$wpdb->prefix}woocommerce_order_itemmeta i_meta ON items.order_item_id = i_meta.order_item_id AND i_meta.meta_key = '_product_id'
                  JOIN {$wpdb->prefix}woocommerce_order_itemmeta tot_meta ON items.order_item_id = tot_meta.order_item_id AND tot_meta.meta_key = '_line_total'
+                 LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta qty_meta ON items.order_item_id = qty_meta.order_item_id AND qty_meta.meta_key = '_qty'
                  LEFT JOIN {$wpdb->posts} post ON CAST(i_meta.meta_value AS UNSIGNED) = post.ID
                  WHERE items.order_item_type = 'line_item'
                    AND items.order_id IN (
@@ -487,10 +488,11 @@ class SouqPulse_DB {
             );
         } else {
             $products_query = $wpdb->prepare(
-                "SELECT i_meta.meta_value as product_id, post.post_title as name, SUM(CAST(tot_meta.meta_value AS DECIMAL(26,8))) as revenue
+                "SELECT i_meta.meta_value as product_id, post.post_title as name, SUM(CAST(tot_meta.meta_value AS DECIMAL(26,8))) as revenue, SUM(CAST(qty_meta.meta_value AS UNSIGNED)) as total_quantity
                  FROM {$wpdb->prefix}woocommerce_order_items items
                  JOIN {$wpdb->prefix}woocommerce_order_itemmeta i_meta ON items.order_item_id = i_meta.order_item_id AND i_meta.meta_key = '_product_id'
                  JOIN {$wpdb->prefix}woocommerce_order_itemmeta tot_meta ON items.order_item_id = tot_meta.order_item_id AND tot_meta.meta_key = '_line_total'
+                 LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta qty_meta ON items.order_item_id = qty_meta.order_item_id AND qty_meta.meta_key = '_qty'
                  LEFT JOIN {$wpdb->posts} post ON CAST(i_meta.meta_value AS UNSIGNED) = post.ID
                  WHERE items.order_item_type = 'line_item'
                    AND items.order_id IN (
@@ -518,10 +520,19 @@ class SouqPulse_DB {
         $product_rows = $wpdb->get_results( $products_query );
 
         foreach ( $product_rows as $row ) {
+            $p_id      = (int) $row->product_id;
+            $thumb_url = get_the_post_thumbnail_url( $p_id, 'thumbnail' );
+            // استخدام get_post_meta مباشرة بدلاً من wc_get_product() لتفادي N+1 object construction
+            $raw_price = get_post_meta( $p_id, '_price', true );
+            $price_str = $raw_price !== '' ? html_entity_decode( wp_strip_all_tags( wc_price( (float) $raw_price ) ) ) : '';
+
             $results['top_products'][] = array(
-                'id'      => (int) $row->product_id,
-                'name'    => $row->name ? $row->name : __( 'منتج غير معروف', 'souq-pulse' ),
-                'revenue' => (float) $row->revenue,
+                'id'        => $p_id,
+                'name'      => $row->name ? $row->name : __( 'منتج غير معروف', 'souq-pulse' ),
+                'revenue'   => (float) $row->revenue,
+                'quantity'  => isset( $row->total_quantity ) ? (int) $row->total_quantity : 0,
+                'thumbnail' => $thumb_url ? $thumb_url : '',
+                'price'     => $price_str,
             );
         }
 
@@ -1222,8 +1233,8 @@ class SouqPulse_DB {
                     $rfm_counts['lost']['count']++;
                     $rfm_counts['lost']['revenue'] += $m;
                 }
-            }
-        }
+            } // end foreach $rfm_rows
+        } // end if $rfm_rows
 
         $rfm_meta = array(
             'champions'     => array( 'label' => __( 'عملاء أبطال', 'souq-pulse' ), 'icon' => '👑', 'color' => '#10b981' ),
@@ -1231,7 +1242,7 @@ class SouqPulse_DB {
             'promising'     => array( 'label' => __( 'عملاء واعدون', 'souq-pulse' ), 'icon' => '🌟', 'color' => '#3b82f6' ),
             'at_risk'       => array( 'label' => __( 'عملاء في خطر', 'souq-pulse' ), 'icon' => '⚠️', 'color' => '#f59e0b' ),
             'lost'          => array( 'label' => __( 'عملاء غائبون', 'souq-pulse' ), 'icon' => '😴', 'color' => '#ef4444' ),
-            'new_customers' => array( 'label' => __( 'عملاء جدد', 'souq-pulse' ), 'icon' => '✨', 'color' => '#8b5cf6' ),
+            'new_customers' => array( 'label' => __( 'عملاء جدد', 'souq-pulse' ),    'icon' => '✨', 'color' => '#8b5cf6' ),
         );
 
         $rfm_results = array();
@@ -1250,7 +1261,11 @@ class SouqPulse_DB {
         $results['rfm_segments'] = $rfm_results;
 
         // 9.9. استعلام المنتجات الأكثر شراءً معاً (Product Affinity / Cross-Selling)
-        $six_months_ago = date( 'Y-m-d H:i:s', strtotime( '-6 months' ) );
+        // مقيّد بآخر 6 أشهر لأداء جيد، لكن يحترم النطاق المحدد من المستخدم
+        $six_months_ago      = date( 'Y-m-d H:i:s', strtotime( '-6 months' ) );
+        $affinity_start_date = max( $start_date, $six_months_ago );
+        $affinity_end_date   = $end_date;
+
         if ( $is_hpos ) {
             $affinity_query = $wpdb->prepare(
                 "SELECT 
@@ -1276,11 +1291,13 @@ class SouqPulse_DB {
                        WHERE type = 'shop_order' 
                          AND status IN ({$statuses_in}) 
                          AND date_created_gmt >= %s
+                         AND date_created_gmt <= %s
                    )
                  GROUP BY product_a_id, product_b_id, product_a_name, product_b_name
                  ORDER BY pair_count DESC
-                 LIMIT 5",
-                $six_months_ago
+                 LIMIT 15",
+                $affinity_start_date,
+                $affinity_end_date
             );
         } else {
             $affinity_query = $wpdb->prepare(
@@ -1307,29 +1324,52 @@ class SouqPulse_DB {
                        WHERE post_type = 'shop_order' 
                          AND post_status IN ({$statuses_in}) 
                          AND post_date >= %s
+                         AND post_date <= %s
                    )
                  GROUP BY product_a_id, product_b_id, product_a_name, product_b_name
                  ORDER BY pair_count DESC
-                 LIMIT 5",
-                $six_months_ago
+                 LIMIT 15",
+                $affinity_start_date,
+                $affinity_end_date
             );
         }
         $affinity_rows = $wpdb->get_results( $affinity_query );
 
-        $affinity_list = array();
+        // تحويل معرفات المتغيرات (Variations) إلى المنتج الأصل (Parent)
+        // ودمج الأزواج المتكررة الناتجة عن نفس المنتج بمتغيرات مختلفة
+        $affinity_merged = array();
         foreach ( $affinity_rows as $row ) {
-            $name_a = $row->product_a_name ? $row->product_a_name : __( 'منتج غير محدد', 'souq-pulse' );
-            $name_b = $row->product_b_name ? $row->product_b_name : __( 'منتج غير محدد', 'souq-pulse' );
+            $id_a = (int) $row->product_a_id;
+            $id_b = (int) $row->product_b_id;
 
-            $affinity_list[] = array(
-                'product_a_id'   => (int) $row->product_a_id,
-                'product_a_name' => $name_a,
-                'product_b_id'   => (int) $row->product_b_id,
-                'product_b_name' => $name_b,
-                'pair_count'     => (int) $row->pair_count,
-            );
+            // حل المتغيرات إلى المنتج الأصل إن وُجد
+            $parent_a = wp_get_post_parent_id( $id_a );
+            $parent_b = wp_get_post_parent_id( $id_b );
+            $eff_a    = $parent_a > 0 ? $parent_a : $id_a;
+            $eff_b    = $parent_b > 0 ? $parent_b : $id_b;
+
+            // توحيد الترتيب لمنع ظهور (A+B) و (B+A) كزوجين منفصلين
+            $pair_key = min( $eff_a, $eff_b ) . '_' . max( $eff_a, $eff_b );
+
+            if ( isset( $affinity_merged[ $pair_key ] ) ) {
+                $affinity_merged[ $pair_key ]['pair_count'] += (int) $row->pair_count;
+            } else {
+                $name_a = $eff_a !== $id_a ? get_the_title( $eff_a ) : ( $row->product_a_name ?: __( 'منتج غير محدد', 'souq-pulse' ) );
+                $name_b = $eff_b !== $id_b ? get_the_title( $eff_b ) : ( $row->product_b_name ?: __( 'منتج غير محدد', 'souq-pulse' ) );
+
+                $affinity_merged[ $pair_key ] = array(
+                    'product_a_id'   => $eff_a,
+                    'product_a_name' => $name_a,
+                    'product_b_id'   => $eff_b,
+                    'product_b_name' => $name_b,
+                    'pair_count'     => (int) $row->pair_count,
+                );
+            }
         }
-        $results['product_affinity'] = $affinity_list;
+
+        // ترتيب تنازلي بعد الدمج والاقتصار على أعلى 5
+        usort( $affinity_merged, function( $a, $b ) { return $b['pair_count'] - $a['pair_count']; } );
+        $results['product_affinity'] = array_values( array_slice( $affinity_merged, 0, 5 ) );
 
         // 9.10. بناء مصفوفات الرسوم البيانية الصغيرة لكل كارت (KPI Sparklines Data)
         $sparkline_sales      = array();

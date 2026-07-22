@@ -639,3 +639,73 @@ input:checked + .slider:before {
     max-width: 280px;
     line-height: 1.5;
 }
+
+/* === Phase 2: KPI Sparklines === */
+.kpi-sparkline {
+    height: 50px;
+    overflow: hidden;
+    margin-top: 8px;
+    /* ApexCharts يحتاج height محدد وإلا يُرسم في 0×0 */
+}
+
+/* === Phase 2: Product Price Tag (أسفل اسم المنتج) === */
+.product-price-tag {
+    font-size: 11px;
+    color: #6366f1;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 2px;
+    margin-right: 36px; /* محاذاة مع النص بعد الصورة */
+}
+
+/* === Phase 2: RFM Segment Cards === */
+.rfm-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    border: 1px solid var(--souqpulse-border);
+    border-top: 3px solid var(--souqpulse-primary); /* اللون يُعاد عبر inline style */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.rfm-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--souqpulse-shadow-hover);
+}
+
+.rfm-card .rfm-icon {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.rfm-card .rfm-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.rfm-card .rfm-count {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--souqpulse-dark);
+    line-height: 1.1;
+}
+
+.rfm-card .rfm-unit {
+    font-size: 10px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.rfm-card .rfm-pct {
+    font-size: 10px;
+    color: #94a3b8;
+}
+

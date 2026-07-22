@@ -160,6 +160,7 @@ class SouqPulse_Admin {
                     <div class="card-body">
                         <h2 class="kpi-value"><?php echo esc_html( sprintf( __( 'ج.م %s', 'souq-pulse' ), '0.00' ) ); ?></h2>
                         <span class="kpi-change positive">↑ 0% <span class="change-label"><?php esc_html_e( 'vs الفترة السابقة', 'souq-pulse' ); ?></span></span>
+                        <div class="kpi-sparkline" id="sparkline-sales"></div>
                     </div>
                 </div>
 
@@ -172,6 +173,7 @@ class SouqPulse_Admin {
                     <div class="card-body">
                         <h2 class="kpi-value">0</h2>
                         <span class="kpi-change positive">↑ 0% <span class="change-label"><?php esc_html_e( 'vs الفترة السابقة', 'souq-pulse' ); ?></span></span>
+                        <div class="kpi-sparkline" id="sparkline-orders"></div>
                     </div>
                 </div>
 
@@ -184,6 +186,7 @@ class SouqPulse_Admin {
                     <div class="card-body">
                         <h2 class="kpi-value"><?php echo esc_html( sprintf( __( 'ج.م %s', 'souq-pulse' ), '0.00' ) ); ?></h2>
                         <span class="kpi-change negative">↓ 0% <span class="change-label"><?php esc_html_e( 'vs الفترة السابقة', 'souq-pulse' ); ?></span></span>
+                        <div class="kpi-sparkline" id="sparkline-aov"></div>
                     </div>
                 </div>
 
@@ -197,6 +200,7 @@ class SouqPulse_Admin {
                         <h2 class="kpi-value">0</h2>
                         <span class="kpi-change positive">↑ 0% <span class="change-label"><?php esc_html_e( 'vs الفترة السابقة', 'souq-pulse' ); ?></span></span>
                         <span class="kpi-meta-text" id="sessions-duration-meta"><?php esc_html_e( 'متوسط مدة الزيارة: 0 ثانية', 'souq-pulse' ); ?></span>
+                        <div class="kpi-sparkline" id="sparkline-sessions"></div>
                     </div>
                 </div>
 
@@ -209,6 +213,7 @@ class SouqPulse_Admin {
                     <div class="card-body">
                         <h2 class="kpi-value">0.00%</h2>
                         <span class="kpi-change neutral">0% <span class="change-label"><?php esc_html_e( 'vs الفترة السابقة', 'souq-pulse' ); ?></span></span>
+                        <div class="kpi-sparkline" id="sparkline-bounce"></div>
                     </div>
                 </div>
 
@@ -221,6 +226,7 @@ class SouqPulse_Admin {
                     <div class="card-body">
                         <h2 class="kpi-value">0.00%</h2>
                         <span class="kpi-change positive">↑ 0% <span class="change-label"><?php esc_html_e( 'vs الفترة السابقة', 'souq-pulse' ); ?></span></span>
+                        <div class="kpi-sparkline" id="sparkline-conversion"></div>
                     </div>
                 </div>
             </div>
@@ -417,6 +423,45 @@ class SouqPulse_Admin {
                         <p style="margin: 8px 0 0; font-size: 11px; color: #64748b; text-align: center;">
                             💡 <?php esc_html_e( 'المربعات الأغمق تمثل أوقات الشراء المكثف للعملاء — يوصى بها لتوقيت نشر الحملات الإعلانية.', 'souq-pulse' ); ?>
                         </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- شبكة تحليلات RFM والمنتجات المترابطة -->
+            <div class="souqpulse-details-grid" style="margin-top: 24px;">
+                <!-- تقسيم العملاء RFM -->
+                <div class="souqpulse-card details-card flex-2">
+                    <div class="card-header">
+                        <span class="card-title"><?php esc_html_e( 'RFM — تقسيم وتصنيف العملاء التفاعلي', 'souq-pulse' ); ?></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="rfm-segment-grid" id="rfm-segment-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                            <!-- يتم ملؤها ديناميكياً ببطاقات ملونة لكل شريحة -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المنتجات الأكثر شراءً معاً (Product Affinity) -->
+                <div class="souqpulse-card details-card flex-1">
+                    <div class="card-header">
+                        <span class="card-title"><?php esc_html_e( 'المنتجات الأكثر شراءً معاً (Product Affinity)', 'souq-pulse' ); ?></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="souqpulse-table" id="table-product-affinity">
+                                <thead>
+                                    <tr>
+                                        <th><?php esc_html_e( 'حزمة المنتجات', 'souq-pulse' ); ?></th>
+                                        <th style="width: 90px; text-align: center;"><?php esc_html_e( 'التكرار', 'souq-pulse' ); ?></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2" class="text-center text-muted"><?php esc_html_e( 'جاري تحليل ترابط المنتجات...', 'souq-pulse' ); ?></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
