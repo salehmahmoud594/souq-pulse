@@ -37,25 +37,22 @@ function souqpulse_override_plugin_locale($locale, $domain)
         if ('auto' !== $forced_locale) {
             return ('en' === $forced_locale) ? 'en_US' : $forced_locale;
         }
+        // إذا كانت لغة الموقع تبدأ بـ ar (مثل ar_EG, ar_SA, ar_MA) نعيد 'ar' ليتطابق مع souq-pulse-ar.mo
+        if (strpos($locale, 'ar') === 0) {
+            return 'ar';
+        }
     }
     return $locale;
 }
 
 /**
- * تحميل ملفات الترجمة مع دعم الاختيار اليدوي للغة
+ * تحميل ملفات الترجمة
  * Priority 5 — يجب أن يُحمَّل قبل plugins_loaded (10)
  */
 add_action('init', 'souqpulse_load_textdomain', 5);
 
 function souqpulse_load_textdomain()
 {
-    // فحص وتجميع ملف اللغة العربية إذا تطلب الأمر
-    $po_file = SOUQPULSE_PATH . 'languages/souq-pulse-ar.po';
-    $mo_file = SOUQPULSE_PATH . 'languages/souq-pulse-ar.mo';
-    if (file_exists($po_file) && (!file_exists($mo_file) || filemtime($po_file) > filemtime($mo_file))) {
-        souqpulse_compile_po_to_mo($po_file, $mo_file);
-    }
-
     load_plugin_textdomain(
         'souq-pulse',
         false,
