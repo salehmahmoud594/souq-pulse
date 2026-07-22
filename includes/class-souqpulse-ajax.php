@@ -68,10 +68,12 @@ class SouqPulse_AJAX
         // 4. استرجاع البيانات من طبقة قاعدة البيانات
         $analytics_data = SouqPulse_DB::get_sales_analytics($start_date, $end_date, $compare);
 
+        if (is_wp_error($analytics_data)) {
+            wp_send_json_error($analytics_data->get_error_message());
+        }
+
         // 4.5. جلب عدد المستخدمين النشطين بالوقت الفعلي (يتجاوز كاش الـ 15 دقيقة للتحديث اللحظي)
         $analytics_data['realtime_active_users'] = SouqPulse_Tracker::get_active_sessions_count();
-
-
 
         // 5. إرجاع النتيجة بنجاح
         wp_send_json_success($analytics_data);

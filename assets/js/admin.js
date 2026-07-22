@@ -469,7 +469,7 @@
                 rfmHtml += '<div class="rfm-card" style="border-top-color:' + safeColor + ';">' +
                     '<span class="rfm-icon">' + (seg.icon || '👤') + '</span>' +
                     '<span class="rfm-label">' + escHtml(seg.label) + '</span>' +
-                    '<span class="rfm-count" style="color:' + safeColor + ';">' + (seg.count || 0).toLocaleString() + ' <span class="rfm-unit">عميل</span></span>' +
+                    '<span class="rfm-count" style="color:' + safeColor + ';">' + (seg.count || 0).toLocaleString() + ' <span class="rfm-unit">' + i18n.customer_word + '</span></span>' +
                     '<span class="rfm-pct">' + (seg.pct || 0) + '% ' + i18n.from_revenue + '</span>' +
                     '</div>';
             });
@@ -536,7 +536,7 @@
         }
 
         $changeEl.removeClass('positive negative neutral').addClass(statusClass);
-        $changeEl.html(arrow + percent.toFixed(1) + '% <span class="change-label">vs الفترة السابقة</span>');
+        $changeEl.html(arrow + percent.toFixed(1) + '% <span class="change-label">' + i18n.vs_previous_period + '</span>');
     }
 
     /**

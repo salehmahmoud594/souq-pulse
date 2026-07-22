@@ -144,15 +144,19 @@ class SouqPulse_DB
         }
 
         // حساب تواريخ الفترة السابقة للمقارنة
-        $start = new DateTime($start_date);
-        $end = new DateTime($end_date);
-        $diff = $start->diff($end);
-        $days = $diff->days + 1;
+        try {
+            $start = new DateTime($start_date);
+            $end = new DateTime($end_date);
+            $diff = $start->diff($end);
+            $days = $diff->days + 1;
 
-        $prev_start_obj = clone $start;
-        $prev_start_obj->modify("-{$days} days");
-        $prev_end_obj = clone $end;
-        $prev_end_obj->modify("-{$days} days");
+            $prev_start_obj = clone $start;
+            $prev_start_obj->modify("-{$days} days");
+            $prev_end_obj = clone $end;
+            $prev_end_obj->modify("-{$days} days");
+        } catch (Exception $e) {
+            return new WP_Error('invalid_date', 'Invalid date format provided.');
+        }
 
         $prev_start_date = $prev_start_obj->format('Y-m-d H:i:s');
         $prev_end_date = $prev_end_obj->format('Y-m-d H:i:s');
