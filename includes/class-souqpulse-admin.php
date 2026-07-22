@@ -28,8 +28,8 @@ class SouqPulse_Admin
     {
         add_submenu_page(
             'woocommerce',                                // الصفحة الأب
-            __('Souq Pulse — Analytics and Indicators', 'souq-pulse'), // عنوان الصفحة في المتصفح
-            __('Souq Pulse', 'souq-pulse'),                    // اسم القائمة
+            'نبض السوق — التحليلات والمؤشرات', // عنوان الصفحة في المتصفح
+            'نبض السوق',                    // اسم القائمة
             'manage_woocommerce',                         // الصلاحية المطلوبة
             'souqpulse-dashboard',                        // المعرف الفريد للصفحة
             array($this, 'render_dashboard_page')       // الدالة المسؤولة عن عرض الصفحة
@@ -66,133 +66,133 @@ class SouqPulse_Admin
             'nonce' => wp_create_nonce('souqpulse_admin_nonce'),
             'currency_symbol' => $currency_symbol,
             'i18n' => array(
-                'total_sales' => __('Total Sales', 'souq-pulse'),
-                'order_count' => __('Number of Orders', 'souq-pulse'),
-                'aov' => __('Average Order Value', 'souq-pulse'),
-                'sessions' => __('Visitors & Sessions', 'souq-pulse'),
-                'bounce_rate' => __('Bounce Rate', 'souq-pulse'),
-                'conversion_rate' => __('Conversion Rate', 'souq-pulse'),
-                'no_change' => __('No Change', 'souq-pulse'),
-                'sales' => __('Sales', 'souq-pulse'),
-                'orders' => __('Orders', 'souq-pulse'),
-                'active_visitor_5m' => __('Active visitor in last 5 mins', 'souq-pulse'),
-                'no_data_for_period' => __('No data for this period.', 'souq-pulse'),
-                'no_products_sold' => __('No products sold', 'souq-pulse'),
-                'no_products_sold_desc' => __('No products were sold during the selected period.', 'souq-pulse'),
-                'order_word' => __('Order', 'souq-pulse'),
-                'piece_word' => __('Piece', 'souq-pulse'),
-                'no_pairs_sold' => __('No pairs sold', 'souq-pulse'),
-                'no_pairs_sold_desc' => __('No two products were bought together in one order.', 'souq-pulse'),
-                'time_word' => __('Time(s)', 'souq-pulse'),
-                'no_geo_data' => __('No Geographic Data', 'souq-pulse'),
-                'no_geo_data_desc' => __('No orders were recorded in known countries.', 'souq-pulse'),
-                'no_egypt_sales' => __('No Sales in Egypt', 'souq-pulse'),
-                'no_egypt_sales_desc' => __('No orders were recorded inside Egypt.', 'souq-pulse'),
-                'no_cohort_data' => __('No Cohort Data', 'souq-pulse'),
-                'no_cohort_data_desc' => __('Requires orders in more than one month to calculate retention.', 'souq-pulse'),
-                'no_payment_methods' => __('No Payment Methods', 'souq-pulse'),
-                'no_payment_methods_desc' => __('No orders were recorded with payment methods in this period.', 'souq-pulse'),
-                'no_sales_recorded' => __('No Sales', 'souq-pulse'),
-                'no_sales_recorded_desc' => __('No sales recorded in this period.', 'souq-pulse'),
-                'no_data_recorded' => __('No Data Recorded', 'souq-pulse'),
-                'try_another_date_range' => __('Try selecting another date range to see statistics.', 'souq-pulse'),
-                'no_customer_data' => __('No Customer Data', 'souq-pulse'),
-                'try_wider_date_range' => __('Try selecting a wider date range to see customer data.', 'souq-pulse'),
-                'january' => __('January', 'souq-pulse'),
-                'february' => __('February', 'souq-pulse'),
-                'march' => __('March', 'souq-pulse'),
-                'april' => __('April', 'souq-pulse'),
-                'may' => __('May', 'souq-pulse'),
-                'june' => __('June', 'souq-pulse'),
-                'july' => __('July', 'souq-pulse'),
-                'august' => __('August', 'souq-pulse'),
-                'september' => __('September', 'souq-pulse'),
-                'october' => __('October', 'souq-pulse'),
-                'november' => __('November', 'souq-pulse'),
-                'december' => __('December', 'souq-pulse'),
-                'sunday' => __('Sunday', 'souq-pulse'),
-                'monday' => __('Monday', 'souq-pulse'),
-                'tuesday' => __('Tuesday', 'souq-pulse'),
-                'wednesday' => __('Wednesday', 'souq-pulse'),
-                'thursday' => __('Thursday', 'souq-pulse'),
-                'friday' => __('Friday', 'souq-pulse'),
-                'saturday' => __('Saturday', 'souq-pulse'),
-                'rfm_champions' => __('Champions', 'souq-pulse'),
-                'rfm_loyal' => __('Loyal Customers', 'souq-pulse'),
-                'rfm_potential' => __('Potential Loyalist', 'souq-pulse'),
-                'rfm_new' => __('New Customers', 'souq-pulse'),
-                'rfm_need_attention' => __('Need Attention', 'souq-pulse'),
-                'rfm_at_risk' => __('At Risk', 'souq-pulse'),
-                'rfm_cant_lose' => __('Can\'t Lose Them', 'souq-pulse'),
-                'rfm_hibernating' => __('Hibernating', 'souq-pulse'),
-                'rfm_lost' => __('Lost', 'souq-pulse'),
-                'returning_customers' => __('Returning Customers', 'souq-pulse'),
-                'visitor' => __('Visitor', 'souq-pulse'),
-                'session' => __('Session', 'souq-pulse'),
-                'product' => __('Product', 'souq-pulse'),
-                'order' => __('Order', 'souq-pulse'),
-                'revenue' => __('Revenue', 'souq-pulse'),
-                'hour_label' => __('Hour', 'souq-pulse'),
-                'day_label' => __('Day', 'souq-pulse'),
-                'date_label' => __('Date', 'souq-pulse'),
-                'orders_plural' => __('Orders', 'souq-pulse'),
-                'visits_plural' => __('Visits', 'souq-pulse'),
-                'all_time' => __('All Time', 'souq-pulse'),
-                'active_users' => __('Active Users', 'souq-pulse'),
-                'payment_info' => __('Payment Information', 'souq-pulse'),
-                'shipping_info' => __('Shipping Information', 'souq-pulse'),
-                'cod' => __('Cash on Delivery', 'souq-pulse'),
-                'other' => __('Other', 'souq-pulse'),
-                'funnel_visit' => __('Site Visit', 'souq-pulse'),
-                'funnel_view_product' => __('View Product', 'souq-pulse'),
-                'funnel_add_to_cart' => __('Add to Cart', 'souq-pulse'),
-                'funnel_checkout' => __('Checkout', 'souq-pulse'),
-                'funnel_purchase' => __('Completed Purchase', 'souq-pulse'),
-                'funnel_begin_checkout' => __('Begin Checkout', 'souq-pulse'),
-                'funnel_completed_purchase' => __('Purchase Process', 'souq-pulse'),
-                'funnel_visits' => __('Funnel Visits', 'souq-pulse'),
-                'cairo' => __('Cairo', 'souq-pulse'),
-                'alexandria' => __('Alexandria', 'souq-pulse'),
-                'giza' => __('Giza', 'souq-pulse'),
-                'qalyubia' => __('Qalyubia', 'souq-pulse'),
-                'dakahlia' => __('Dakahlia', 'souq-pulse'),
-                'beheira' => __('Beheira', 'souq-pulse'),
-                'faiyum' => __('Faiyum', 'souq-pulse'),
-                'gharbia' => __('Gharbia', 'souq-pulse'),
-                'monufia' => __('Monufia', 'souq-pulse'),
-                'ismailia' => __('Ismailia', 'souq-pulse'),
-                'suez' => __('Suez', 'souq-pulse'),
-                'port_said' => __('Port Said', 'souq-pulse'),
-                'aswan' => __('Aswan', 'souq-pulse'),
-                'asyut' => __('Asyut', 'souq-pulse'),
-                'beni_suef' => __('Beni Suef', 'souq-pulse'),
-                'damietta' => __('Damietta', 'souq-pulse'),
-                'kafr_el_sheikh' => __('Kafr el-Sheikh', 'souq-pulse'),
-                'luxor' => __('Luxor', 'souq-pulse'),
-                'minya' => __('Minya', 'souq-pulse'),
-                'matrouh' => __('Matrouh', 'souq-pulse'),
-                'north_sinai' => __('North Sinai', 'souq-pulse'),
-                'south_sinai' => __('South Sinai', 'souq-pulse'),
-                'sohag' => __('Sohag', 'souq-pulse'),
-                'sharqia' => __('Sharqia', 'souq-pulse'),
-                'new_valley' => __('New Valley', 'souq-pulse'),
-                'red_sea' => __('Red Sea', 'souq-pulse'),
-                'qena' => __('Qena', 'souq-pulse'),
-                'other_governorates' => __('Other Governorates', 'souq-pulse'),
-                'error_connecting_server' => __('Error connecting to server:', 'souq-pulse'),
-                'failed_fetching_data' => __('Failed fetching Souq Pulse data:', 'souq-pulse'),
-                'vs_previous_period' => __('vs Previous Period', 'souq-pulse'),
-                'customer_word' => __('Customer', 'souq-pulse'),
-                'from_revenue' => __('% of Revenue', 'souq-pulse'),
-                'revenue_from_loyal_customers' => __('of Revenue from Returning Loyal Customers!', 'souq-pulse'),
-                'dropoff' => __('Drop-off', 'souq-pulse'),
-                'avg_duration_label' => __('Average Visit Duration: ', 'souq-pulse'),
-                'visit_word' => __('Visit', 'souq-pulse'),
-                'second_word' => __('Second', 'souq-pulse'),
-                'sec_abbr' => __('s', 'souq-pulse'),
-                'min_abbr' => __('m', 'souq-pulse'),
-                'revenue_label_prefix' => __('Revenue', 'souq-pulse'),
-                'sales_revenue_label' => __('Sales Revenue', 'souq-pulse'),
+                'total_sales' => 'المبيعات الإجمالية',
+                'order_count' => 'عدد الطلبات',
+                'aov' => 'متوسط قيمة الطلب',
+                'sessions' => 'الزوار والجلسات',
+                'bounce_rate' => 'معدل الارتداد',
+                'conversion_rate' => 'معدل التحويل',
+                'no_change' => 'بدون تغيير',
+                'sales' => 'المبيعات',
+                'orders' => 'الطلبات',
+                'active_visitor_5m' => 'زائر نشط خلال آخر 5 دقائق',
+                'no_data_for_period' => 'لا توجد بيانات لهذه الفترة.',
+                'no_products_sold' => 'لا توجد منتجات مباعة',
+                'no_products_sold_desc' => 'لم يتم بيع أي منتجات خلال الفترة المحددة.',
+                'order_word' => 'طلب',
+                'piece_word' => 'قطعة',
+                'no_pairs_sold' => 'لا توجد منتجات مشتركة',
+                'no_pairs_sold_desc' => 'لم يتم شراء منتجين معاً في أي طلب.',
+                'time_word' => 'مرة',
+                'no_geo_data' => 'لا توجد بيانات جغرافية',
+                'no_geo_data_desc' => 'لم يتم تسجيل أي طلبات في دول معروفة.',
+                'no_egypt_sales' => 'لا توجد مبيعات في مصر',
+                'no_egypt_sales_desc' => 'لم يتم تسجيل طلبات من داخل مصر.',
+                'no_cohort_data' => 'لا توجد بيانات احتفاظ',
+                'no_cohort_data_desc' => 'يتطلب طلبات في أكثر من شهر لحساب الاحتفاظ.',
+                'no_payment_methods' => 'لا توجد وسائل دفع',
+                'no_payment_methods_desc' => 'لم يتم تسجيل طلبات بوسائل دفع في هذه الفترة.',
+                'no_sales_recorded' => 'لا توجد مبيعات',
+                'no_sales_recorded_desc' => 'لا توجد مبيعات مسجلة في هذه الفترة.',
+                'no_data_recorded' => 'لا توجد بيانات مسجلة',
+                'try_another_date_range' => 'جرّب اختيار نطاق زمني آخر للاطلاع على الإحصائيات.',
+                'no_customer_data' => 'لا توجد بيانات للعملاء',
+                'try_wider_date_range' => 'جرّب اختيار نطاق زمني أوسع لعرض بيانات العملاء.',
+                'january' => 'يناير',
+                'february' => 'فبراير',
+                'march' => 'مارس',
+                'april' => 'أبريل',
+                'may' => 'مايو',
+                'june' => 'يونيو',
+                'july' => 'يوليو',
+                'august' => 'أغسطس',
+                'september' => 'سبتمبر',
+                'october' => 'أكتوبر',
+                'november' => 'نوفمبر',
+                'december' => 'ديسمبر',
+                'sunday' => 'الأحد',
+                'monday' => 'الإثنين',
+                'tuesday' => 'الثلاثاء',
+                'wednesday' => 'الأربعاء',
+                'thursday' => 'الخميس',
+                'friday' => 'الجمعة',
+                'saturday' => 'السبت',
+                'rfm_champions' => 'أبطال الشراء',
+                'rfm_loyal' => 'عملاء مخلصون',
+                'rfm_potential' => 'فرصة سانحة',
+                'rfm_new' => 'عملاء جدد',
+                'rfm_need_attention' => 'يحتاجون اهتمام',
+                'rfm_at_risk' => 'معرضون للخطر',
+                'rfm_cant_lose' => 'لا يمكن خسارتهم',
+                'rfm_hibernating' => 'عملاء نائمون',
+                'rfm_lost' => 'عملاء ضائعون',
+                'returning_customers' => 'عملاء راجعون',
+                'visitor' => 'زائر',
+                'session' => 'جلسة',
+                'product' => 'منتج',
+                'order' => 'طلب',
+                'revenue' => 'الإيرادات',
+                'hour_label' => 'الساعة',
+                'day_label' => 'اليوم',
+                'date_label' => 'التاريخ',
+                'orders_plural' => 'الطلبات',
+                'visits_plural' => 'الزيارات',
+                'all_time' => 'كل الوقت',
+                'active_users' => 'النشطون',
+                'payment_info' => 'معلومات الدفع',
+                'shipping_info' => 'معلومات الشحن',
+                'cod' => 'عند الاستلام',
+                'other' => 'أخرى',
+                'funnel_visit' => 'زيارة الموقع',
+                'funnel_view_product' => 'مشاهدة منتج',
+                'funnel_add_to_cart' => 'إضافة للسلة',
+                'funnel_checkout' => 'بداية الدفع',
+                'funnel_purchase' => 'عملية الشراء',
+                'funnel_begin_checkout' => 'بدء الدفع',
+                'funnel_completed_purchase' => 'عملية الشراء',
+                'funnel_visits' => 'زيارات مسار التحويل',
+                'cairo' => 'القاهرة',
+                'alexandria' => 'الإسكندرية',
+                'giza' => 'الجيزة',
+                'qalyubia' => 'القليوبية',
+                'dakahlia' => 'الدقهلية',
+                'beheira' => 'البحيرة',
+                'faiyum' => 'الفيوم',
+                'gharbia' => 'الغربية',
+                'monufia' => 'المنوفية',
+                'ismailia' => 'الإسماعلية',
+                'suez' => 'السويس',
+                'port_said' => 'بورسعيد',
+                'aswan' => 'أسوان',
+                'asyut' => 'أسيوط',
+                'beni_suef' => 'بني سويف',
+                'damietta' => 'دمياط',
+                'kafr_el_sheikh' => 'كفر الشيخ',
+                'luxor' => 'الأقصر',
+                'minya' => 'المنيا',
+                'matrouh' => 'مطروح',
+                'north_sinai' => 'شمال سيناء',
+                'south_sinai' => 'جنوب سيناء',
+                'sohag' => 'سوهاج',
+                'sharqia' => 'الشرقية',
+                'new_valley' => 'الوادي الجديد',
+                'red_sea' => 'البحر الأحمر',
+                'qena' => 'قنا',
+                'other_governorates' => 'محافظات أخرى',
+                'error_connecting_server' => 'خطأ في الاتصال بالخادم:',
+                'failed_fetching_data' => 'فشل جلب بيانات نبض السوق:',
+                'vs_previous_period' => 'vs الفترة السابقة',
+                'customer_word' => 'عميل',
+                'from_revenue' => '% من الإيرادات',
+                'revenue_from_loyal_customers' => 'من الإيرادات من عملاء مخلصين!',
+                'dropoff' => 'تسرب',
+                'avg_duration_label' => 'متوسط مدة الزيارة: ',
+                'visit_word' => 'زيارة الموقع',
+                'second_word' => 'ثانية',
+                'sec_abbr' => 'ث',
+                'min_abbr' => 'د',
+                'revenue_label_prefix' => 'الإيرادات',
+                'sales_revenue_label' => 'إيرادات المبيعات',
             ),
         ));
     }
@@ -202,6 +202,7 @@ class SouqPulse_Admin
      */
     public function render_dashboard_page()
     {
+        $currency_symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : 'ج.م';
         ?>
         <div class="wrap souqpulse-dashboard-wrapper" dir="rtl">
             <!-- الهيدر العلوي للوحة التحكم -->
@@ -210,35 +211,35 @@ class SouqPulse_Admin
                     style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
                     <div class="souqpulse-header-title">
                         <h1 style="display: flex; align-items: center; gap: 10px; margin: 0; font-size: 22px; font-weight: 700; color: #1e293b;">
-                            ⚡ <?php esc_html_e('Souq Pulse', 'souq-pulse'); ?>
+                            ⚡ <?php echo 'نبض السوق'; ?>
                             <span class="badge"
-                                style="background: var(--souqpulse-primary); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: normal;"><?php esc_html_e('Beta', 'souq-pulse'); ?></span>
+                                style="background: var(--souqpulse-primary); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: normal;"><?php echo 'تجريبي'; ?></span>
                         </h1>
                         <p class="description" style="margin: 4px 0 0; color: #64748b; font-size: 13px;">
-                            <?php esc_html_e('Comprehensive real-time overview of your store\'s sales performance and visitor behavior in one place.', 'souq-pulse'); ?>
+                            <?php echo 'نظرة شاملة ولحظية على أداء مبيعات متجرك وسلوك الزوار في مكان واحد.'; ?>
                         </p>
                     </div>
                     <div class="souqpulse-header-actions">
                         <!-- مفتاح اختيار النطاق الزمني -->
                         <div class="date-picker-container">
                             <select id="souqpulse-date-range" class="souqpulse-select">
-                                <option value="7days"><?php esc_html_e('Last 7 Days', 'souq-pulse'); ?></option>
-                                <option value="30days" selected><?php esc_html_e('Last 30 Days', 'souq-pulse'); ?></option>
-                                <option value="90days"><?php esc_html_e('Last 90 Days', 'souq-pulse'); ?></option>
-                                <option value="6months"><?php esc_html_e('Last 6 Months', 'souq-pulse'); ?></option>
-                                <option value="12months"><?php esc_html_e('Last 12 Months', 'souq-pulse'); ?></option>
-                                <option value="alltime"><?php esc_html_e('All Time', 'souq-pulse'); ?></option>
-                                <option value="custom"><?php esc_html_e('Custom Period', 'souq-pulse'); ?></option>
+                                <option value="7days"><?php echo 'آخر 7 أيام'; ?></option>
+                                <option value="30days" selected><?php echo 'آخر 30 يوم'; ?></option>
+                                <option value="90days"><?php echo 'آخر 90 يوم'; ?></option>
+                                <option value="6months"><?php echo 'آخر 6 شهور'; ?></option>
+                                <option value="12months"><?php echo 'آخر 12 شهر'; ?></option>
+                                <option value="alltime"><?php echo 'كل الوقت'; ?></option>
+                                <option value="custom"><?php echo 'فترة مخصصة'; ?></option>
                             </select>
 
                             <!-- حقول مخصصة للنطاق الزمني تظهر عند الحاجة -->
                             <div id="souqpulse-custom-dates" class="custom-dates-inputs"
                                 style="display:none; align-items:center; gap:8px;">
                                 <input type="date" id="souqpulse-start-date" class="souqpulse-input-date"
-                                    placeholder="<?php esc_attr_e('From Date', 'souq-pulse'); ?>">
-                                <span><?php esc_html_e('To', 'souq-pulse'); ?></span>
+                                    placeholder="<?php echo 'من تاريخ'; ?>">
+                                <span><?php echo 'إلى'; ?></span>
                                 <input type="date" id="souqpulse-end-date" class="souqpulse-input-date"
-                                    placeholder="<?php esc_attr_e('To Date', 'souq-pulse'); ?>">
+                                    placeholder="<?php echo 'إلى تاريخ'; ?>">
                             </div>
 
                             <div class="comparison-toggle">
@@ -247,7 +248,7 @@ class SouqPulse_Admin
                                     <span class="slider round"></span>
                                 </label>
                                 <span
-                                    class="compare-label"><?php esc_html_e('Compared to previous period', 'souq-pulse'); ?></span>
+                                    class="compare-label"><?php echo 'مقارنة بالفترة السابقة'; ?></span>
                             </div>
                         </div>
                     </div>
@@ -262,14 +263,14 @@ class SouqPulse_Admin
                     <div class="souqpulse-card kpi-card" id="kpi-sales">
                         <div class="card-header">
                             <span class="card-title"
-                                title="<?php esc_attr_e('Net Revenue (Including taxes and shipping, excluding refunds)', 'souq-pulse'); ?>"><?php esc_html_e('Total Sales', 'souq-pulse'); ?></span>
+                                title="<?php echo 'صافي الإيرادات (شاملاً الضرائب والشحن ومخصوماً منه المرتجعات)'; ?>"><?php echo 'المبيعات الإجمالية'; ?></span>
                             <span class="card-icon"><span class="dashicons dashicons-chart-area"></span></span>
                         </div>
                         <div class="card-body">
-                            <h2 class="kpi-value"><?php echo esc_html(sprintf(__('%s EGP', 'souq-pulse'), '0.00')); ?>
+                            <h2 class="kpi-value"><?php echo esc_html(sprintf('%s ' . $currency_symbol, '0.00')); ?>
                             </h2>
                             <span class="kpi-change positive">↑ 0% <span
-                                    class="change-label"><?php esc_html_e('vs Previous Period', 'souq-pulse'); ?></span></span>
+                                    class="change-label"><?php echo 'vs الفترة السابقة'; ?></span></span>
                             <div class="kpi-sparkline" id="sparkline-sales"></div>
                         </div>
                     </div>
@@ -277,13 +278,13 @@ class SouqPulse_Admin
                     <!-- كارت الطلبات -->
                     <div class="souqpulse-card kpi-card" id="kpi-orders">
                         <div class="card-header">
-                            <span class="card-title"><?php esc_html_e('Number of Orders', 'souq-pulse'); ?></span>
+                            <span class="card-title"><?php echo 'عدد الطلبات'; ?></span>
                             <span class="card-icon"><span class="dashicons dashicons-cart"></span></span>
                         </div>
                         <div class="card-body">
                             <h2 class="kpi-value">0</h2>
                             <span class="kpi-change positive">↑ 0% <span
-                                    class="change-label"><?php esc_html_e('vs Previous Period', 'souq-pulse'); ?></span></span>
+                                    class="change-label"><?php echo 'vs الفترة السابقة'; ?></span></span>
                             <div class="kpi-sparkline" id="sparkline-orders"></div>
                         </div>
                     </div>
@@ -291,14 +292,14 @@ class SouqPulse_Admin
                     <!-- كارت متوسط قيمة الطلب (AOV) -->
                     <div class="souqpulse-card kpi-card" id="kpi-aov">
                         <div class="card-header">
-                            <span class="card-title"><?php esc_html_e('Average Order Value (AOV)', 'souq-pulse'); ?></span>
+                            <span class="card-title"><?php echo 'متوسط قيمة الطلب'; ?></span>
                             <span class="card-icon"><span class="dashicons dashicons-calculator"></span></span>
                         </div>
                         <div class="card-body">
-                            <h2 class="kpi-value"><?php echo esc_html(sprintf(__('%s EGP', 'souq-pulse'), '0.00')); ?>
+                            <h2 class="kpi-value"><?php echo esc_html(sprintf('%s ' . $currency_symbol, '0.00')); ?>
                             </h2>
                             <span class="kpi-change negative">↓ 0% <span
-                                    class="change-label"><?php esc_html_e('vs Previous Period', 'souq-pulse'); ?></span></span>
+                                    class="change-label"><?php echo 'vs الفترة السابقة'; ?></span></span>
                             <div class="kpi-sparkline" id="sparkline-aov"></div>
                         </div>
                     </div>
@@ -306,15 +307,15 @@ class SouqPulse_Admin
                     <!-- كارت الجلسات (Sessions) -->
                     <div class="souqpulse-card kpi-card" id="kpi-sessions">
                         <div class="card-header">
-                            <span class="card-title"><?php esc_html_e('Number of Visits (Sessions)', 'souq-pulse'); ?></span>
+                            <span class="card-title"><?php echo 'عدد الزيارات (الجلسات)'; ?></span>
                             <span class="card-icon"><span class="dashicons dashicons-admin-users"></span></span>
                         </div>
                         <div class="card-body">
                             <h2 class="kpi-value">0</h2>
                             <span class="kpi-change positive">↑ 0% <span
-                                    class="change-label"><?php esc_html_e('vs Previous Period', 'souq-pulse'); ?></span></span>
+                                    class="change-label"><?php echo 'vs الفترة السابقة'; ?></span></span>
                             <span class="kpi-meta-text"
-                                id="sessions-duration-meta"><?php esc_html_e('Average Visit Duration: 0 seconds', 'souq-pulse'); ?></span>
+                                id="sessions-duration-meta"><?php echo 'متوسط مدة الزيارة: 0 ثانية'; ?></span>
                             <div class="kpi-sparkline" id="sparkline-sessions"></div>
                         </div>
                     </div>
@@ -322,13 +323,13 @@ class SouqPulse_Admin
                     <!-- كارت معدل الارتداد (Bounce Rate) -->
                     <div class="souqpulse-card kpi-card" id="kpi-bounce-rate">
                         <div class="card-header">
-                            <span class="card-title"><?php esc_html_e('Bounce Rate', 'souq-pulse'); ?></span>
+                            <span class="card-title"><?php echo 'معدل الارتداد'; ?></span>
                             <span class="card-icon"><span class="dashicons dashicons-controls-repeat"></span></span>
                         </div>
                         <div class="card-body">
                             <h2 class="kpi-value">0.00%</h2>
                             <span class="kpi-change neutral">0% <span
-                                    class="change-label"><?php esc_html_e('vs Previous Period', 'souq-pulse'); ?></span></span>
+                                    class="change-label"><?php echo 'vs الفترة السابقة'; ?></span></span>
                             <div class="kpi-sparkline" id="sparkline-bounce"></div>
                         </div>
                     </div>
@@ -336,13 +337,13 @@ class SouqPulse_Admin
                     <!-- كارت معدل التحويل (Conversion Rate) -->
                     <div class="souqpulse-card kpi-card" id="kpi-conversion">
                         <div class="card-header">
-                            <span class="card-title"><?php esc_html_e('Store Conversion Rate', 'souq-pulse'); ?></span>
+                            <span class="card-title"><?php echo 'معدل التحويل للمتجر'; ?></span>
                             <span class="card-icon"><span class="dashicons dashicons-awards"></span></span>
                         </div>
                         <div class="card-body">
                             <h2 class="kpi-value">0.00%</h2>
                             <span class="kpi-change positive">↑ 0% <span
-                                    class="change-label"><?php esc_html_e('vs Previous Period', 'souq-pulse'); ?></span></span>
+                                    class="change-label"><?php echo 'vs الفترة السابقة'; ?></span></span>
                             <div class="kpi-sparkline" id="sparkline-conversion"></div>
                         </div>
                     </div>
@@ -354,7 +355,7 @@ class SouqPulse_Admin
                     <div class="souqpulse-card chart-card flex-2">
                         <div class="card-header">
                             <span
-                                class="card-title"><?php esc_html_e('Total Sales and Number of Orders Over Time', 'souq-pulse'); ?></span>
+                                class="card-title"><?php echo 'إجمالي المبيعات وعدد الطلبات عبر الوقت'; ?></span>
                         </div>
                         <div class="card-body">
                             <div id="souqpulse-sales-timeline-chart" class="souqpulse-chart-placeholder"></div>
@@ -364,12 +365,12 @@ class SouqPulse_Admin
                     <!-- كارت الزوار في الوقت الفعلي (Real-time) -->
                     <div class="souqpulse-card chart-card flex-1" id="kpi-realtime">
                         <div class="card-header">
-                            <span class="card-title"><?php esc_html_e('Active Visitors Now', 'souq-pulse'); ?></span>
+                            <span class="card-title"><?php echo 'الزوار النشطون الآن'; ?></span>
                             <span class="realtime-pulse"></span>
                         </div>
                         <div class="card-body realtime-body">
                             <h1 class="realtime-value">0</h1>
-                            <p class="realtime-sub"><?php esc_html_e('Active visitor in last 5 mins', 'souq-pulse'); ?></p>
+                            <p class="realtime-sub"><?php echo 'زائر نشط خلال آخر 5 دقائق'; ?></p>
                             <div class="realtime-sparkline">
                                 <div id="souqpulse-realtime-chart"></div>
                             </div>
@@ -383,7 +384,7 @@ class SouqPulse_Admin
                     <div class="souqpulse-card details-card flex-2">
                         <div class="card-header">
                             <span
-                                class="card-title"><?php esc_html_e('Purchase Funnel', 'souq-pulse'); ?></span>
+                                class="card-title"><?php echo 'مسار تحويل العميل (Purchase Funnel)'; ?></span>
                         </div>
                         <div class="card-body">
                             <div id="souqpulse-funnel-chart" class="souqpulse-chart-placeholder"></div>
@@ -393,24 +394,24 @@ class SouqPulse_Admin
                     <!-- كارت حالة المخزون -->
                     <div class="souqpulse-card details-card flex-1">
                         <div class="card-header">
-                            <span class="card-title"><?php esc_html_e('Inventory Status', 'souq-pulse'); ?></span>
+                            <span class="card-title"><?php echo 'حالة المخزون'; ?></span>
                         </div>
                         <div class="card-body inventory-body">
                             <div class="inventory-status-item">
                                 <span class="status-dot green"></span>
                                 <span
-                                    class="status-label"><?php esc_html_e('Total Units Available:', 'souq-pulse'); ?></span>
+                                    class="status-label"><?php echo 'إجمالي القطع المتوفرة:'; ?></span>
                                 <strong class="status-value" id="inv-total-units">0</strong>
                             </div>
                             <div class="inventory-status-item">
                                 <span class="status-dot yellow"></span>
-                                <span class="status-label"><?php esc_html_e('Low Stock Products:', 'souq-pulse'); ?></span>
+                                <span class="status-label"><?php echo 'منتجات منخفضة المخزون:'; ?></span>
                                 <strong class="status-value" id="inv-low-stock">0</strong>
                             </div>
                             <div class="inventory-status-item">
                                 <span class="status-dot red"></span>
                                 <span
-                                    class="status-label"><?php esc_html_e('Out of Stock Products:', 'souq-pulse'); ?></span>
+                                    class="status-label"><?php echo 'منتجات نفذت من المخزون:'; ?></span>
                                 <strong class="status-value" id="inv-out-of-stock">0</strong>
                             </div>
                         </div>
@@ -422,22 +423,22 @@ class SouqPulse_Admin
                     <!-- أعلى المنتجات مبيعًا -->
                     <div class="souqpulse-card table-card">
                         <div class="card-header">
-                            <span class="card-title"><?php esc_html_e('Top 5 Selling Products', 'souq-pulse'); ?></span>
+                            <span class="card-title"><?php echo 'أعلى 5 منتجات مبيعاً'; ?></span>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="souqpulse-table" id="table-top-products">
                                     <thead>
                                         <tr>
-                                            <th><?php esc_html_e('Product', 'souq-pulse'); ?></th>
-                                            <th style="width: 150px;"><?php esc_html_e('Sales', 'souq-pulse'); ?></th>
-                                            <th style="width: 120px;"><?php esc_html_e('Progress', 'souq-pulse'); ?></th>
+                                            <th><?php echo 'منتج'; ?></th>
+                                            <th style="width: 150px;"><?php echo 'المبيعات'; ?></th>
+                                            <th style="width: 120px;"><?php echo 'التقدم'; ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td colspan="3" class="text-center text-muted">
-                                                <?php esc_html_e('Loading data...', 'souq-pulse'); ?></td>
+                                                <?php echo 'جاري تحميل البيانات...'; ?></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -448,21 +449,21 @@ class SouqPulse_Admin
                     <!-- أعلى العملاء ونسبة الإيراد -->
                     <div class="souqpulse-card table-card">
                         <div class="card-header">
-                            <span class="card-title"><?php esc_html_e('Top 5 Customers & Revenue Source', 'souq-pulse'); ?></span>
+                            <span class="card-title"><?php echo 'أعلى 5 عملاء ومصدر الإيرادات'; ?></span>
                         </div>
                         <div class="card-body">
                             <!-- ملخص سلوك العملاء والمجموعات -->
                             <div class="customer-stats-summary">
                                 <div>
-                                    <span><?php esc_html_e('Average Customer Lifetime Value (CLV):', 'souq-pulse'); ?></span>
+                                    <span><?php echo 'متوسط القيمة الدائمة للعميل (CLV):'; ?></span>
                                     <strong id="cust-avg-clv">ج.م 0.00</strong>
                                 </div>
                                 <div>
-                                    <span><?php esc_html_e('Repeat Customers:', 'souq-pulse'); ?></span>
+                                    <span><?php echo 'عملاء متكررون:'; ?></span>
                                     <strong id="cust-repeat-count">0</strong>
                                 </div>
                                 <div>
-                                    <span><?php esc_html_e('One-time Customers:', 'souq-pulse'); ?></span>
+                                    <span><?php echo 'عملاء لمرة واحدة:'; ?></span>
                                     <strong id="cust-onetime-count">0</strong>
                                 </div>
                             </div>
@@ -472,9 +473,9 @@ class SouqPulse_Admin
                                 style="margin: 15px 0; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
                                 <div style="flex: 1;">
                                     <h4 style="margin: 0 0 4px; font-size: 13px; color: #334155; font-weight: 700;">
-                                        <?php esc_html_e('Revenue Contribution by Customer Segment', 'souq-pulse'); ?></h4>
+                                        <?php echo 'نسبة الإيرادات حسب شريحة العملاء'; ?></h4>
                                     <p id="rev-share-slogan" style="margin: 0; font-size: 11px; color: #64748b;">
-                                        <?php esc_html_e('Analyzing loyal customer contribution...', 'souq-pulse'); ?></p>
+                                        <?php echo 'جاري تحليل مساهمة العملاء...'; ?></p>
                                 </div>
                                 <div id="souqpulse-rev-share-chart" style="min-width: 110px; height: 90px;"></div>
                             </div>
@@ -483,15 +484,15 @@ class SouqPulse_Admin
                                 <table class="souqpulse-table" id="table-top-customers">
                                     <thead>
                                         <tr>
-                                            <th><?php esc_html_e('Customer', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Orders', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Total Purchase', 'souq-pulse'); ?></th>
+                                            <th><?php echo 'عميل'; ?></th>
+                                            <th><?php echo 'الطلبات'; ?></th>
+                                            <th><?php echo 'إجمالي الشراء'; ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td colspan="3" class="text-center text-muted">
-                                                <?php esc_html_e('Loading data...', 'souq-pulse'); ?></td>
+                                                <?php echo 'جاري تحميل البيانات...'; ?></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -502,10 +503,10 @@ class SouqPulse_Admin
                     <!-- التوزيع الجغرافي للمبيعات والطلبات -->
                     <div class="souqpulse-card table-card">
                         <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                            <span class="card-title"><?php esc_html_e('Geographic Distribution of Sales and Orders', 'souq-pulse'); ?></span>
+                            <span class="card-title"><?php echo 'التوزيع الجغرافي للمبيعات والطلبات'; ?></span>
                             <div class="souqpulse-geo-toggles">
-                                <button class="souqpulse-geo-btn active" data-geo-tab="countries">🌐 <?php esc_html_e('All Countries', 'souq-pulse'); ?></button>
-                                <button class="souqpulse-geo-btn" data-geo-tab="egypt">🇪🇬 <?php esc_html_e('Governorates of Egypt', 'souq-pulse'); ?></button>
+                                <button class="souqpulse-geo-btn active" data-geo-tab="countries">🌐 <?php echo 'كل الدول'; ?></button>
+                                <button class="souqpulse-geo-btn" data-geo-tab="egypt">🇪🇬 <?php echo 'محافظات مصر'; ?></button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -515,14 +516,14 @@ class SouqPulse_Admin
                                     <table class="souqpulse-table" id="table-geo-countries">
                                         <thead>
                                             <tr>
-                                                <th><?php esc_html_e('Country', 'souq-pulse'); ?></th>
-                                                <th style="width: 70px; text-align: center;"><?php esc_html_e('Orders', 'souq-pulse'); ?></th>
-                                                <th style="min-width: 140px;"><?php esc_html_e('Revenue & Contribution Percentage', 'souq-pulse'); ?></th>
+                                                <th><?php echo 'الدولة'; ?></th>
+                                                <th style="width: 70px; text-align: center;"><?php echo 'الطلبات'; ?></th>
+                                                <th style="min-width: 140px;"><?php echo 'الإيرادات ونسبة المساهمة'; ?></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td colspan="3" class="text-center text-muted"><?php esc_html_e('Loading geographic distribution...', 'souq-pulse'); ?></td>
+                                                <td colspan="3" class="text-center text-muted"><?php echo 'جاري تحميل التوزيع الجغرافي...'; ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -540,14 +541,14 @@ class SouqPulse_Admin
                                     <table class="souqpulse-table" id="table-geo-egypt">
                                         <thead>
                                             <tr>
-                                                <th><?php esc_html_e('Governorate', 'souq-pulse'); ?></th>
-                                                <th style="width: 70px; text-align: center;"><?php esc_html_e('Orders', 'souq-pulse'); ?></th>
-                                                <th><?php esc_html_e('Sales', 'souq-pulse'); ?></th>
+                                                <th><?php echo 'المحافظة'; ?></th>
+                                                <th style="width: 70px; text-align: center;"><?php echo 'الطلبات'; ?></th>
+                                                <th><?php echo 'المبيعات'; ?></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td colspan="3" class="text-center text-muted"><?php esc_html_e('Loading...', 'souq-pulse'); ?></td>
+                                                <td colspan="3" class="text-center text-muted"><?php echo 'جاري التحميل...'; ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -563,7 +564,7 @@ class SouqPulse_Admin
                     <div class="souqpulse-card details-card flex-1">
                         <div class="card-header">
                             <span
-                                class="card-title"><?php esc_html_e('Payment Methods Analysis & COD Risks', 'souq-pulse'); ?></span>
+                                class="card-title"><?php echo 'تحليل وسائل الدفع ومخاطر الدفع عند الاستلام'; ?></span>
                         </div>
                         <div class="card-body">
                             <div id="souqpulse-payment-chart" style="min-height: 200px;"></div>
@@ -571,16 +572,16 @@ class SouqPulse_Admin
                                 <table class="souqpulse-table" id="table-payment-methods">
                                     <thead>
                                         <tr>
-                                            <th><?php esc_html_e('Payment Method', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Orders', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Revenue', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Return Rate', 'souq-pulse'); ?></th>
+                                            <th><?php echo 'وسيلة الدفع'; ?></th>
+                                            <th><?php echo 'الطلبات'; ?></th>
+                                            <th><?php echo 'الإيرادات'; ?></th>
+                                            <th><?php echo 'معدل الاسترجاع'; ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td colspan="4" class="text-center text-muted">
-                                                <?php esc_html_e('Loading data...', 'souq-pulse'); ?></td>
+                                                <?php echo 'جاري تحميل البيانات...'; ?></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -592,13 +593,13 @@ class SouqPulse_Admin
                     <div class="souqpulse-card details-card flex-2">
                         <div class="card-header">
                             <span
-                                class="card-title"><?php esc_html_e('Peak Order Times (Days & Hours - Egypt Time)', 'souq-pulse'); ?></span>
+                                class="card-title"><?php echo 'أوقات ذروة الشراء (الأيام والساعات - بتوقيت مصر)'; ?></span>
                         </div>
                         <div class="card-body">
                             <div id="souqpulse-heatmap-chart" style="min-height: 280px;"></div>
                             <p style="margin: 8px 0 0; font-size: 11px; color: #64748b; text-align: center;">
                                 💡
-                                <?php esc_html_e('Darker squares represent intensive customer buying times — recommended for timing ad campaigns.', 'souq-pulse'); ?>
+                                <?php echo 'المربعات الأغمق تمثل أوقات الشراء المكثفة للعملاء — يُنصح بها لتوقيت الحملات الإعلانية.'; ?>
                             </p>
                         </div>
                     </div>
@@ -610,7 +611,7 @@ class SouqPulse_Admin
                     <div class="souqpulse-card details-card flex-2">
                         <div class="card-header">
                             <span
-                                class="card-title"><?php esc_html_e('RFM — Interactive Customer Segmentation', 'souq-pulse'); ?></span>
+                                class="card-title"><?php echo 'RFM — تقسيم العملاء التفاعلي'; ?></span>
                         </div>
                         <div class="card-body">
                             <div class="rfm-segment-grid" id="rfm-segment-container"
@@ -624,22 +625,22 @@ class SouqPulse_Admin
                     <div class="souqpulse-card details-card flex-1">
                         <div class="card-header">
                             <span
-                                class="card-title"><?php esc_html_e('Frequently Bought Together (Product Affinity)', 'souq-pulse'); ?></span>
+                                class="card-title"><?php echo 'غالباً تُشترى معاً (ترابط المنتجات)'; ?></span>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="souqpulse-table" id="table-product-affinity">
                                     <thead>
                                         <tr>
-                                            <th><?php esc_html_e('Product Bundle', 'souq-pulse'); ?></th>
+                                            <th><?php echo 'حزمة المنتجات'; ?></th>
                                             <th style="width: 90px; text-align: center;">
-                                                <?php esc_html_e('Frequency', 'souq-pulse'); ?></th>
+                                                <?php echo 'التكرار'; ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td colspan="2" class="text-center text-muted">
-                                                <?php esc_html_e('Analyzing product affinity...', 'souq-pulse'); ?></td>
+                                                <?php echo 'جاري تحليل ترابط المنتجات...'; ?></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -653,7 +654,7 @@ class SouqPulse_Admin
                     <div class="souqpulse-card details-card flex-1">
                         <div class="card-header">
                             <span
-                                class="card-title"><?php esc_html_e('Monthly Customer Retention Matrix (Cohort Retention Heatmap)', 'souq-pulse'); ?></span>
+                                class="card-title"><?php echo 'مصفوفة احتفاظ العملاء شهرياً (Cohort Retention Heatmap)'; ?></span>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -662,20 +663,20 @@ class SouqPulse_Admin
                                     <thead>
                                         <tr>
                                             <th style="text-align: right; min-width: 120px;">
-                                                <?php esc_html_e('Monthly Cohort', 'souq-pulse'); ?></th>
-                                            <th style="width: 80px;"><?php esc_html_e('Count', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Month 0', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Month +1', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Month +2', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Month +3', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Month +4', 'souq-pulse'); ?></th>
-                                            <th><?php esc_html_e('Month +5', 'souq-pulse'); ?></th>
+                                                <?php echo 'الاحتفاظ الشهري'; ?></th>
+                                            <th style="width: 80px;"><?php echo 'العدد'; ?></th>
+                                            <th><?php echo 'الشهر 0'; ?></th>
+                                            <th><?php echo 'الشهر +1'; ?></th>
+                                            <th><?php echo 'الشهر +2'; ?></th>
+                                            <th><?php echo 'الشهر +3'; ?></th>
+                                            <th><?php echo 'الشهر +4'; ?></th>
+                                            <th><?php echo 'الشهر +5'; ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td colspan="8" class="text-center text-muted">
-                                                <?php esc_html_e('Analyzing cohort retention matrix...', 'souq-pulse'); ?>
+                                                <?php echo 'جاري تحليل مصفوفة الاحتفاظ...'; ?>
                                             </td>
                                         </tr>
                                     </tbody>

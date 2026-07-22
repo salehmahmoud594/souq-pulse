@@ -175,7 +175,7 @@ class SouqPulse_Tracker
             wp_send_json_success();
         }
 
-        wp_send_json_error(array('message' => __('Event tracking is not supported.', 'souq-pulse')), 400);
+        wp_send_json_error(array('message' => 'تتبع الأحداث غير مدعوم.'), 400);
     }
 
     /**
