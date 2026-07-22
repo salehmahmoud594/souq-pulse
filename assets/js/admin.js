@@ -5,6 +5,9 @@
 
 (function($) {
     'use strict';
+    
+    // تعريف متغير الترجمة
+    var i18n = (typeof souqpulseAdminData !== 'undefined' && souqpulseAdminData.i18n) ? souqpulseAdminData.i18n : {};
 
     // المتغيرات العامة لحفظ مثيلات الرسومات البيانية
     var salesChart;
