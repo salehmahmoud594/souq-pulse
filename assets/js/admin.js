@@ -285,9 +285,12 @@
         } else {
             // رسم فارغ عند انعدام البيانات
             salesChart.updateSeries([
-                { name: 'المبيعات (ج.م)', data: [] },
-                { name: 'عدد الطلبات', data: [] }
+                { name: 'المبيعات (ج.م)', data: [0] },
+                { name: 'عدد الطلبات', data: [0] }
             ]);
+            salesChart.updateOptions({
+                xaxis: { categories: ['-'] }
+            });
         }
 
         // 4.5. تحديث الرسم البياني لمسار الشراء (Funnel)
@@ -428,7 +431,8 @@
             $('#table-payment-methods tbody').html(payTableHtml);
         } else {
             if (paymentChart) {
-                paymentChart.updateSeries([{ name: 'الإيرادات (ج.م)', data: [] }]);
+                paymentChart.updateSeries([{ name: 'الإيرادات (ج.م)', data: [0] }]);
+                paymentChart.updateOptions({ xaxis: { categories: ['-'] } });
             }
             $('#table-payment-methods tbody').html('<tr><td colspan="4">' + renderEmptyState('لا توجد وسائل دفع', 'لم يتم تسجيل أي طلبات بوسائل دفع في هذه الفترة.', '💳') + '</td></tr>');
         }
@@ -539,11 +543,11 @@
                 }
             },
             series: [
-                { name: 'المبيعات (ج.م)', data: [] },
-                { name: 'عدد الطلبات', data: [] }
+                { name: 'المبيعات (ج.م)', data: [0] },
+                { name: 'عدد الطلبات', data: [0] }
             ],
             xaxis: {
-                categories: [],
+                categories: ['-'],
                 labels: { style: { colors: '#64748b', fontSize: '12px' } }
             },
             yaxis: [{
@@ -660,9 +664,9 @@
                 }
             },
             colors: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444'],
-            series: [{ name: 'الإيرادات (ج.م)', data: [] }],
+            series: [{ name: 'الإيرادات (ج.م)', data: [0] }],
             xaxis: {
-                categories: [],
+                categories: ['-'],
                 labels: { style: { colors: '#64748b' } }
             },
             legend: { show: false }
@@ -671,6 +675,16 @@
         paymentChart.render();
 
         // 7. الخريطة الحرارية لساعات وأيام الشراء (Peak Order Heatmap)
+        var emptyHeatmapSeries = [
+            { name: 'السبت', data: Array(24).fill(0) },
+            { name: 'الأحد', data: Array(24).fill(0) },
+            { name: 'الإثنين', data: Array(24).fill(0) },
+            { name: 'الثلاثاء', data: Array(24).fill(0) },
+            { name: 'الأربعاء', data: Array(24).fill(0) },
+            { name: 'الخميس', data: Array(24).fill(0) },
+            { name: 'الجمعة', data: Array(24).fill(0) }
+        ];
+
         var heatmapOptions = {
             chart: {
                 type: 'heatmap',
@@ -681,7 +695,7 @@
             },
             colors: ['#6366f1'],
             dataLabels: { enabled: false },
-            series: [],
+            series: emptyHeatmapSeries,
             xaxis: {
                 categories: ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm'],
                 labels: { style: { colors: '#64748b', fontSize: '10px' } }

@@ -202,35 +202,105 @@ input:checked + .slider:before {
     border-radius: 8px;
 }
 
+/* التبويبات العلوية Nav Tabs */
+.souqpulse-nav-tabs {
+    display: inline-flex;
+    align-items: center;
+    background: #e2e8f0;
+    padding: 4px;
+    border-radius: 10px;
+    gap: 4px;
+}
+
+.souqpulse-tab-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    outline: none;
+}
+
+.souqpulse-tab-btn:hover {
+    color: var(--souqpulse-dark);
+}
+
+.souqpulse-tab-btn.active {
+    background: #ffffff;
+    color: var(--souqpulse-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.souqpulse-tab-content {
+    width: 100%;
+}
+
 /* شبكة كروت الأداء KPIs */
 .souqpulse-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 15px;
     margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-@media (max-width: 1200px) {
+@media (min-width: 1600px) {
+    .souqpulse-kpi-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media (max-width: 1599px) and (min-width: 1200px) {
     .souqpulse-kpi-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1199px) and (min-width: 640px) {
     .souqpulse-kpi-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 639px) {
     .souqpulse-kpi-grid {
         grid-template-columns: 1fr;
     }
 }
 
+.kpi-card {
+    overflow: hidden;
+    width: 100%;
+    min-width: 0;
+}
+
 .kpi-card .card-body {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    min-width: 0;
+}
+
+.kpi-sparkline {
+    width: 100%;
+    min-height: 50px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 8px;
+}
+
+.kpi-sparkline .apexcharts-canvas,
+.kpi-sparkline svg {
+    width: 100% !important;
+    max-width: 100% !important;
 }
 
 .kpi-value {

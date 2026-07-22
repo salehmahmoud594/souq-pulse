@@ -216,7 +216,7 @@ class SouqPulse_Admin
                     <div class="souqpulse-card kpi-card" id="kpi-sessions">
                         <div class="card-header">
                             <span class="card-title"><?php esc_html_e('عدد الزيارات (الجلسات)', 'souq-pulse'); ?></span>
-                            <span class="card-icon"><span class="dashicons dashicons-groups"></span></span>
+                            <span class="card-icon"><span class="dashicons dashicons-admin-users"></span></span>
                         </div>
                         <div class="card-body">
                             <h2 class="kpi-value">0</h2>
@@ -555,10 +555,9 @@ class SouqPulse_Admin
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- تبويب الإعدادات -->
-        <div id="souqpulse-settings-tab" class="souqpulse-tab-content" style="display:none; padding: 10px 0;">
+            <!-- تبويب الإعدادات -->
+            <div id="souqpulse-settings-tab" class="souqpulse-tab-content" style="display:none; padding: 10px 0;">
             <div class="souqpulse-card"
                 style="max-width: 600px; margin: 0 auto; padding: 30px; background:#fff; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.05); border:1px solid var(--souqpulse-border);">
                 <h2 style="margin-top:0; margin-bottom: 20px; font-size:18px; color:var(--souqpulse-dark); font-weight:700;">
