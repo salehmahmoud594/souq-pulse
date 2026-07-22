@@ -44,7 +44,7 @@ class SouqPulse_DB
     {
         $code = strtoupper(trim((string) $code));
         if (empty($code)) {
-            return __('غير محدد', 'souq-pulse');
+            return __('Not specified', 'souq-pulse');
         }
 
         if (function_exists('WC') && WC()->countries && method_exists(WC()->countries, 'get_countries')) {
@@ -55,28 +55,28 @@ class SouqPulse_DB
         }
 
         $names = array(
-            'EG' => __('مصر', 'souq-pulse'),
-            'SA' => __('المملكة العربية السعودية', 'souq-pulse'),
-            'AE' => __('الإمارات العربية المتحدة', 'souq-pulse'),
-            'KW' => __('الكويت', 'souq-pulse'),
-            'QA' => __('قطر', 'souq-pulse'),
-            'OM' => __('عُمان', 'souq-pulse'),
-            'BH' => __('البحرين', 'souq-pulse'),
-            'JO' => __('الأردن', 'souq-pulse'),
-            'IQ' => __('العراق', 'souq-pulse'),
-            'LB' => __('لبنان', 'souq-pulse'),
-            'LY' => __('ليبيا', 'souq-pulse'),
-            'MA' => __('المغرب', 'souq-pulse'),
-            'DZ' => __('الجزائر', 'souq-pulse'),
-            'TN' => __('تونس', 'souq-pulse'),
-            'SD' => __('السودان', 'souq-pulse'),
-            'YE' => __('اليمن', 'souq-pulse'),
-            'US' => __('الولايات المتحدة', 'souq-pulse'),
-            'GB' => __('المملكة المتحدة', 'souq-pulse'),
-            'CA' => __('كندا', 'souq-pulse'),
-            'DE' => __('ألمانيا', 'souq-pulse'),
-            'FR' => __('فرنسا', 'souq-pulse'),
-            'TR' => __('تركيا', 'souq-pulse'),
+            'EG' => __('Egypt', 'souq-pulse'),
+            'SA' => __('Saudi Arabia', 'souq-pulse'),
+            'AE' => __('United Arab Emirates', 'souq-pulse'),
+            'KW' => __('Kuwait', 'souq-pulse'),
+            'QA' => __('Qatar', 'souq-pulse'),
+            'OM' => __('Oman', 'souq-pulse'),
+            'BH' => __('Bahrain', 'souq-pulse'),
+            'JO' => __('Jordan', 'souq-pulse'),
+            'IQ' => __('Iraq', 'souq-pulse'),
+            'LB' => __('Lebanon', 'souq-pulse'),
+            'LY' => __('Libya', 'souq-pulse'),
+            'MA' => __('Morocco', 'souq-pulse'),
+            'DZ' => __('Algeria', 'souq-pulse'),
+            'TN' => __('Tunisia', 'souq-pulse'),
+            'SD' => __('Sudan', 'souq-pulse'),
+            'YE' => __('Yemen', 'souq-pulse'),
+            'US' => __('United States', 'souq-pulse'),
+            'GB' => __('United Kingdom', 'souq-pulse'),
+            'CA' => __('Canada', 'souq-pulse'),
+            'DE' => __('Germany', 'souq-pulse'),
+            'FR' => __('France', 'souq-pulse'),
+            'TR' => __('Turkey', 'souq-pulse'),
         );
 
         return isset($names[$code]) ? $names[$code] : $code;
@@ -595,7 +595,7 @@ class SouqPulse_DB
 
             $results['top_products'][] = array(
                 'id' => $p_id,
-                'name' => $row->name ? $row->name : __('منتج غير معروف', 'souq-pulse'),
+                'name' => $row->name ? $row->name : __('Unknown Product', 'souq-pulse'),
                 'revenue' => (float) $row->revenue,
                 'quantity' => isset($row->total_quantity) ? (int) $row->total_quantity : 0,
                 'thumbnail' => $thumb_url ? $thumb_url : '',
@@ -674,7 +674,7 @@ class SouqPulse_DB
                 }
             }
             if (empty($customer_name)) {
-                $customer_name = $row->email ? $row->email : __('عميل زائر', 'souq-pulse');
+                $customer_name = $row->email ? $row->email : __('Guest Customer', 'souq-pulse');
             }
 
             $results['top_customers'][] = array(
@@ -784,12 +784,12 @@ class SouqPulse_DB
 
         $funnel_data = array();
         $steps = array(
-            'view_session' => __('زيارة الموقع', 'souq-pulse'),
-            'add_to_cart' => __('إضافة للسلة', 'souq-pulse'),
-            'begin_checkout' => __('بدء الدفع', 'souq-pulse'),
-            'add_shipping_info' => __('معلومات الشحن', 'souq-pulse'),
-            'add_payment_info' => __('معلومات الدفع', 'souq-pulse'),
-            'purchase' => __('الشراء', 'souq-pulse'),
+            'view_session' => __('Site Visit', 'souq-pulse'),
+            'add_to_cart' => __('Add to Cart', 'souq-pulse'),
+            'begin_checkout' => __('Begin Checkout', 'souq-pulse'),
+            'add_shipping_info' => __('Shipping Info', 'souq-pulse'),
+            'add_payment_info' => __('Payment Info', 'souq-pulse'),
+            'purchase' => __('Purchase', 'souq-pulse'),
         );
 
         $total_sessions = $results['current']['sessions'] > 0 ? $results['current']['sessions'] : $funnel_counts['view_session'];
@@ -960,34 +960,34 @@ class SouqPulse_DB
         $geo_rows = $wpdb->get_results($geo_query);
 
         $eg_states = array(
-            'C' => array('code' => 'EG-C', 'name' => __('القاهرة', 'souq-pulse')),
-            'KH' => array('code' => 'EG-C', 'name' => __('القاهرة', 'souq-pulse')),
-            'ALX' => array('code' => 'EG-ALX', 'name' => __('الإسكندرية', 'souq-pulse')),
-            'GZ' => array('code' => 'EG-GZ', 'name' => __('الجيزة', 'souq-pulse')),
-            'QAL' => array('code' => 'EG-QAL', 'name' => __('القليوبية', 'souq-pulse')),
-            'DK' => array('code' => 'EG-DK', 'name' => __('الدقهلية', 'souq-pulse')),
-            'BH' => array('code' => 'EG-BH', 'name' => __('البحيرة', 'souq-pulse')),
-            'FYM' => array('code' => 'EG-FYM', 'name' => __('الفيوم', 'souq-pulse')),
-            'GH' => array('code' => 'EG-GH', 'name' => __('الغربية', 'souq-pulse')),
-            'KB' => array('code' => 'EG-KB', 'name' => __('المنوفية', 'souq-pulse')),
-            'IS' => array('code' => 'EG-IS', 'name' => __('الإسماعيلية', 'souq-pulse')),
-            'SUZ' => array('code' => 'EG-SUZ', 'name' => __('السويس', 'souq-pulse')),
-            'PTS' => array('code' => 'EG-PTS', 'name' => __('بورسعيد', 'souq-pulse')),
-            'ASW' => array('code' => 'EG-ASW', 'name' => __('أسوان', 'souq-pulse')),
-            'AST' => array('code' => 'EG-AST', 'name' => __('أسيوط', 'souq-pulse')),
-            'BNS' => array('code' => 'EG-BNS', 'name' => __('بني سويف', 'souq-pulse')),
-            'DA' => array('code' => 'EG-DA', 'name' => __('دمياط', 'souq-pulse')),
-            'KSH' => array('code' => 'EG-KSH', 'name' => __('كفر الشيخ', 'souq-pulse')),
-            'LX' => array('code' => 'EG-LX', 'name' => __('الأقصر', 'souq-pulse')),
-            'MN' => array('code' => 'EG-MN', 'name' => __('المنيا', 'souq-pulse')),
-            'MS' => array('code' => 'EG-MS', 'name' => __('مطروح', 'souq-pulse')),
-            'NS' => array('code' => 'EG-NS', 'name' => __('شمال سيناء', 'souq-pulse')),
-            'SHG' => array('code' => 'EG-SHG', 'name' => __('سوهاج', 'souq-pulse')),
-            'SHR' => array('code' => 'EG-SHR', 'name' => __('الشرقية', 'souq-pulse')),
-            'SS' => array('code' => 'EG-SS', 'name' => __('جنوب سيناء', 'souq-pulse')),
-            'WAD' => array('code' => 'EG-WAD', 'name' => __('الوادي الجديد', 'souq-pulse')),
-            'BA' => array('code' => 'EG-BA', 'name' => __('البحر الأحمر', 'souq-pulse')),
-            'QNA' => array('code' => 'EG-QNA', 'name' => __('قنا', 'souq-pulse')),
+            'C' => array('code' => 'EG-C', 'name' => __('Cairo', 'souq-pulse')),
+            'KH' => array('code' => 'EG-C', 'name' => __('Cairo', 'souq-pulse')),
+            'ALX' => array('code' => 'EG-ALX', 'name' => __('Alexandria', 'souq-pulse')),
+            'GZ' => array('code' => 'EG-GZ', 'name' => __('Giza', 'souq-pulse')),
+            'QAL' => array('code' => 'EG-QAL', 'name' => __('Qalyubia', 'souq-pulse')),
+            'DK' => array('code' => 'EG-DK', 'name' => __('Dakahlia', 'souq-pulse')),
+            'BH' => array('code' => 'EG-BH', 'name' => __('Beheira', 'souq-pulse')),
+            'FYM' => array('code' => 'EG-FYM', 'name' => __('Faiyum', 'souq-pulse')),
+            'GH' => array('code' => 'EG-GH', 'name' => __('Gharbia', 'souq-pulse')),
+            'KB' => array('code' => 'EG-KB', 'name' => __('Monufia', 'souq-pulse')),
+            'IS' => array('code' => 'EG-IS', 'name' => __('Ismailia', 'souq-pulse')),
+            'SUZ' => array('code' => 'EG-SUZ', 'name' => __('Suez', 'souq-pulse')),
+            'PTS' => array('code' => 'EG-PTS', 'name' => __('Port Said', 'souq-pulse')),
+            'ASW' => array('code' => 'EG-ASW', 'name' => __('Aswan', 'souq-pulse')),
+            'AST' => array('code' => 'EG-AST', 'name' => __('Asyut', 'souq-pulse')),
+            'BNS' => array('code' => 'EG-BNS', 'name' => __('Beni Suef', 'souq-pulse')),
+            'DA' => array('code' => 'EG-DA', 'name' => __('Damietta', 'souq-pulse')),
+            'KSH' => array('code' => 'EG-KSH', 'name' => __('Kafr El Sheikh', 'souq-pulse')),
+            'LX' => array('code' => 'EG-LX', 'name' => __('Luxor', 'souq-pulse')),
+            'MN' => array('code' => 'EG-MN', 'name' => __('Minya', 'souq-pulse')),
+            'MS' => array('code' => 'EG-MS', 'name' => __('Matrouh', 'souq-pulse')),
+            'NS' => array('code' => 'EG-NS', 'name' => __('North Sinai', 'souq-pulse')),
+            'SHG' => array('code' => 'EG-SHG', 'name' => __('Sohag', 'souq-pulse')),
+            'SHR' => array('code' => 'EG-SHR', 'name' => __('Sharqia', 'souq-pulse')),
+            'SS' => array('code' => 'EG-SS', 'name' => __('South Sinai', 'souq-pulse')),
+            'WAD' => array('code' => 'EG-WAD', 'name' => __('New Valley', 'souq-pulse')),
+            'BA' => array('code' => 'EG-BA', 'name' => __('Red Sea', 'souq-pulse')),
+            'QNA' => array('code' => 'EG-QNA', 'name' => __('Qena', 'souq-pulse')),
         );
 
         $geo_data = array();
@@ -1020,7 +1020,7 @@ class SouqPulse_DB
         if ($other_sales > 0) {
             $geo_data['OTHER'] = array(
                 'code' => 'OTHER',
-                'name' => __('محافظات أخرى', 'souq-pulse'),
+                'name' => __('Other Governorates', 'souq-pulse'),
                 'sales' => $other_sales,
                 'orders' => $other_orders,
             );
@@ -1323,7 +1323,7 @@ class SouqPulse_DB
         $payment_methods_list = array();
         foreach ($payment_rows as $row) {
             $code = $row->method_code ? $row->method_code : 'other';
-            $title = $row->method_title ? $row->method_title : __('طريقة دفع غير محددة', 'souq-pulse');
+            $title = $row->method_title ? $row->method_title : __('Unspecified payment method', 'souq-pulse');
             $orders = (int) $row->order_count;
             $revenue = (float) $row->net_revenue;
             $refunds = (int) $row->refund_count;
@@ -1373,13 +1373,13 @@ class SouqPulse_DB
         $heatmap_rows = $wpdb->get_results($heatmap_query);
 
         $day_labels = array(
-            7 => __('السبت', 'souq-pulse'),
-            1 => __('الأحد', 'souq-pulse'),
-            2 => __('الإثنين', 'souq-pulse'),
-            3 => __('الثلاثاء', 'souq-pulse'),
-            4 => __('الأربعاء', 'souq-pulse'),
-            5 => __('الخميس', 'souq-pulse'),
-            6 => __('الجمعة', 'souq-pulse'),
+            7 => __('Saturday', 'souq-pulse'),
+            1 => __('Sunday', 'souq-pulse'),
+            2 => __('Monday', 'souq-pulse'),
+            3 => __('Tuesday', 'souq-pulse'),
+            4 => __('Wednesday', 'souq-pulse'),
+            5 => __('Thursday', 'souq-pulse'),
+            6 => __('Friday', 'souq-pulse'),
         );
 
         $heatmap_matrix = array();
@@ -1509,12 +1509,12 @@ class SouqPulse_DB
         } // end if $rfm_rows
 
         $rfm_meta = array(
-            'champions' => array('label' => __('عملاء أبطال', 'souq-pulse'), 'icon' => '👑', 'color' => '#10b981'),
-            'loyal' => array('label' => __('عملاء أوفياء', 'souq-pulse'), 'icon' => '💎', 'color' => '#6366f1'),
-            'promising' => array('label' => __('عملاء واعدون', 'souq-pulse'), 'icon' => '🌟', 'color' => '#3b82f6'),
-            'at_risk' => array('label' => __('عملاء في خطر', 'souq-pulse'), 'icon' => '⚠️', 'color' => '#f59e0b'),
-            'lost' => array('label' => __('عملاء غائبون', 'souq-pulse'), 'icon' => '😴', 'color' => '#ef4444'),
-            'new_customers' => array('label' => __('عملاء جدد', 'souq-pulse'), 'icon' => '✨', 'color' => '#8b5cf6'),
+            'champions' => array('label' => __('Champions', 'souq-pulse'), 'icon' => '👑', 'color' => '#10b981'),
+            'loyal' => array('label' => __('Loyal Customers', 'souq-pulse'), 'icon' => '💎', 'color' => '#6366f1'),
+            'promising' => array('label' => __('Promising Customers', 'souq-pulse'), 'icon' => '🌟', 'color' => '#3b82f6'),
+            'at_risk' => array('label' => __('At Risk Customers', 'souq-pulse'), 'icon' => '⚠️', 'color' => '#f59e0b'),
+            'lost' => array('label' => __('Hibernating Customers', 'souq-pulse'), 'icon' => '😴', 'color' => '#ef4444'),
+            'new_customers' => array('label' => __('New Customers', 'souq-pulse'), 'icon' => '✨', 'color' => '#8b5cf6'),
         );
 
         $rfm_results = array();
@@ -1626,8 +1626,8 @@ class SouqPulse_DB
             if (isset($affinity_merged[$pair_key])) {
                 $affinity_merged[$pair_key]['pair_count'] += (int) $row->pair_count;
             } else {
-                $name_a = $eff_a !== $id_a ? get_the_title($eff_a) : ($row->product_a_name ?: __('منتج غير محدد', 'souq-pulse'));
-                $name_b = $eff_b !== $id_b ? get_the_title($eff_b) : ($row->product_b_name ?: __('منتج غير محدد', 'souq-pulse'));
+                $name_a = $eff_a !== $id_a ? get_the_title($eff_a) : ($row->product_a_name ?: __('Unspecified Product', 'souq-pulse'));
+                $name_b = $eff_b !== $id_b ? get_the_title($eff_b) : ($row->product_b_name ?: __('Unspecified Product', 'souq-pulse'));
 
                 $affinity_merged[$pair_key] = array(
                     'product_a_id' => $eff_a,

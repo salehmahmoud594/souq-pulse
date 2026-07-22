@@ -31,7 +31,7 @@ class SouqPulse_AJAX
 
         // 2. التحقق من صلاحيات المستخدم الحالي
         if (!current_user_can('manage_woocommerce')) {
-            wp_send_json_error(array('message' => __('غير مصرح لك بالوصول لهذه البيانات.', 'souq-pulse')), 403);
+            wp_send_json_error(array('message' => __('You are not authorized to access this data.', 'souq-pulse')), 403);
         }
 
         // 3. استقبال وتطهير معاملات الطلب
@@ -86,7 +86,7 @@ class SouqPulse_AJAX
         check_ajax_referer('souqpulse_admin_nonce', 'security');
 
         if (!current_user_can('manage_woocommerce')) {
-            wp_send_json_error(array('message' => __('غير مصرح لك.', 'souq-pulse')), 403);
+            wp_send_json_error(array('message' => __('Unauthorized.', 'souq-pulse')), 403);
         }
 
         $count = SouqPulse_Tracker::get_active_sessions_count();

@@ -92,7 +92,7 @@
                 $('#souqpulse-custom-dates').css('display', 'none');
             }
 
-            // تعطيل المقارنة عند اختيار "كل الوقت"
+            // تعطيل المقارنة عند اختيار i18n.all_time
             if (range === 'alltime') {
                 $('#souqpulse-compare-toggle').prop('checked', false).prop('disabled', true);
                 $('.comparison-toggle').css('opacity', '0.5');
@@ -186,13 +186,13 @@
             if (response.success) {
                 updateDashboardUI(response.data, compare);
             } else {
-                console.error('فشل جلب بيانات Souq Pulse:', response.data);
+                console.error(i18n.failed_fetching_data, response.data);
                 // إظهار رسالة خطأ للمستخدم
-                $('.kpi-value').text('ج.م 0.00');
+                $('.kpi-value').text('' + souqpulseAdminData.currency_symbol + ' 0.00');
             }
         }).fail(function(xhr, status, error) {
             hideLoadingSkeletons();
-            console.error('خطأ في الاتصال بالخادم:', error);
+            console.error(i18n.error_connecting_server, error);
         });
     }
 
@@ -211,7 +211,7 @@
         // تحديث إحصائيات الزوار من WP Statistics والوقت الفعلي
         $('#kpi-sessions .kpi-value').text(current.sessions.toLocaleString());
         $('#kpi-bounce-rate .kpi-value').text(current.bounce_rate.toFixed(2) + '%');
-        var durationLabel = (souqpulseAdminData.i18n && souqpulseAdminData.i18n.avg_duration_label) ? souqpulseAdminData.i18n.avg_duration_label : 'متوسط مدة الزيارة: ';
+        var durationLabel = (souqpulseAdminData.i18n && souqpulseAdminData.i18n.avg_duration_label) ? souqpulseAdminData.i18n.avg_duration_label : i18n.avg_duration_label;
         $('#sessions-duration-meta').text(durationLabel + formatDuration(current.avg_duration));
         $('.realtime-value').text(data.realtime_active_users || 0);
         updateRealtimeSparkline(data.realtime_active_users || 0);
@@ -243,7 +243,7 @@
             data.top_products.forEach(function(item) {
                 var percent = maxRevenue > 0 ? (item.revenue / maxRevenue) * 100 : 0;
                 var thumb = item.thumbnail ? '<img src="' + escHtml(item.thumbnail) + '" alt="" style="width:28px; height:28px; border-radius:4px; object-fit:cover; margin-left:8px; vertical-align:middle;" />' : '<span style="display:inline-block; width:28px; height:28px; border-radius:4px; background:#e2e8f0; color:#64748b; text-align:center; line-height:28px; margin-left:8px; font-size:12px;">📦</span>';
-                var qtyBadge = item.quantity > 0 ? ' <span class="badge" style="font-size:10px; color:#475569; background:#f1f5f9; padding:2px 6px; border-radius:10px; margin-right:4px;">(' + item.quantity.toLocaleString() + ' قطعة)</span>' : '';
+                var qtyBadge = item.quantity > 0 ? ' <span class="badge" style="font-size:10px; color:#475569; background:#f1f5f9; padding:2px 6px; border-radius:10px; margin-right:4px;">(' + item.quantity.toLocaleString() + ' ' + i18n.piece_word + ')</span>' : '';
                 var priceTag = item.price ? '<br><span class="product-price-tag">' + escHtml(String(item.price)) + '</span>' : '';
 
                 productsHtml += '<tr>' +
@@ -257,7 +257,7 @@
                     '</tr>';
             });
         } else {
-            productsHtml = '<tr><td colspan="3">' + renderEmptyState('لا توجد مبيعات', 'جرّب اختيار نطاق زمني آخر للاطلاع على الإحصائيات.', '📦') + '</td></tr>';
+            productsHtml = '<tr><td colspan="3">' + renderEmptyState(i18n.no_sales_recorded, i18n.try_another_date_range, '📦') + '</td></tr>';
         }
         $('#table-top-products tbody').html(productsHtml);
 
@@ -272,7 +272,7 @@
                     '</tr>';
             });
         } else {
-            customersHtml = '<tr><td colspan="3">' + renderEmptyState('لا توجد بيانات عملاء', 'جرّب اختيار نطاق زمني أوسع لعرض بيانات العملاء.', '👥') + '</td></tr>';
+            customersHtml = '<tr><td colspan="3">' + renderEmptyState(i18n.no_customer_data, i18n.try_wider_date_range, '👥') + '</td></tr>';
         }
         $('#table-top-customers tbody').html(customersHtml);
 
@@ -292,8 +292,8 @@
             });
 
             salesChart.updateSeries([
-                { name: 'المبيعات (ج.م)', data: sales },
-                { name: 'عدد الطلبات', data: orders }
+                { name: i18n.sales_revenue_label, data: sales },
+                { name: i18n.order_count, data: orders }
             ]);
             salesChart.updateOptions({
                 xaxis: { categories: days }
@@ -301,8 +301,8 @@
         } else {
             // رسم فارغ عند انعدام البيانات
             salesChart.updateSeries([
-                { name: 'المبيعات (ج.م)', data: [0] },
-                { name: 'عدد الطلبات', data: [0] }
+                { name: i18n.sales_revenue_label, data: [0] },
+                { name: i18n.order_count, data: [0] }
             ]);
             salesChart.updateOptions({
                 xaxis: { categories: ['-'] }
@@ -320,7 +320,7 @@
             });
 
             funnelChart.updateSeries([{
-                name: 'زيارات مسار التحويل',
+                name: i18n.funnel_visits,
                 data: funnelCounts
             }]);
 
@@ -333,7 +333,7 @@
                         var step = data.funnel[opt.dataPointIndex];
                         var text = step.label + ': ' + val.toLocaleString() + ' (' + step.pct_of_total + '%)';
                         if (step.type !== 'view_session' && step.drop_off > 0) {
-                            text += ' | تسرب: ' + step.drop_off + '%';
+                            text += ' | ' + i18n.dropoff + ': ' + step.drop_off + '%';
                         }
                         return text;
                     }
@@ -343,7 +343,7 @@
                         formatter: function(val, opt) {
                             var step = data.funnel[opt.seriesIndex]; // fallback or general
                             // Better yet, just return formatted visitors count
-                            return val.toLocaleString() + ' زيارة';
+                            return val.toLocaleString() + ' ' + i18n.visit_word;
                         }
                     }
                 }
@@ -362,7 +362,7 @@
             var geoLabels = [];
             var geoSeries = [];
 
-            // عرض أعلى 4 محافظات ودمج البقية في "محافظات أخرى" لمنع تشتت الرسم
+            // عرض أعلى 4 محافظات ودمج البقية في i18n.other_governorates لمنع تشتت الرسم
             var maxStates = 4;
             var topGeo = data.geo.slice(0, maxStates);
             var otherSalesSum = 0;
@@ -378,7 +378,7 @@
                     otherSalesSum += parseFloat(item.sales);
                 });
                 if (otherSalesSum > 0) {
-                    geoLabels.push('محافظات أخرى');
+                    geoLabels.push(i18n.other_governorates);
                     geoSeries.push(otherSalesSum);
                 }
             }
@@ -412,9 +412,9 @@
             }
             
             if (retPct > 0 || newPct > 0) {
-                $('#rev-share-slogan').html('⚡ <strong>' + retPct + '%</strong> من الإيرادات من عملاء أوفياء راجعين!');
+                $('#rev-share-slogan').html('⚡ <strong>' + retPct + '%</strong> ' + i18n.revenue_from_loyal_customers);
             } else {
-                $('#rev-share-slogan').text('لا توجد مبيعات مسجلة في هذه الفترة.');
+                $('#rev-share-slogan').text(i18n.no_sales_recorded_desc);
             }
         }
 
@@ -428,7 +428,7 @@
                 payTitles.push(pm.title);
                 payRevenues.push(pm.revenue);
 
-                var isCod = pm.code.toLowerCase().indexOf('cod') !== -1 || pm.title.indexOf('عند الاستلام') !== -1;
+                var isCod = pm.code.toLowerCase().indexOf('cod') !== -1 || pm.title.indexOf(i18n.cod) !== -1;
                 var badgeStyle = pm.refund_rate > 15 ? 'background:#ef4444; color:#fff;' : (pm.refund_rate > 5 ? 'background:#f59e0b; color:#fff;' : 'background:#10b981; color:#fff;');
                 var codHighlight = isCod ? ' style="background: #fffbebf5;"' : '';
 
@@ -441,16 +441,16 @@
             });
 
             if (paymentChart) {
-                paymentChart.updateSeries([{ name: 'الإيرادات (ج.م)', data: payRevenues }]);
+                paymentChart.updateSeries([{ name: i18n.revenue_label_prefix + ' (' + souqpulseAdminData.currency_symbol + ')', data: payRevenues }]);
                 paymentChart.updateOptions({ xaxis: { categories: payTitles } });
             }
             $('#table-payment-methods tbody').html(payTableHtml);
         } else {
             if (paymentChart) {
-                paymentChart.updateSeries([{ name: 'الإيرادات (ج.م)', data: [0] }]);
+                paymentChart.updateSeries([{ name: i18n.revenue_label_prefix + ' (' + souqpulseAdminData.currency_symbol + ')', data: [0] }]);
                 paymentChart.updateOptions({ xaxis: { categories: ['-'] } });
             }
-            $('#table-payment-methods tbody').html('<tr><td colspan="4">' + renderEmptyState('لا توجد وسائل دفع', 'لم يتم تسجيل أي طلبات بوسائل دفع في هذه الفترة.', '💳') + '</td></tr>');
+            $('#table-payment-methods tbody').html('<tr><td colspan="4">' + renderEmptyState(i18n.no_payment_methods, i18n.no_payment_methods_desc, '💳') + '</td></tr>');
         }
 
         // 4.10. تحديث الخريطة الحرارية لساعات وأيام الشراء (Order Heatmap)
@@ -467,7 +467,7 @@
                     '<span class="rfm-icon">' + (seg.icon || '👤') + '</span>' +
                     '<span class="rfm-label">' + escHtml(seg.label) + '</span>' +
                     '<span class="rfm-count" style="color:' + safeColor + ';">' + (seg.count || 0).toLocaleString() + ' <span class="rfm-unit">عميل</span></span>' +
-                    '<span class="rfm-pct">' + (seg.pct || 0) + '% من الإيرادات</span>' +
+                    '<span class="rfm-pct">' + (seg.pct || 0) + '% ' + i18n.from_revenue + '</span>' +
                     '</div>';
             });
             $('#rfm-segment-container').html(rfmHtml);
@@ -479,12 +479,12 @@
             data.product_affinity.forEach(function(pair) {
                 affinityHtml += '<tr>' +
                     '<td><span style="color:#1e293b; font-weight:600;">' + escHtml(pair.product_a_name) + '</span> <span style="color:#94a3b8; font-size:12px; margin:0 4px;">➕</span> <span style="color:#1e293b; font-weight:600;">' + escHtml(pair.product_b_name) + '</span></td>' +
-                    '<td style="text-align:center;"><span class="badge" style="background:#f1f5f9; color:#475569; padding:3px 8px; border-radius:12px; font-weight:700;">' + pair.pair_count.toLocaleString() + ' مرة</span></td>' +
+                    '<td style="text-align:center;"><span class="badge" style="background:#f1f5f9; color:#475569; padding:3px 8px; border-radius:12px; font-weight:700;">' + pair.pair_count.toLocaleString() + ' ' + i18n.time_word + '</span></td>' +
                     '</tr>';
             });
             $('#table-product-affinity tbody').html(affinityHtml);
         } else {
-            $('#table-product-affinity tbody').html('<tr><td colspan="2">' + renderEmptyState('لا توجد ثنائيات مباعة', 'لم يتكرر شراء منتجين معا في طلب واحد.', '🛍️') + '</td></tr>');
+            $('#table-product-affinity tbody').html('<tr><td colspan="2">' + renderEmptyState(i18n.no_pairs_sold, i18n.no_pairs_sold_desc, '🛍️') + '</td></tr>');
         }
 
         // 4.13. تحديث الـ KPI Sparklines الـ 6 بالبيانات اليومية
@@ -561,22 +561,22 @@
                 }
             },
             series: [
-                { name: 'المبيعات (ج.م)', data: [0] },
-                { name: 'عدد الطلبات', data: [0] }
+                { name: i18n.sales_revenue_label, data: [0] },
+                { name: i18n.order_count, data: [0] }
             ],
             xaxis: {
                 categories: ['-'],
                 labels: { style: { colors: '#64748b', fontSize: '12px' } }
             },
             yaxis: [{
-                title: { text: 'المبيعات (ج.م)', style: { color: '#6366f1' } },
+                title: { text: i18n.sales_revenue_label, style: { color: '#6366f1' } },
                 labels: {
                     style: { colors: '#64748b' },
-                    formatter: function(val) { return 'ج.م ' + Math.round(val).toLocaleString(); }
+                    formatter: function(val) { return souqpulseAdminData.currency_symbol + ' ' + Math.round(val).toLocaleString(); }
                 }
             }, {
                 opposite: true,
-                title: { text: 'الطلبات', style: { color: '#10b981' } },
+                title: { text: i18n.orders_plural, style: { color: '#10b981' } },
                 labels: { style: { colors: '#64748b' } }
             }],
             grid: { borderColor: '#e2e8f0', strokeDashArray: 4 },
@@ -611,9 +611,9 @@
                     return opt.w.globals.labels[opt.dataPointIndex] + ": " + val.toLocaleString();
                 }
             },
-            series: [{ name: 'الزيارات', data: [1500, 800, 480, 360, 310, 220] }],
+            series: [{ name: i18n.visits_plural, data: [1500, 800, 480, 360, 310, 220] }],
             xaxis: {
-                categories: ['زيارة الموقع', 'إضافة للسلة', 'بدء الدفع', 'معلومات الشحن', 'معلومات الدفع', 'عملية الشراء'],
+                categories: [i18n.funnel_visit, i18n.funnel_add_to_cart, i18n.funnel_begin_checkout, i18n.shipping_info, i18n.payment_info, i18n.funnel_completed_purchase],
                 labels: { style: { colors: '#64748b' } }
             },
             yaxis: { labels: { show: false } },
@@ -632,7 +632,7 @@
             },
             colors: ['#6366f1', '#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
             series: [45, 25, 15, 10, 5],
-            labels: ['القاهرة', 'الإسكندرية', 'الجيزة', 'القليوبية', 'أخرى'],
+            labels: [i18n.cairo, i18n.alexandria, i18n.giza, i18n.qalyubia, i18n.other],
             legend: { position: 'bottom', horizontalAlign: 'center', labels: { colors: '#64748b' } },
             dataLabels: {
                 enabled: true,
@@ -654,7 +654,7 @@
             },
             colors: ['#6366f1', '#3b82f6'],
             series: [0, 0],
-            labels: ['عملاء راجعون', 'عملاء جدد'],
+            labels: [i18n.returning_customers, i18n.rfm_new],
             tooltip: {
                 y: {
                     formatter: function(val) { return formatCurrency(val); }
@@ -682,7 +682,7 @@
                 }
             },
             colors: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444'],
-            series: [{ name: 'الإيرادات (ج.م)', data: [0] }],
+            series: [{ name: i18n.revenue_label_prefix + ' (' + souqpulseAdminData.currency_symbol + ')', data: [0] }],
             xaxis: {
                 categories: ['-'],
                 labels: { style: { colors: '#64748b' } }
@@ -694,13 +694,13 @@
 
         // 7. الخريطة الحرارية لساعات وأيام الشراء (Peak Order Heatmap)
         var emptyHeatmapSeries = [
-            { name: 'السبت', data: Array(24).fill(0) },
-            { name: 'الأحد', data: Array(24).fill(0) },
-            { name: 'الإثنين', data: Array(24).fill(0) },
-            { name: 'الثلاثاء', data: Array(24).fill(0) },
-            { name: 'الأربعاء', data: Array(24).fill(0) },
-            { name: 'الخميس', data: Array(24).fill(0) },
-            { name: 'الجمعة', data: Array(24).fill(0) }
+            { name: i18n.saturday, data: Array(24).fill(0) },
+            { name: i18n.sunday, data: Array(24).fill(0) },
+            { name: i18n.monday, data: Array(24).fill(0) },
+            { name: i18n.tuesday, data: Array(24).fill(0) },
+            { name: i18n.wednesday, data: Array(24).fill(0) },
+            { name: i18n.thursday, data: Array(24).fill(0) },
+            { name: i18n.friday, data: Array(24).fill(0) }
         ];
 
         var heatmapOptions = {
@@ -740,7 +740,7 @@
                 type: 'gradient',
                 gradient: { shadeIntensity: 1, opacityFrom: 0.15, opacityTo: 0.01 }
             },
-            series: [{ name: 'النشطون', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }],
+            series: [{ name: i18n.active_users, data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }],
             tooltip: { enabled: false }
         };
         var sparklineEl = document.querySelector('#souqpulse-realtime-chart');
@@ -810,7 +810,7 @@
         currentData.push(currentCount); // إضافة القيمة الجديدة
         
         sparklineChart.updateSeries([{
-            name: 'النشطون',
+            name: i18n.active_users,
             data: currentData
         }]);
     }
@@ -819,20 +819,20 @@
      * تنسيق مدة الزيارة بالدقائق والثواني
      */
     function formatDuration(seconds) {
-        if (!seconds || seconds <= 0) return '0 ثانية';
+        if (!seconds || seconds <= 0) return '0 ' + i18n.second_word;
         var m = Math.floor(seconds / 60);
         var s = seconds % 60;
         if (m > 0) {
-            return m + ' د ' + s + ' ث';
+            return m + ' ' + i18n.min_abbr + ' ' + s + ' ' + i18n.sec_abbr;
         }
-        return s + ' ثانية';
+        return s + ' ' + i18n.second_word;
     }
 
     /**
      * تنسيق العملة المحلية
      */
     function formatCurrency(val) {
-        return 'ج.م ' + parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return souqpulseAdminData.currency_symbol + ' ' + parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     /**
@@ -852,8 +852,8 @@
      */
     function renderEmptyState(title, subtitle, icon) {
         icon = icon || '📊';
-        title = title || 'لا توجد بيانات مسجلة';
-        subtitle = subtitle || 'جرّب اختيار نطاق زمني آخر للاطلاع على الإحصائيات.';
+        title = title || i18n.no_data_recorded;
+        subtitle = subtitle || i18n.try_another_date_range;
         return '<div class="souqpulse-empty-state">' +
                '  <div class="empty-icon">' + icon + '</div>' +
                '  <h5 class="empty-title">' + escHtml(title) + '</h5>' +
@@ -870,33 +870,33 @@
 
         // خريطة أسماء وأكواد ومسارات محافظات مصر المعتمدة
         var govPaths = {
-            'EG-C':   { name: 'القاهرة', d: 'M460,250 L480,240 L500,260 L480,280 L460,270 Z' },
-            'EG-ALX': { name: 'الإسكندرية', d: 'M340,160 L380,150 L390,170 L350,180 Z' },
-            'EG-GZ':  { name: 'الجيزة', d: 'M420,260 L460,270 L430,340 L390,320 Z' },
-            'EG-QAL': { name: 'القليوبية', d: 'M460,230 L480,220 L490,240 L470,245 Z' },
-            'EG-DK':  { name: 'الدقهلية', d: 'M470,180 L500,170 L510,200 L480,205 Z' },
-            'EG-SHR': { name: 'الشرقية', d: 'M490,200 L530,190 L540,220 L500,230 Z' },
-            'EG-GH':  { name: 'الغربية', d: 'M440,190 L470,185 L475,215 L445,215 Z' },
-            'EG-KB':  { name: 'المنوفية', d: 'M430,215 L465,215 L460,240 L430,235 Z' },
-            'EG-BH':  { name: 'البحيرة', d: 'M380,170 L430,185 L430,225 L370,210 Z' },
-            'EG-KSH': { name: 'كفر الشيخ', d: 'M430,160 L475,160 L470,185 L430,185 Z' },
-            'EG-DA':  { name: 'دمياط', d: 'M500,165 L525,165 L520,185 L495,185 Z' },
-            'EG-PTS': { name: 'بورسعيد', d: 'M530,175 L560,175 L555,195 L530,195 Z' },
-            'EG-IS':  { name: 'الإسماعيلية', d: 'M530,200 L570,200 L565,230 L530,225 Z' },
-            'EG-SUZ': { name: 'السويس', d: 'M530,235 L580,240 L570,270 L525,260 Z' },
-            'EG-NS':  { name: 'شمال سيناء', d: 'M580,180 L670,170 L650,230 L575,210 Z' },
-            'EG-SS':  { name: 'جنوب سيناء', d: 'M580,240 L650,235 L620,330 L575,290 Z' },
-            'EG-FYM': { name: 'الفيوم', d: 'M400,310 L440,305 L435,340 L395,335 Z' },
-            'EG-BNS': { name: 'بني سويف', d: 'M435,340 L480,335 L475,375 L425,370 Z' },
-            'EG-MN':  { name: 'المنيا', d: 'M425,375 L485,375 L480,440 L415,435 Z' },
-            'EG-AST': { name: 'أسيوط', d: 'M420,440 L495,440 L490,500 L410,495 Z' },
-            'EG-SHG': { name: 'سوهاج', d: 'M425,505 L510,505 L505,560 L420,555 Z' },
-            'EG-QNA': { name: 'قنا', d: 'M490,565 L570,555 L560,620 L480,615 Z' },
-            'EG-LX':  { name: 'الأقصر', d: 'M490,620 L550,620 L545,660 L485,655 Z' },
-            'EG-ASW': { name: 'أسوان', d: 'M480,660 L590,660 L580,770 L465,770 Z' },
-            'EG-WAD': { name: 'الوادي الجديد', d: 'M150,330 L410,330 L460,770 L150,770 Z' },
-            'EG-MS':  { name: 'مطروح', d: 'M150,140 L360,140 L390,320 L150,320 Z' },
-            'EG-BA':  { name: 'البحر الأحمر', d: 'M550,270 L600,270 L650,770 L570,770 Z' }
+            'EG-C':   { name: i18n.cairo, d: 'M460,250 L480,240 L500,260 L480,280 L460,270 Z' },
+            'EG-ALX': { name: i18n.alexandria, d: 'M340,160 L380,150 L390,170 L350,180 Z' },
+            'EG-GZ':  { name: i18n.giza, d: 'M420,260 L460,270 L430,340 L390,320 Z' },
+            'EG-QAL': { name: i18n.qalyubia, d: 'M460,230 L480,220 L490,240 L470,245 Z' },
+            'EG-DK':  { name: i18n.dakahlia, d: 'M470,180 L500,170 L510,200 L480,205 Z' },
+            'EG-SHR': { name: i18n.sharqia, d: 'M490,200 L530,190 L540,220 L500,230 Z' },
+            'EG-GH':  { name: i18n.gharbia, d: 'M440,190 L470,185 L475,215 L445,215 Z' },
+            'EG-KB':  { name: i18n.monufia, d: 'M430,215 L465,215 L460,240 L430,235 Z' },
+            'EG-BH':  { name: i18n.beheira, d: 'M380,170 L430,185 L430,225 L370,210 Z' },
+            'EG-KSH': { name: i18n.kafr_el_sheikh, d: 'M430,160 L475,160 L470,185 L430,185 Z' },
+            'EG-DA':  { name: i18n.damietta, d: 'M500,165 L525,165 L520,185 L495,185 Z' },
+            'EG-PTS': { name: i18n.port_said, d: 'M530,175 L560,175 L555,195 L530,195 Z' },
+            'EG-IS':  { name: i18n.ismailia, d: 'M530,200 L570,200 L565,230 L530,225 Z' },
+            'EG-SUZ': { name: i18n.suez, d: 'M530,235 L580,240 L570,270 L525,260 Z' },
+            'EG-NS':  { name: i18n.north_sinai, d: 'M580,180 L670,170 L650,230 L575,210 Z' },
+            'EG-SS':  { name: i18n.south_sinai, d: 'M580,240 L650,235 L620,330 L575,290 Z' },
+            'EG-FYM': { name: i18n.faiyum, d: 'M400,310 L440,305 L435,340 L395,335 Z' },
+            'EG-BNS': { name: i18n.beni_suef, d: 'M435,340 L480,335 L475,375 L425,370 Z' },
+            'EG-MN':  { name: i18n.minya, d: 'M425,375 L485,375 L480,440 L415,435 Z' },
+            'EG-AST': { name: i18n.asyut, d: 'M420,440 L495,440 L490,500 L410,495 Z' },
+            'EG-SHG': { name: i18n.sohag, d: 'M425,505 L510,505 L505,560 L420,555 Z' },
+            'EG-QNA': { name: i18n.qena, d: 'M490,565 L570,555 L560,620 L480,615 Z' },
+            'EG-LX':  { name: i18n.luxor, d: 'M490,620 L550,620 L545,660 L485,655 Z' },
+            'EG-ASW': { name: i18n.aswan, d: 'M480,660 L590,660 L580,770 L465,770 Z' },
+            'EG-WAD': { name: i18n.new_valley, d: 'M150,330 L410,330 L460,770 L150,770 Z' },
+            'EG-MS':  { name: i18n.matrouh, d: 'M150,140 L360,140 L390,320 L150,320 Z' },
+            'EG-BA':  { name: i18n.red_sea, d: 'M550,270 L600,270 L650,770 L570,770 Z' }
         };
 
         var maxSales = 0;
@@ -924,7 +924,7 @@
             else if (ratio > 0.15) fillColor = '#818cf8';
             else if (ratio > 0) fillColor = '#c7d2fe';
 
-            var tooltipTitle = escHtml(info.name) + ': ' + formatCurrency(sales) + ' (' + orders + ' طلب)';
+            var tooltipTitle = escHtml(info.name) + ': ' + formatCurrency(sales) + ' (' + orders + ' ' + i18n.order_word + ')';
 
             svgHtml += '<path d="' + info.d + '" class="souqpulse-gov-path" fill="' + fillColor + '" data-code="' + code + '" data-name="' + escHtml(info.name) + '">' +
                        '<title>' + tooltipTitle + '</title>' +
@@ -943,7 +943,7 @@
         if (!$tbody.length) return;
 
         if (!countriesData || countriesData.length === 0) {
-            $tbody.html('<tr><td colspan="3">' + renderEmptyState('لا توجد بيانات جغرافية', 'لم يتم تسجيل طلبات بدول معروفة.', '🌐') + '</td></tr>');
+            $tbody.html('<tr><td colspan="3">' + renderEmptyState(i18n.no_geo_data, i18n.no_geo_data_desc, '🌐') + '</td></tr>');
             return;
         }
 
@@ -977,7 +977,7 @@
         if (!$tbody.length) return;
 
         if (!geoData || geoData.length === 0) {
-            $tbody.html('<tr><td colspan="3">' + renderEmptyState('لا توجد مبيعات في مصر', 'لم تسجل طلبات داخل مصر.', '🇪🇬') + '</td></tr>');
+            $tbody.html('<tr><td colspan="3">' + renderEmptyState(i18n.no_egypt_sales, i18n.no_egypt_sales_desc, '🇪🇬') + '</td></tr>');
             return;
         }
 
@@ -1001,7 +1001,7 @@
         if (!$tbody.length) return;
 
         if (!cohortData || !cohortData.cohorts || cohortData.cohorts.length === 0) {
-            $tbody.html('<tr><td colspan="8">' + renderEmptyState('لا توجد بيانات مجموعات', 'يتطلب تسجيل طلبات في أكثر من شهر لحساب الاحتفاظ.', '📅') + '</td></tr>');
+            $tbody.html('<tr><td colspan="8">' + renderEmptyState(i18n.no_cohort_data, i18n.no_cohort_data_desc, '📅') + '</td></tr>');
             return;
         }
 

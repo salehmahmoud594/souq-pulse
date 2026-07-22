@@ -35,7 +35,7 @@ function souqpulse_override_plugin_locale($locale, $domain)
     if ('souq-pulse' === $domain) {
         $forced_locale = get_option('souqpulse_language', 'auto');
         if ('auto' !== $forced_locale) {
-            return $forced_locale;
+            return ('en' === $forced_locale) ? 'en_US' : $forced_locale;
         }
     }
     return $locale;
@@ -192,7 +192,7 @@ function souqpulse_init_dependency_check()
 function souqpulse_woocommerce_missing_notice()
 {
     $class = 'notice notice-error is-dismissible';
-    $message = __('إضافة <strong>Souq Pulse (SouqPulse)</strong> تتطلب تفعيل إضافة <strong>WooCommerce</strong> للعمل. تم تعطيل الإضافة تلقائياً.', 'souq-pulse');
+    $message = __('<strong>Souq Pulse (SouqPulse)</strong> requires <strong>WooCommerce</strong> to be activated. The plugin has been automatically deactivated.', 'souq-pulse');
 
     printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), wp_kses_post($message));
 }

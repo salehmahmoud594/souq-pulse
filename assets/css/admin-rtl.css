@@ -608,7 +608,7 @@ input:checked + .slider:before {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  margin-left: 12px;
+  margin-inline-end: 12px;
 }
 
 .status-dot.green {
@@ -669,7 +669,7 @@ input:checked + .slider:before {
   background-color: var(--souqpulse-light);
   color: #475569;
   font-weight: 700;
-  text-align: right;
+  text-align: start;
   padding: 10px 12px;
   font-size: 13px;
   border-bottom: 2px solid var(--souqpulse-border);
@@ -790,7 +790,7 @@ input:checked + .slider:before {
   font-weight: 600;
   display: inline-block;
   margin-top: 2px;
-  margin-right: 36px; /* محاذاة مع النص بعد الصورة */
+  margin-inline-start: 36px; /* محاذاة مع النص بعد الصورة */
 }
 
 /* === Phase 2: RFM Segment Cards === */

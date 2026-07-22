@@ -23,7 +23,7 @@ class SouqPulse_Settings
     private static $supported_locales = array(
         'auto' => 'Automatic (Follow Site)',
         'ar' => 'العربية',
-        'en' => 'English',
+        'en_US' => 'English',
     );
 
     /**
