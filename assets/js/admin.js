@@ -48,34 +48,11 @@
         $('.souqpulse-tab-btn').on('click', function(e) {
             e.preventDefault();
             var target = $(this).data('target');
-            
-            // تغيير حالة الأزرار النشطة
             $('.souqpulse-tab-btn').removeClass('active');
             $(this).addClass('active');
-            
-            // تبديل المحتوى النشط
             $('.souqpulse-tab-content').removeClass('active').hide();
             $(target).addClass('active').show();
-            
-            // إخفاء فلاتر التواريخ في الهيدر إذا لم نكن في تبويب التحليلات
-            if (target === '#souqpulse-analytics-tab') {
-                $('.souqpulse-header-actions').show();
-            } else {
-                $('.souqpulse-header-actions').hide();
-            }
-            
-            // تحديث رابط الهاش لحفظ حالة الصفحة عند التحديث
-            var tabName = target.replace('#souqpulse-', '').replace('-tab', '');
-            window.location.hash = tabName;
         });
-
-        // قراءة وحفظ حالة الصفحة الحالية عند التحديث من الرابط
-        var hash = window.location.hash;
-        if (hash === '#settings') {
-            $('.souqpulse-tab-btn[data-target="#souqpulse-settings-tab"]').trigger('click');
-        } else if (window.location.search.indexOf('tab=settings') !== -1) {
-            $('.souqpulse-tab-btn[data-target="#souqpulse-settings-tab"]').trigger('click');
-        }
     }
 
     /**

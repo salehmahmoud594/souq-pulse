@@ -71,8 +71,8 @@ msgstr "تم حفظ الإعدادات بنجاح."
 
 #. Plugin Name of the plugin
 #: souq-pulse.php
-msgid "SouqPulse (نبض السوق)"
-msgstr "SouqPulse (نبض السوق)"
+msgid "SouqPulse"
+msgstr "SouqPulse"
 
 #. Plugin URI of the plugin
 #: souq-pulse.php

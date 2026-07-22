@@ -19,32 +19,6 @@ class SouqPulse_Admin
     {
         add_action('admin_menu', array($this, 'register_submenu_page'), 99);
         add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
-        add_action('admin_init', array($this, 'register_settings'));
-    }
-
-    /**
-     * تسجيل إعدادات لوحة التحكم
-     */
-    public function register_settings()
-    {
-        register_setting(
-            'souqpulse_settings_group',
-            'souqpulse_language',
-            array(
-                'sanitize_callback' => array($this, 'sanitize_language'),
-                'default' => 'auto',
-            )
-        );
-    }
-
-    /**
-     * تطهير خيار اللغة
-     */
-    public function sanitize_language($value)
-    {
-        $value = sanitize_key(wp_unslash($value));
-        $supported = array('auto', 'ar', 'en');
-        return in_array($value, $supported, true) ? $value : 'auto';
     }
 
     /**
@@ -228,19 +202,15 @@ class SouqPulse_Admin
      */
     public function render_dashboard_page()
     {
-        $forced_locale = get_option('souqpulse_language', 'auto');
-        $effective_locale = ('auto' === $forced_locale) ? get_locale() : (('en' === $forced_locale) ? 'en_US' : $forced_locale);
-        $is_dashboard_rtl = ('ar' === $effective_locale);
         ?>
-        <div class="wrap souqpulse-dashboard-wrapper" dir="<?php echo $is_dashboard_rtl ? 'rtl' : 'ltr'; ?>">
-            <!-- الهيدر العلوي للوحة التحكم مع التبويبات -->
+        <div class="wrap souqpulse-dashboard-wrapper" dir="rtl">
+            <!-- الهيدر العلوي للوحة التحكم -->
             <div class="souqpulse-header-section" style="margin-bottom: 24px;">
                 <div class="souqpulse-header"
                     style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
                     <div class="souqpulse-header-title">
-                        <h1
-                            style="margin: 0; font-size: 24px; color: var(--souqpulse-dark); display: flex; align-items: center; gap: 8px;">
-                            📊 <?php esc_html_e('Souq Pulse', 'souq-pulse'); ?>
+                        <h1 style="display: flex; align-items: center; gap: 10px; margin: 0; font-size: 22px; font-weight: 700; color: #1e293b;">
+                            ⚡ <?php esc_html_e('Souq Pulse', 'souq-pulse'); ?>
                             <span class="badge"
                                 style="background: var(--souqpulse-primary); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: normal;"><?php esc_html_e('Beta', 'souq-pulse'); ?></span>
                         </h1>
@@ -248,17 +218,6 @@ class SouqPulse_Admin
                             <?php esc_html_e('Comprehensive real-time overview of your store\'s sales performance and visitor behavior in one place.', 'souq-pulse'); ?>
                         </p>
                     </div>
-
-                    <!-- التبويبات العلوية -->
-                    <div class="souqpulse-nav-tabs">
-                        <button class="souqpulse-tab-btn active" data-target="#souqpulse-analytics-tab">
-                            📊 <?php esc_html_e('Analytics Dashboard', 'souq-pulse'); ?>
-                        </button>
-                        <button class="souqpulse-tab-btn" data-target="#souqpulse-settings-tab">
-                            ⚙️ <?php esc_html_e('Settings', 'souq-pulse'); ?>
-                        </button>
-                    </div>
-
                     <div class="souqpulse-header-actions">
                         <!-- مفتاح اختيار النطاق الزمني -->
                         <div class="date-picker-container">
@@ -726,54 +685,6 @@ class SouqPulse_Admin
                     </div>
                 </div>
             </div>
-
-            <!-- تبويب الإعدادات -->
-            <div id="souqpulse-settings-tab" class="souqpulse-tab-content" style="display:none; padding: 10px 0;">
-            <div class="souqpulse-card"
-                style="max-width: 600px; margin: 0 auto; padding: 30px; background:#fff; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.05); border:1px solid var(--souqpulse-border);">
-                <h2 style="margin-top:0; margin-bottom: 20px; font-size:18px; color:var(--souqpulse-dark); font-weight:700;">
-                    🌐 <?php esc_html_e('Language & Translation Settings', 'souq-pulse'); ?>
-                </h2>
-                <form method="post" action="options.php">
-                    <?php
-                    settings_fields('souqpulse_settings_group');
-                    $current_lang = get_option('souqpulse_language', 'auto');
-                    ?>
-
-                    <div style="margin-bottom: 25px;">
-                        <label style="display:block; margin-bottom: 10px; font-weight: 500; color: #475569; font-size: 14px;">
-                            <?php esc_html_e('Dashboard Language:', 'souq-pulse'); ?>
-                        </label>
-                        <select name="souqpulse_language" class="souqpulse-select"
-                            style="width: 100%; max-width: 320px; height: 40px; padding: 0 12px; font-size: 14px; border: 1px solid var(--souqpulse-border); border-radius: 6px; background-color:#fff; color:var(--souqpulse-dark); outline:none;">
-                            <option value="auto" <?php selected($current_lang, 'auto'); ?>>
-                                <?php esc_html_e('Automatic (Follows Site Language)', 'souq-pulse'); ?></option>
-                            <option value="ar" <?php selected($current_lang, 'ar'); ?>>
-                                <?php esc_html_e('Arabic', 'souq-pulse'); ?></option>
-                            <option value="en" <?php selected($current_lang, 'en'); ?>>
-                                <?php esc_html_e('English', 'souq-pulse'); ?></option>
-                        </select>
-                        <p style="color: #64748b; font-size: 12px; margin-top: 8px; line-height: 1.5;">
-                            <?php esc_html_e('Select the display language for Souq Pulse dashboard. Requires saving settings to reload translated words.', 'souq-pulse'); ?>
-                        </p>
-                    </div>
-
-                    <!-- صندوق إرشادات -->
-                    <div
-                        style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding: 16px; margin-bottom: 25px; font-size:13px; color:#475569; line-height: 1.6;">
-                        <strong>💡 <?php esc_html_e('How does automatic detection work?', 'souq-pulse'); ?></strong><br>
-                        <?php esc_html_e('In Automatic mode, the dashboard will follow the WordPress site language set in the site\'s general settings. If the site language is Arabic, the board will be displayed entirely in an RTL interface and Arabic terminology.', 'souq-pulse'); ?>
-                    </div>
-
-                    <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; display: flex; justify-content: flex-end;">
-                        <button type="submit" class="souqpulse-btn-primary"
-                            style="background:var(--souqpulse-primary); border:none; color:#fff; padding:10px 24px; border-radius:6px; font-weight:500; cursor:pointer; font-size: 14px; font-family: inherit; transition: opacity 0.2s ease;">
-                            <?php esc_html_e('Save Settings', 'souq-pulse'); ?>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
         </div>
         <?php
     }

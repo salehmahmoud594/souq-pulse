@@ -2,8 +2,8 @@
 /**
  * Plugin Name: SouqPulse (نبض السوق)
  * Plugin URI: https://github.com/salehmahmoud594/souq-pulse
- * Description: An integrated and smart analytics dashboard for WooCommerce, merging real-time visitor traffic from WP Statistics with advanced KPIs in a fully localized Arabic RTL interface.
- * Version: 1.1.0
+ * Description: An integrated and smart analytics dashboard for WooCommerce, merging real-time visitor traffic from WP Statistics with advanced KPIs, RFM segmentation, cohort retention, and purchase funnels in a fully localized Arabic RTL interface.
+ * Version: 1.2.0
  * Author: Saleh Mahmoud
  * Author URI: https://github.com/salehmahmoud594
  * Text Domain: souq-pulse
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // تعريف الثوابت الأساسية
-define('SOUQPULSE_VERSION', '1.1.0');
+define('SOUQPULSE_VERSION', '1.2.0');
 define('SOUQPULSE_PATH', plugin_dir_path(__FILE__));
 define('SOUQPULSE_URL', plugin_dir_url(__FILE__));
 define('SOUQPULSE_BASENAME', plugin_basename(__FILE__));
@@ -33,14 +33,7 @@ add_filter('plugin_locale', 'souqpulse_override_plugin_locale', 10, 2);
 function souqpulse_override_plugin_locale($locale, $domain)
 {
     if ('souq-pulse' === $domain) {
-        $forced_locale = get_option('souqpulse_language', 'auto');
-        if ('auto' !== $forced_locale) {
-            return ('en' === $forced_locale) ? 'en_US' : $forced_locale;
-        }
-        // إذا كانت لغة الموقع تبدأ بـ ar (مثل ar_EG, ar_SA, ar_MA) نعيد 'ar' ليتطابق مع souq-pulse-ar.mo
-        if (strpos($locale, 'ar') === 0) {
-            return 'ar';
-        }
+        return 'ar';
     }
     return $locale;
 }
