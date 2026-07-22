@@ -118,6 +118,22 @@
                 fetchDashboardData();
             }
         });
+
+        // تبديل عرض التوزيع الجغرافي بين جميع الدول ومحافظات مصر
+        $(document).on('click', '.souqpulse-geo-btn', function(e) {
+            e.preventDefault();
+            var tab = $(this).data('geo-tab');
+            $('.souqpulse-geo-btn').removeClass('active');
+            $(this).addClass('active');
+
+            if (tab === 'countries') {
+                $('#souqpulse-geo-countries-container').show();
+                $('#souqpulse-geo-egypt-container').hide();
+            } else {
+                $('#souqpulse-geo-countries-container').hide();
+                $('#souqpulse-geo-egypt-container').show();
+            }
+        });
     }
 
     /**
@@ -481,7 +497,9 @@
             if (kpiSparklines.conversion && data.kpi_sparklines.conversion) kpiSparklines.conversion.updateSeries([{ data: data.kpi_sparklines.conversion }]);
         }
 
-        // 4.14. تحديث خريطة مصر التفاعلية SVG ومصفوفة احتفاظ العملاء (Cohort Retention)
+        // 4.14. تحديث التوزيع الجغرافي وخريطة مصر ومصفوفة احتفاظ العملاء (Cohort Retention)
+        renderGeoCountriesTable(data.geo_countries);
+        renderGeoEgyptTable(data.geo);
         renderEgyptMap(data.geo);
         renderCohortRetentionTable(data.cohort_retention);
     }
@@ -915,6 +933,64 @@
 
         svgHtml += '</svg>';
         $container.html(svgHtml);
+    }
+
+    /**
+     * رسم جدول التوزيع الجغرافي للدول العالمية مع أعلام الدول وأشرطة التقدم
+     */
+    function renderGeoCountriesTable(countriesData) {
+        var $tbody = $('#table-geo-countries tbody');
+        if (!$tbody.length) return;
+
+        if (!countriesData || countriesData.length === 0) {
+            $tbody.html('<tr><td colspan="3">' + renderEmptyState('لا توجد بيانات جغرافية', 'لم يتم تسجيل طلبات بدول معروفة.', '🌐') + '</td></tr>');
+            return;
+        }
+
+        var html = '';
+        countriesData.forEach(function(item) {
+            html += '<tr>' +
+                '<td><span style="font-size:16px; margin-left:6px;">' + item.flag + '</span> <strong>' + escHtml(item.name) + '</strong></td>' +
+                '<td style="text-align:center;"><span class="badge" style="background:#f1f5f9; color:#475569; padding:2px 8px; border-radius:12px; font-weight:700;">' + item.orders.toLocaleString() + '</span></td>' +
+                '<td>' +
+                    '<div class="geo-progress-wrapper">' +
+                        '<div style="display:flex; justify-content:space-between; font-size:12px;">' +
+                            '<strong style="color:#1e293b;">' + formatCurrency(item.sales) + '</strong>' +
+                            '<span style="color:#64748b;">' + item.percentage + '%</span>' +
+                        '</div>' +
+                        '<div class="geo-progress-bar-bg">' +
+                            '<div class="geo-progress-bar-fill" style="width:' + item.percentage + '%;"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</td>' +
+            '</tr>';
+        });
+
+        $tbody.html(html);
+    }
+
+    /**
+     * رسم جدول التوزيع الجغرافي لمحافظات مصر
+     */
+    function renderGeoEgyptTable(geoData) {
+        var $tbody = $('#table-geo-egypt tbody');
+        if (!$tbody.length) return;
+
+        if (!geoData || geoData.length === 0) {
+            $tbody.html('<tr><td colspan="3">' + renderEmptyState('لا توجد مبيعات في مصر', 'لم تسجل طلبات داخل مصر.', '🇪🇬') + '</td></tr>');
+            return;
+        }
+
+        var html = '';
+        geoData.forEach(function(item) {
+            html += '<tr>' +
+                '<td><strong>' + escHtml(item.name) + '</strong></td>' +
+                '<td style="text-align:center;">' + item.orders.toLocaleString() + '</td>' +
+                '<td><strong>' + formatCurrency(item.sales) + '</strong></td>' +
+            '</tr>';
+        });
+
+        $tbody.html(html);
     }
 
     /**

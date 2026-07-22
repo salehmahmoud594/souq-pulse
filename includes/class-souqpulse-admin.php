@@ -408,21 +408,60 @@ class SouqPulse_Admin
                         </div>
                     </div>
 
-                    <!-- التوزيع الجغرافي للطلبات حسب المحافظة والخريطة التفاعلية -->
+                    <!-- التوزيع الجغرافي للمبيعات والطلبات -->
                     <div class="souqpulse-card table-card">
-                        <div class="card-header">
-                            <span
-                                class="card-title"><?php esc_html_e('خريطة التوزيع الجغرافي للمحافظات المصرية', 'souq-pulse'); ?></span>
+                        <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                            <span class="card-title"><?php esc_html_e('التوزيع الجغرافي للمبيعات والطلبات', 'souq-pulse'); ?></span>
+                            <div class="souqpulse-geo-toggles">
+                                <button class="souqpulse-geo-btn active" data-geo-tab="countries">🌐 <?php esc_html_e('جميع الدول', 'souq-pulse'); ?></button>
+                                <button class="souqpulse-geo-btn" data-geo-tab="egypt">🇪🇬 <?php esc_html_e('محافظات مصر', 'souq-pulse'); ?></button>
+                            </div>
                         </div>
                         <div class="card-body">
-                            <!-- ويدجت خريطة مصر التفاعلية SVG -->
-                            <div id="souqpulse-egypt-map-wrapper" style="margin-bottom: 15px; position: relative;">
-                                <div id="souqpulse-egypt-map-container"
-                                    style="width: 100%; height: 210px; display: flex; align-items: center; justify-content: center; background: #fafafa; border-radius: 8px; border: 1px solid #f1f5f9; overflow: hidden;">
-                                    <!-- يتم توليد عناصر خريطة مصر SVG ديناميكياً بواسطة JavaScript -->
+                            <!-- عرض جدول الدول العالمية (الافتراضي) -->
+                            <div id="souqpulse-geo-countries-container">
+                                <div class="table-responsive">
+                                    <table class="souqpulse-table" id="table-geo-countries">
+                                        <thead>
+                                            <tr>
+                                                <th><?php esc_html_e('الدولة', 'souq-pulse'); ?></th>
+                                                <th style="width: 70px; text-align: center;"><?php esc_html_e('الطلبات', 'souq-pulse'); ?></th>
+                                                <th style="min-width: 140px;"><?php esc_html_e('الإيراد ونسبة المساهمة', 'souq-pulse'); ?></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted"><?php esc_html_e('جاري تحميل التوزيع الجغرافي...', 'souq-pulse'); ?></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            <div id="souqpulse-geo-chart" class="souqpulse-chart-placeholder" style="min-height: 180px;"></div>
+
+                            <!-- عرض خريطة ومحافظات مصر (عند اختيار تبويب مصر) -->
+                            <div id="souqpulse-geo-egypt-container" style="display: none;">
+                                <div id="souqpulse-egypt-map-wrapper" style="margin-bottom: 15px; position: relative;">
+                                    <div id="souqpulse-egypt-map-container"
+                                        style="width: 100%; height: 210px; display: flex; align-items: center; justify-content: center; background: #fafafa; border-radius: 8px; border: 1px solid #f1f5f9; overflow: hidden;">
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="souqpulse-table" id="table-geo-egypt">
+                                        <thead>
+                                            <tr>
+                                                <th><?php esc_html_e('المحافظة', 'souq-pulse'); ?></th>
+                                                <th style="width: 70px; text-align: center;"><?php esc_html_e('الطلبات', 'souq-pulse'); ?></th>
+                                                <th><?php esc_html_e('المبيعات', 'souq-pulse'); ?></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted"><?php esc_html_e('جاري التحميل...', 'souq-pulse'); ?></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -21,6 +21,68 @@ class SouqPulse_DB
     private static $is_hpos_enabled = null;
 
     /**
+     * توليد علم الدولة كـ Emoji من كود الدولة المكون من حرفين ISO
+     */
+    public static function get_country_flag($country_code)
+    {
+        $country_code = strtoupper(trim((string) $country_code));
+        if (strlen($country_code) !== 2) {
+            return '🌐';
+        }
+        if (!function_exists('mb_chr')) {
+            return '🌐';
+        }
+        $first = mb_chr(ord($country_code[0]) + 127397, 'UTF-8');
+        $second = mb_chr(ord($country_code[1]) + 127397, 'UTF-8');
+        return ($first && $second) ? ($first . $second) : '🌐';
+    }
+
+    /**
+     * الحصول على اسم الدولة المترجم كـ Fallback أو عبر WooCommerce
+     */
+    public static function get_country_name($code)
+    {
+        $code = strtoupper(trim((string) $code));
+        if (empty($code)) {
+            return __('غير محدد', 'souq-pulse');
+        }
+
+        if (function_exists('WC') && WC()->countries && method_exists(WC()->countries, 'get_countries')) {
+            $wc_countries = WC()->countries->get_countries();
+            if (isset($wc_countries[$code])) {
+                return $wc_countries[$code];
+            }
+        }
+
+        $names = array(
+            'EG' => __('مصر', 'souq-pulse'),
+            'SA' => __('المملكة العربية السعودية', 'souq-pulse'),
+            'AE' => __('الإمارات العربية المتحدة', 'souq-pulse'),
+            'KW' => __('الكويت', 'souq-pulse'),
+            'QA' => __('قطر', 'souq-pulse'),
+            'OM' => __('عُمان', 'souq-pulse'),
+            'BH' => __('البحرين', 'souq-pulse'),
+            'JO' => __('الأردن', 'souq-pulse'),
+            'IQ' => __('العراق', 'souq-pulse'),
+            'LB' => __('لبنان', 'souq-pulse'),
+            'LY' => __('ليبيا', 'souq-pulse'),
+            'MA' => __('المغرب', 'souq-pulse'),
+            'DZ' => __('الجزائر', 'souq-pulse'),
+            'TN' => __('تونس', 'souq-pulse'),
+            'SD' => __('السودان', 'souq-pulse'),
+            'YE' => __('اليمن', 'souq-pulse'),
+            'US' => __('الولايات المتحدة', 'souq-pulse'),
+            'GB' => __('المملكة المتحدة', 'souq-pulse'),
+            'CA' => __('كندا', 'souq-pulse'),
+            'DE' => __('ألمانيا', 'souq-pulse'),
+            'FR' => __('فرنسا', 'souq-pulse'),
+            'TR' => __('تركيا', 'souq-pulse'),
+        );
+
+        return isset($names[$code]) ? $names[$code] : $code;
+    }
+
+    /**
      * التحقق مما إذا كانت جداول HPOS المخصصة مفعّلة في WooCommerce
      *
      * @return bool
@@ -780,6 +842,76 @@ class SouqPulse_DB
             'low_stock' => $stock_stats ? (int) $stock_stats->low_stock_count : 0,
             'out_of_stock' => $stock_stats ? (int) $stock_stats->out_of_stock_count : 0,
         );
+
+        // 8.9. استعلام المؤشرات الجغرافية لكافة دول العالم (Global Countries Breakdown)
+        if ($is_hpos) {
+            $countries_query = $wpdb->prepare(
+                "SELECT a.country as country_code, COUNT(DISTINCT o.id) as order_count, SUM(o.total_amount - COALESCE(r.refund_sum, 0)) as total_sales
+                 FROM {$wpdb->prefix}wc_orders o
+                 JOIN {$wpdb->prefix}wc_order_addresses a ON o.id = a.order_id AND a.address_type = 'billing'
+                 LEFT JOIN (
+                     SELECT parent_order_id, SUM(ABS(total_amount)) as refund_sum
+                     FROM {$wpdb->prefix}wc_orders
+                     WHERE type = 'shop_order_refund'
+                     GROUP BY parent_order_id
+                 ) r ON o.id = r.parent_order_id
+                 WHERE o.type = 'shop_order'
+                   AND o.status IN ({$statuses_in})
+                   AND o.date_created_gmt >= %s AND o.date_created_gmt <= %s
+                 GROUP BY a.country
+                 ORDER BY total_sales DESC",
+                $start_date,
+                $end_date
+            );
+        } else {
+            $countries_query = $wpdb->prepare(
+                "SELECT pm_country.meta_value as country_code, COUNT(DISTINCT o.ID) as order_count, SUM(CAST(pm_tot.meta_value AS DECIMAL(26,8)) - COALESCE(r.refund_sum, 0)) as total_sales
+                 FROM {$wpdb->posts} o
+                 LEFT JOIN {$wpdb->postmeta} pm_country ON o.ID = pm_country.post_id AND pm_country.meta_key = '_billing_country'
+                 LEFT JOIN {$wpdb->postmeta} pm_tot ON o.ID = pm_tot.post_id AND pm_tot.meta_key = '_order_total'
+                 LEFT JOIN (
+                     SELECT ref.post_parent, SUM(CAST(ABS(CAST(pm_ref.meta_value AS DECIMAL(26,8))) AS DECIMAL(26,8))) as refund_sum
+                     FROM {$wpdb->posts} ref
+                     LEFT JOIN {$wpdb->postmeta} pm_ref ON ref.ID = pm_ref.post_id AND pm_ref.meta_key = '_order_total'
+                     WHERE ref.post_type = 'shop_order_refund'
+                     GROUP BY ref.post_parent
+                 ) r ON o.ID = r.post_parent
+                 WHERE o.post_type = 'shop_order'
+                   AND o.post_status IN ({$statuses_in})
+                   AND o.post_date >= %s AND o.post_date <= %s
+                 GROUP BY pm_country.meta_value
+                 ORDER BY total_sales DESC",
+                $start_date,
+                $end_date
+            );
+        }
+        $country_rows = $wpdb->get_results($countries_query);
+
+        $total_geo_sales = 0;
+        foreach ($country_rows as $c_row) {
+            $total_geo_sales += max(0, (float) $c_row->total_sales);
+        }
+
+        $geo_countries = array();
+        foreach ($country_rows as $c_row) {
+            $code = strtoupper(trim((string) $c_row->country_code));
+            if (empty($code)) {
+                $code = 'OTHER';
+            }
+            $sales = max(0, (float) $c_row->total_sales);
+            $orders = (int) $c_row->order_count;
+            $pct = $total_geo_sales > 0 ? round(($sales / $total_geo_sales) * 100, 1) : 0;
+
+            $geo_countries[] = array(
+                'code' => $code,
+                'name' => self::get_country_name($code),
+                'flag' => self::get_country_flag($code),
+                'sales' => $sales,
+                'orders' => $orders,
+                'percentage' => $pct,
+            );
+        }
+        $results['geo_countries'] = $geo_countries;
 
         // 9. استعلام المؤشرات الجغرافية للمحافظات المصرية مع فلتر صريح country = 'EG'
         if ($is_hpos) {
